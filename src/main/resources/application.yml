@@ -9,6 +9,20 @@ micronaut:
             - "${FRONTEND_URL:}"
   application:
     name: restService
+  security:
+    authentication: idtoken
+    oauth2:
+      clients:
+        google:
+          client-id: '${OAUTH_CLIENT_ID:xxx}'
+          client-secret: '${OAUTH_CLIENT_SECRET:yyy}'
+          openid:
+            issuer: 'https://accounts.google.com'
+    endpoints:
+      logout:
+        get-allowed: true
+    redirect:
+      login-success: 'http://localhost:3000'
 
 datasources:
   default:

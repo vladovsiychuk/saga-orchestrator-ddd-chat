@@ -34,6 +34,8 @@ dependencies {
     implementation("io.micronaut.data:micronaut-data-jdbc")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari")
     implementation("io.netty:netty-all:4.1.77.Final")
+    implementation("io.micronaut.security:micronaut-security-oauth2")
+    implementation("io.micronaut.security:micronaut-security-jwt")
 
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("dev.miku:r2dbc-mysql")
