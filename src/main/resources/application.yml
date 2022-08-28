@@ -23,6 +23,10 @@ micronaut:
         get-allowed: true
     redirect:
       login-success: 'http://localhost:3000'
+    token:
+      jwt:
+        cookie:
+          cookie-http-only: false
 
 datasources:
   default:
