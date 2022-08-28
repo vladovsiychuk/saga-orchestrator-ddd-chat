@@ -6,12 +6,12 @@ import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Produces
+import io.micronaut.security.annotation.Secured
 import reactor.core.publisher.Flux
-import javax.annotation.security.PermitAll
 
 @Controller("/v1/messages")
 class MessageController(private val service: MessageService) {
-    @PermitAll
+    @Secured("isAuthenticated()")
     @Get("/")
     @Produces(MediaType.APPLICATION_JSON)
     fun index(): Flux<MessageDTO> {
