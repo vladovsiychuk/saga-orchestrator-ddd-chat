@@ -1,6 +1,6 @@
 package com.rest_service.controller
 
-import com.rest_service.dto.MessageDTO
+import com.rest_service.dto.ChatDTO
 import com.rest_service.service.MessageService
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Controller
@@ -14,7 +14,7 @@ class MessageController(private val service: MessageService) {
     @Secured("isAuthenticated()")
     @Get("/")
     @Produces(MediaType.APPLICATION_JSON)
-    fun index(): Flux<MessageDTO> {
+    fun index(): Flux<ChatDTO> {
         return service.get()
     }
 }
