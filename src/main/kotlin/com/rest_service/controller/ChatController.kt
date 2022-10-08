@@ -9,8 +9,8 @@ import io.micronaut.http.annotation.Produces
 import io.micronaut.security.annotation.Secured
 import reactor.core.publisher.Flux
 
-@Controller("/v1/messages")
-class MessageController(private val service: MessageService) {
+@Controller("/v1/chats")
+class ChatController(private val service: MessageService) {
     @Secured("isAuthenticated()")
     @Get("/")
     @Produces(MediaType.APPLICATION_JSON)
