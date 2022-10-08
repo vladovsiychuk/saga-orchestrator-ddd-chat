@@ -9,6 +9,7 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Produces
 import io.micronaut.security.annotation.Secured
 import reactor.core.publisher.Mono
+import java.util.UUID
 
 @Controller("/v1/user")
 class UserController(private val service: UserService) {
@@ -17,6 +18,13 @@ class UserController(private val service: UserService) {
     @Produces(MediaType.APPLICATION_JSON)
     fun get(): Mono<UserDTO> {
         return service.get()
+    }
+
+    @Secured("isAuthenticated()")
+    @Get("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    fun get(id: String): Mono<UserDTO> {
+        return service.get(UUID.fromString(id))
     }
 
     @Secured("isAuthenticated()")

@@ -25,6 +25,13 @@ class UserService(private val userRepository: UserRepository, private val securi
             }
     }
 
+    fun get(id: UUID): Mono<UserDTO> {
+        return userRepository.findById(id)
+            .map {
+                mapper.convertValue(it, UserDTO::class.java)
+            }
+    }
+
     fun create(): Mono<UserDTO> {
         val email = securityService.authentication.get().attributes["email"].toString()
 

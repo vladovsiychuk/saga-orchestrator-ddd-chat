@@ -11,4 +11,6 @@ import java.util.UUID
 interface UserRepository : ReactiveStreamsCrudRepository<User, UUID> {
     fun save(user: User): Mono<User>
     fun findByEmail(email: String): Mono<User>
+
+    override fun findById(id: UUID): Mono<User>
 }
