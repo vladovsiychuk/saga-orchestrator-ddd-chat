@@ -9,6 +9,6 @@ import java.util.UUID
 
 @JdbcRepository(dialect = Dialect.MYSQL)
 interface MessageRepository : ReactiveStreamsCrudRepository<Message, Int> {
-    fun findBySenderOrReceiverOrderByDateDesc(sender: UUID, receiver: UUID): Flux<Message>
+    fun findBySenderOrReceiverOrderByDate(sender: UUID, receiver: UUID): Flux<Message>
     override fun findAll(): Flux<Message>
 }

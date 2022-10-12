@@ -23,7 +23,7 @@ class MessageService(
         return userRepository.findByEmail(email)
             .flux()
             .flatMap { user ->
-                messageRepository.findBySenderOrReceiverOrderByDateDesc(user.id, user.id)
+                messageRepository.findBySenderOrReceiverOrderByDate(user.id, user.id)
                     .collectMultimap {
                         if (it.sender != user.id) it.sender else it.receiver
                     }.flatMapIterable {
