@@ -42,6 +42,11 @@ datasources:
     maximum-pool-size: 50
     minimum-idle: 10
 
+liquibase:
+  datasources:
+    default:
+      change-log: 'classpath:db/changelog.xml'
+
 netty:
   default:
     allocator:
