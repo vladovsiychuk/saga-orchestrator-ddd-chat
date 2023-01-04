@@ -29,7 +29,7 @@
 
     <changeSet id="1671790030274-2" author="Vlad">
         <createTable tableName="user">
-            <column name="id" type="java.sql.Types.BIGINT">
+            <column name="id" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="email" type="java.sql.Types.VARCHAR(255)">
