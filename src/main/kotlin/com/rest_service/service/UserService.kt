@@ -42,7 +42,8 @@ class UserService(private val userRepository: UserRepository, private val securi
                     return@flatMap Mono.error(NotFoundException("User with email $email already exist."))
                 }
 
-                val now = Instant.now().toEpochMilli()
+                val now = Instant.now()
+                    .toEpochMilli()
 
                 userRepository.save(
                     User(
@@ -51,9 +52,10 @@ class UserService(private val userRepository: UserRepository, private val securi
                         now,
                         now
                     )
-                ).map { user ->
-                    mapper.convertValue(user, UserDTO::class.java)
-                }
+                )
+                    .map { user ->
+                        mapper.convertValue(user, UserDTO::class.java)
+                    }
             }
     }
 }
