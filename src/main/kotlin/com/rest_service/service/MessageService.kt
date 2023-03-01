@@ -26,12 +26,15 @@ class MessageService(
                 messageRepository.findBySenderOrReceiverOrderByDate(user.id, user.id)
                     .collectMultimap {
                         if (it.sender != user.id) it.sender else it.receiver
-                    }.flatMapIterable {
+                    }
+                    .flatMapIterable {
                         it.entries
-                    }.map {
+                    }
+                    .map {
                         val messages = it.value.map { message ->
                             mapper.convertValue(message, MessageDTO::class.java)
-                        }.toList()
+                        }
+                            .toList()
 
                         ChatDTO(it.key, messages)
                     }
