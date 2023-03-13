@@ -10,7 +10,7 @@ import jakarta.inject.Singleton
 import reactor.core.publisher.Flux
 
 @Singleton
-class MessageService(
+class ChatService(
     private val messageRepository: MessageRepository,
     private val userRepository: UserRepository,
     private val securityService: SecurityService
