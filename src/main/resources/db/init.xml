@@ -5,40 +5,100 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
     <changeSet id="1671790030274-1" author="Vlad">
-        <createTable tableName="message">
-            <column name="id" type="java.sql.Types.BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="sender" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="receiver" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="message" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="date" type="java.sql.Types.BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="status" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-    </changeSet>
-
-    <changeSet id="1671790030274-2" author="Vlad">
         <createTable tableName="user">
             <column name="id" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="username" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="true"/>
             </column>
             <column name="email" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="avatar" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="language" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="date_created" type="java.sql.Types.BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="date_updated" type="java.sql.Types.BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1671790030274-2" author="Vlad">
+        <createTable tableName="room">
+            <column name="id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="name" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_by" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="java.sql.Types.BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_updated" type="java.sql.Types.BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1671790030274-3" author="Vlad">
+        <createTable tableName="member">
+            <column name="room_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="joined_at" type="java.sql.Types.BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1671790030274-4" author="Vlad">
+        <createTable tableName="translator">
+            <column name="user_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="languages" type="java.sql.Types.CLOB">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1671790030274-5" author="Vlad">
+        <createTable tableName="message_event">
+            <column name="id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="message_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="language" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="content" type="java.sql.Types.CLOB">
+                <constraints nullable="true"/>
+            </column>
+            <column name="room_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="responsible_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="java.sql.Types.BIGINT">
                 <constraints nullable="false"/>
             </column>
         </createTable>
