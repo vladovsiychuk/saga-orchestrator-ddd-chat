@@ -1,16 +1,13 @@
 package com.rest_service.domain
 
+import com.rest_service.enum.LanguageEnum
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import java.util.UUID
 
 @MappedEntity
-data class Message(
+data class Translator(
     @field:Id
-    val id: UUID,
-    val sender: UUID,
-    val receiver: UUID,
-    val message: String,
-    val date: Long,
-    val status: String,
+    val userId: UUID,
+    val languages: List<LanguageEnum>,
 )
