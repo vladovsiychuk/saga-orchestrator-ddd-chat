@@ -1,0 +1,21 @@
+datasources:
+  default:
+    username: "${DB_USERNAME:user}"
+    password: "${DB_PASSWORD:pass}"
+    url: jdbc:mysql://${DB_URL:localhost}/test?useUnicode=true&zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    driverClassName: com.mysql.cj.jdbc.Driver
+    maximum-pool-size: 50
+    minimum-idle: 10
+
+r2dbc:
+  datasources:
+    default:
+      username: "${DB_USERNAME:user}"
+      password: "${DB_PASSWORD:pass}"
+      url: r2dbc:mysql://${DB_URL:localhost}/test?useUnicode=true&zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+      driverClassName: com.mysql.cj.jdbc.Driver
+      maximum-pool-size: 50
+      minimum-idle: 10
+      options:
+        driver: pool
+        protocol: mysql

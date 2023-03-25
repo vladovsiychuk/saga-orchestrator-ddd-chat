@@ -1,4 +1,6 @@
 micronaut:
+  application:
+    name: rest-service
   server:
     port: "${SERVICE_PORT:8082}"
     cors:
@@ -7,8 +9,6 @@ micronaut:
         all:
           allowedOrigins:
             - "${FRONTEND_URL:}"
-  application:
-    name: restService
   security:
     authentication: idtoken
     oauth2:
@@ -30,22 +30,27 @@ micronaut:
 
 datasources:
   default:
-    username: "${DB_USERNAME:user}"
-    password: "${DB_PASSWORD:pass}"
-    #    schema-generate: CREATE_DROP
-    url: jdbc:mysql://${DB_URL:localhost}/test?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
-    driverClassName: com.mysql.cj.jdbc.Driver
-    connection-timeout: 600000
-    validation-timeout: 600000
-    max-lifetime: 600000
-    idle-timeout: 120000
-    maximum-pool-size: 50
-    minimum-idle: 10
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    db-type: mysql
+
+r2dbc:
+  datasources:
+    default:
+      dialect: MYSQL
+      db-type: mysql
+
+endpoints:
+  health:
+    enabled: true
+    details-visible: ANONYMOUS
 
 liquibase:
   datasources:
     default:
       change-log: 'classpath:db/changelog.xml'
+
+jackson:
+  serialization-inclusion: ALWAYS
 
 netty:
   default:

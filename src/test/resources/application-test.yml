@@ -1,0 +1,31 @@
+micronaut:
+  application:
+    name: rest-service
+  server:
+    port: -1
+    cors:
+      enabled: true
+      configurations:
+        all:
+          allowedOrigins:
+            - http://localhost:3000
+  security:
+    enabled: true
+    authentication: bearer
+    token:
+      jwt:
+        signatures:
+          secret:
+            generator:
+              secret: pleaseChangeThisSecretForANewOne
+
+liquibase:
+  datasources:
+    default:
+      change-log: 'classpath:db/changelog-test.xml'
+
+r2dbc:
+  datasources:
+    default:
+      options:
+        driver: mysql
