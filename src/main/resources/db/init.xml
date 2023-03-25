@@ -52,6 +52,9 @@
 
     <changeSet id="1671790030274-3" author="Vlad">
         <createTable tableName="member">
+            <column name="id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
             <column name="room_id" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
