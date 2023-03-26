@@ -3,6 +3,8 @@ package com.rest_service.domain
 import com.rest_service.enums.LanguageEnum
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
+import io.micronaut.data.annotation.MappedProperty
+import io.micronaut.data.model.DataType
 import java.util.UUID
 
 
@@ -13,7 +15,9 @@ data class User(
     val username: String?,
     val email: String,
     val avatar: String?,
-    val language: LanguageEnum,
+    val primaryLanguage: LanguageEnum,
+    @MappedProperty(type = DataType.JSON)
+    val translationLanguages: List<String>?,
     val dateCreated: Long,
     val dateUpdated: Long,
 )

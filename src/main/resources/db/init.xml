@@ -18,7 +18,13 @@
             <column name="avatar" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="language" type="java.sql.Types.VARCHAR(255)">
+            <column name="primaryLanguage" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="translationLanguages" type="java.sql.Types.CLOB">
+                <constraints nullable="true"/>
+            </column>
+            <column name="type" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="date_created" type="java.sql.Types.BIGINT">
