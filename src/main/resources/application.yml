@@ -50,7 +50,7 @@ liquibase:
       change-log: 'classpath:db/changelog.xml'
 
 jackson:
-  serialization-inclusion: NON_NULL
+  serialization-inclusion: ALWAYS
 
 netty:
   default:
