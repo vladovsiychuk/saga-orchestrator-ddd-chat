@@ -3,6 +3,7 @@ package com.rest_service.controller
 import com.rest_service.command.ListCommand
 import com.rest_service.command.UserCommand
 import com.rest_service.dto.UserDTO
+import com.rest_service.enums.UserType
 import com.rest_service.service.UserService
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Controller
@@ -42,6 +43,11 @@ class UserController(private val service: UserService) {
     @Post("/currentUser")
     @Produces(MediaType.APPLICATION_JSON)
     fun create(command: UserCommand): Mono<UserDTO> {
+        if (command.type == UserType.TRANSLATOR) {
+            command.translationLanguages = command.translationLanguages ?: mutableSetOf()
+            command.translationLanguages!!.add(command.primaryLanguage)
+        }
+
         return service.create(command)
     }
 }

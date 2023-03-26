@@ -9,12 +9,5 @@ data class UserCommand(
     val type: UserType,
     val username: String?,
     val primaryLanguage: LanguageEnum,
-    val translationLanguages: List<LanguageEnum>?,
-) {
-    init {
-        if (type == UserType.TRANSLATOR && (translationLanguages == null || translationLanguages.size < 2))
-            throw IllegalArgumentException("A translator user must have at least 2 translation languages.")
-        else if (type == UserType.REGULAR_USER && translationLanguages != null)
-            throw IllegalArgumentException("A regular user cannot have translation languages.")
-    }
-}
+    var translationLanguages: MutableSet<LanguageEnum>?,
+)
