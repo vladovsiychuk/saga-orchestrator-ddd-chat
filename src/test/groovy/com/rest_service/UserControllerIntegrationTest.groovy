@@ -131,4 +131,22 @@ class UserControllerIntegrationTest extends Specification {
         UserType.REGULAR_USER.toString() | null
         UserType.TRANSLATOR.toString()   | [LanguageEnum.ENGLISH.toString(), LanguageEnum.UKRAINIAN.toString()]
     }
+
+    @Unroll
+    void "POST should IllegalArgument exception if #reason"() {
+        when:
+        def request = HttpRequest.POST("/currentUser", command).bearerAuth(tokenUser3)
+        client.toBlocking().exchange(request, Map)
+
+        then:
+        HttpClientResponseException exception = thrown()
+        exception.response.code() == HttpStatus.BAD_REQUEST.code
+        exception.message == expectedMessage
+
+
+        where:
+        reason                                     | command                                                                                                                                               | expectedMessage
+        "translator has less than 2 languages"     | [type: UserType.TRANSLATOR.toString(), primaryLanguage: LanguageEnum.ENGLISH.toString()]                                                              | "A translator user must have at least 1 translation language."
+        "a regular user has translation languages" | [type: UserType.REGULAR_USER.toString(), primaryLanguage: LanguageEnum.ENGLISH.toString(), translationLanguages: [LanguageEnum.UKRAINIAN.toString()]] | "A regular user cannot have translation languages."
+    }
 }
