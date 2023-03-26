@@ -15,7 +15,7 @@ import java.util.UUID
 class UserService(private val userRepository: UserRepository, private val securityService: SecurityService) {
     private val mapper = jacksonObjectMapper()
 
-    fun get(): Mono<UserDTO> {
+    fun getCurrentUser(): Mono<UserDTO> {
         val email = securityService.authentication.get().attributes["email"].toString()
 
         return userRepository.findByEmail(email)

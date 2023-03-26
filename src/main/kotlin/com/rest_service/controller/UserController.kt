@@ -24,10 +24,10 @@ class UserController(private val service: UserService) {
     }
 
     @Secured("isAuthenticated()")
-    @Get("/getCurrentUser")
+    @Get("/currentUser")
     @Produces(MediaType.APPLICATION_JSON)
-    fun get(): Mono<UserDTO> {
-        return service.get()
+    fun getCurrentUser(): Mono<UserDTO> {
+        return service.getCurrentUser()
     }
 
     @Secured("isAuthenticated()")
