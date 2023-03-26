@@ -116,13 +116,15 @@ class UserControllerIntegrationTest extends Specification {
 
         then:
         def body = response.body()
+        body.username == null
         body.email == "user-3@gmail.com"
-        body.type == type
+        body.avatar == null
         body.primaryLanguage == LanguageEnum.ENGLISH.toString()
         body.translationLanguages == translationLanguages
+        body.type == type
 
         cleanup:
-        repository.deleteAll()
+        repository.deleteAll().block()
 
         where:
         type                             | translationLanguages
