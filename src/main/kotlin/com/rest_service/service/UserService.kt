@@ -2,23 +2,30 @@ package com.rest_service.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.command.ListCommand
+import com.rest_service.command.UserCommand
+import com.rest_service.domain.User
 import com.rest_service.dto.UserDTO
 import com.rest_service.exception.NotFoundException
 import com.rest_service.repository.UserRepository
-import io.micronaut.security.utils.SecurityService
+import com.rest_service.util.SecurityUtil
 import jakarta.inject.Singleton
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.time.Instant
 import java.util.UUID
 
 @Singleton
-class UserService(private val userRepository: UserRepository, private val securityService: SecurityService) {
+class UserService(private val repository: UserRepository, private val securityUtil: SecurityUtil) {
+
+    private val logger: Logger = LoggerFactory.getLogger(UserService::class.java)
     private val mapper = jacksonObjectMapper()
 
     fun getCurrentUser(): Mono<UserDTO> {
-        val email = securityService.authentication.get().attributes["email"].toString()
+        val email = securityUtil.getUserEmail()
 
-        return userRepository.findByEmail(email)
+        return repository.findByEmail(email)
             .switchIfEmpty(Mono.error(NotFoundException("User with email $email was not found.")))
             .map {
                 mapper.convertValue(it, UserDTO::class.java)
@@ -26,19 +33,41 @@ class UserService(private val userRepository: UserRepository, private val securi
     }
 
     fun get(id: UUID): Mono<UserDTO> {
-        return userRepository.findById(id)
+        return repository.findById(id)
             .map {
                 mapper.convertValue(it, UserDTO::class.java)
             }
     }
 
-    fun create(): Mono<UserDTO> {
-        val email = securityService.authentication.get().attributes["email"].toString()
-        return Mono.empty()
+    fun create(command: UserCommand): Mono<UserDTO> {
+        val email = securityUtil.getUserEmail()
+
+        val languages = command.translationLanguages?.map { it.toString() }
+        val dateTimestamp = Instant.now()
+            .toEpochMilli()
+
+        val user = User(
+            UUID.randomUUID(),
+            command.username,
+            email,
+            null,
+            command.primaryLanguage,
+            languages,
+            command.type,
+            dateTimestamp,
+            dateTimestamp
+        )
+
+        return repository.save(user)
+            .map {
+                logger.info("User with email $email was created.")
+
+                mapper.convertValue(it, UserDTO::class.java)
+            }
     }
 
     fun list(listCommand: ListCommand): Flux<UserDTO> {
-        return userRepository.findByEmailIlike("%${listCommand.query}%")
+        return repository.findByEmailIlike("%${listCommand.query}%")
             .map {
                 mapper.convertValue(it, UserDTO::class.java)
             }

@@ -1,6 +1,7 @@
 package com.rest_service.controller
 
 import com.rest_service.command.ListCommand
+import com.rest_service.command.UserCommand
 import com.rest_service.dto.UserDTO
 import com.rest_service.service.UserService
 import io.micronaut.http.MediaType
@@ -38,9 +39,9 @@ class UserController(private val service: UserService) {
     }
 
     @Secured("isAuthenticated()")
-    @Post("/createCurrentUser")
+    @Post("/currentUser")
     @Produces(MediaType.APPLICATION_JSON)
-    fun create(): Mono<UserDTO> {
-        return service.create()
+    fun create(command: UserCommand): Mono<UserDTO> {
+        return service.create(command)
     }
 }
