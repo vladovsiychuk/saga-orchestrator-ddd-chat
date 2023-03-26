@@ -35,6 +35,7 @@ dependencies {
     implementation("io.micronaut:micronaut-validation")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.swagger.core.v3:swagger-annotations")
+    implementation("io.micronaut.reactor:micronaut-reactor-http-client")
 
     runtimeOnly("io.r2dbc:r2dbc-pool:1.0.0.RELEASE")
     runtimeOnly("ch.qos.logback:logback-classic")
