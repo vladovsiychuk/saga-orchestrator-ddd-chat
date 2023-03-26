@@ -67,17 +67,6 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="1671790030274-4" author="Vlad">
-        <createTable tableName="translator">
-            <column name="user_id" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="false" unique="true" primaryKey="true"/>
-            </column>
-            <column name="languages" type="java.sql.Types.CLOB">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-    </changeSet>
-
     <changeSet id="1671790030274-5" author="Vlad">
         <createTable tableName="message_event">
             <column name="id" type="java.sql.Types.VARCHAR(255)">
