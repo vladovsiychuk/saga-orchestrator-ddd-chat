@@ -39,36 +39,56 @@ class UserControllerIntegrationTest extends Specification {
     @Shared
     String tokenUser3
 
+    @Shared
+    String tokenUser4
+
     def conditions = new PollingConditions(timeout: 5, initialDelay: 0.5, factor: 1.25)
 
     def setupSpec() {
-        // email : user-1@gmail.com
+        // REGULAR user with email user-1@gmail.com
         tokenUser1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJ1c2VyLTFAZ21haWwuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ.B7NnRHclfkrcOgK4HX8fqogY-oq3Hv1GrWTylDqOhrg"
 
         // user doesn't exist in the db
         tokenUser2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJ1c2VyLTJAZ21haWwuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ.2g43we2jYBkY15SmDvV4fz_bfgGvltY5F5udXUKRi2c"
 
         // token for new user with email user-3@gmail.com
-        tokenUser3 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJ1c2VyLTJAZ21haWwuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ.2g43we2jYBkY15SmDvV4fz_bfgGvltY5F5udXUKRi2c"
+        tokenUser3 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJ1c2VyLTNAZ21haWwuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ._7KPCfylisPdIyvXcKAEjGKUPyKV_hfXKDsm4faF_4U"
 
-        def user1 = new User(UUID.fromString("50b1cccd-2cbd-459b-9b63-c97145b97e94"), null, "user-1@gmail.com", null, LanguageEnum.ENGLISH, 1, 1)
+        // token for new TRANSLATOR user with email user-4@gmail.com
+        tokenUser4 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJ1c2VyLTRAZ21haWwuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ.lRP3YeXmsEIw-xDwgaHgzyBB1Z3xowApEvq4W4VWsx8"
+
+        // REGULAR user
+        def user1 = new User(UUID.fromString("50b1cccd-2cbd-459b-9b63-c97145b97e94"), null, "user-1@gmail.com", null, LanguageEnum.ENGLISH, null, UserType.REGULAR_USER, 1, 1)
+
+        // TRANSLATOR user
+        def user2 = new User(UUID.fromString("af7a16ae-cc5d-484e-8b1d-e89fd52d1150"), null, "user-4@gmail.com", null, LanguageEnum.ENGLISH, [LanguageEnum.ENGLISH.toString(), LanguageEnum.UKRAINIAN.toString()], UserType.TRANSLATOR, 1, 1)
 
         repository.save(user1).block()
+        repository.save(user2).block()
     }
 
-    void "GET should return the DTO of current user"() {
+    void "GET should return the DTO of current #expectedType user"() {
         when:
-        def request = HttpRequest.GET("/currentUser").bearerAuth(tokenUser1)
+        def request = HttpRequest.GET("/currentUser").bearerAuth(token)
         def response = client.toBlocking().exchange(request, Object)
 
         then:
         response.body() == [
-            id         : "50b1cccd-2cbd-459b-9b63-c97145b97e94",
-            email      : "user-1@gmail.com",
-            language   : LanguageEnum.ENGLISH.toString(),
-            dateCreated: 1,
-            dateUpdated: 1,
+            id                  : expectedUserId,
+            username            : null,
+            email               : expectedEmail,
+            avatar              : null,
+            primaryLanguage     : LanguageEnum.ENGLISH.toString(),
+            translationLanguages: expectedTranslationLanguages,
+            type                : expectedType,
+            dateCreated         : 1,
+            dateUpdated         : 1,
         ]
+
+        where:
+        expectedType                     | expectedTranslationLanguages                                         | expectedUserId                         | expectedEmail      | token
+        UserType.REGULAR_USER.toString() | null                                                                 | "50b1cccd-2cbd-459b-9b63-c97145b97e94" | "user-1@gmail.com" | tokenUser1
+        UserType.TRANSLATOR.toString()   | [LanguageEnum.ENGLISH.toString(), LanguageEnum.UKRAINIAN.toString()] | "af7a16ae-cc5d-484e-8b1d-e89fd52d1150" | "user-4@gmail.com" | tokenUser4
     }
 
     void "GET should return 404 response if the user doesn't exist"() {
