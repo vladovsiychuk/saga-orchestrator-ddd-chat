@@ -1,4 +1,4 @@
-package com.rest_service.enum
+package com.rest_service.enums
 
 enum class LanguageEnum {
     ENGLISH,

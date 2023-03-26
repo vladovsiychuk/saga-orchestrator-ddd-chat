@@ -1,6 +1,6 @@
 package com.rest_service.domain
 
-import com.rest_service.enum.LanguageEnum
+import com.rest_service.enums.LanguageEnum
 import io.micronaut.data.annotation.DateCreated
 import io.micronaut.data.annotation.DateUpdated
 import io.micronaut.data.annotation.Id

@@ -1,7 +1,7 @@
 package com.rest_service.domain
 
-import com.rest_service.enum.LanguageEnum
-import com.rest_service.enum.MessageEventType
+import com.rest_service.enums.LanguageEnum
+import com.rest_service.enums.MessageEventType
 import io.micronaut.data.annotation.DateCreated
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
