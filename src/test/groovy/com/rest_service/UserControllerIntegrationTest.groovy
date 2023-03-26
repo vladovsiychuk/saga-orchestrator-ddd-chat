@@ -33,7 +33,7 @@ class UserControllerIntegrationTest extends Specification {
 
     def setupSpec() {
         // email : user-1@gmail.com
-        tokenUser1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJ1c2VyLTFAZ21haWwuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ.cuAPn7Dl7cS1Onf24fVsDO5Q6IKXAx7zrPsklkajrqY"
+        tokenUser1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJ1c2VyLTFAZ21haWwuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ.B7NnRHclfkrcOgK4HX8fqogY-oq3Hv1GrWTylDqOhrg"
 
         def user1 = new User(UUID.fromString("50b1cccd-2cbd-459b-9b63-c97145b97e94"), null, "user-1@gmail.com", null, LanguageEnum.ENGLISH, 1, 1)
 
@@ -49,7 +49,7 @@ class UserControllerIntegrationTest extends Specification {
         response.body() == [
             id         : "50b1cccd-2cbd-459b-9b63-c97145b97e94",
             email      : "user-1@gmail.com",
-            language   : LanguageEnum.ENGLISH,
+            language   : LanguageEnum.ENGLISH.toString(),
             dateCreated: 1,
             dateUpdated: 1,
         ]
