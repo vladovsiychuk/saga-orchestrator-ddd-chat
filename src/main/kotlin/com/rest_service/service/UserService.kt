@@ -15,7 +15,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.time.Instant
 import java.util.UUID
 
 @Singleton
@@ -44,34 +43,15 @@ class UserService(private val repository: UserRepository, private val securityUt
     fun create(command: UserCommand): Mono<UserDTO> {
         if (command.type == UserType.TRANSLATOR && command.translationLanguages!!.size < 2)
             return Mono.error(IncorrectInputException("A translator user must have at least 1 translation language."))
-        else if (command.type == UserType.REGULAR_USER && command.translationLanguages!!.isNotEmpty())
+        else if (command.type == UserType.REGULAR_USER && !command.translationLanguages.isNullOrEmpty())
             return Mono.error(IncorrectInputException("A regular user cannot have translation languages."))
 
-        val email = securityUtil.getUserEmail()
 
-        val languages = command.translationLanguages!!.map { it.toString() }
-            .let {
-                it.ifEmpty { null }
-            }
-
-        val dateTimestamp = Instant.now()
-            .toEpochMilli()
-
-        val user = User(
-            UUID.randomUUID(),
-            command.username,
-            email,
-            null,
-            command.primaryLanguage,
-            languages,
-            command.type,
-            dateTimestamp,
-            dateTimestamp
-        )
+        val user = User(command, securityUtil)
 
         return repository.save(user)
             .map {
-                logger.info("User with email $email was created.")
+                logger.info("User with email $it.email was created.")
 
                 mapper.convertValue(it, UserDTO::class.java)
             }
