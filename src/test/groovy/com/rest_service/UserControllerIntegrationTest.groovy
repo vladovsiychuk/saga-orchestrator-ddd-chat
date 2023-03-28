@@ -54,6 +54,10 @@ class UserControllerIntegrationTest extends Specification {
         repository.save(translatorUser).block()
     }
 
+    def cleanupSpec() {
+        repository.deleteAll().block()
+    }
+
     void "GET should return the DTO of current #expectedType user"() {
         when:
         def request = HttpRequest.GET("/currentUser").bearerAuth(token)
