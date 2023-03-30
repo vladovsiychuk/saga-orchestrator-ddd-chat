@@ -71,6 +71,7 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+        <addUniqueConstraint tableName="member" columnNames="room_id,user_id"/>
     </changeSet>
 
     <changeSet id="1671790030274-5" author="Vlad">
