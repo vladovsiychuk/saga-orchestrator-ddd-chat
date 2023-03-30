@@ -63,12 +63,6 @@ class RoomControllerIntegrationTest extends Specification {
         memberRepository.save(member).block()
     }
 
-    def cleanupSpec() {
-        userRepository.deleteAll().block()
-        roomRepository.deleteAll().block()
-        memberRepository.deleteAll().block()
-    }
-
     void "GET should return list of user's rooms"() {
         when:
         def request = HttpRequest.GET("/").bearerAuth(user_token)

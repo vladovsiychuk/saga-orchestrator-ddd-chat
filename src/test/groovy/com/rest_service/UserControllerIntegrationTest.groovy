@@ -54,10 +54,7 @@ class UserControllerIntegrationTest extends Specification {
         repository.save(translatorUser).block()
     }
 
-    def cleanupSpec() {
-        repository.deleteAll().block()
-    }
-
+    @Unroll
     void "GET should return the DTO of current #expectedType user"() {
         when:
         def request = HttpRequest.GET("/currentUser").bearerAuth(token)
@@ -132,5 +129,10 @@ class UserControllerIntegrationTest extends Specification {
         reason                                     | command                                                                                                                                               | expectedMessage
         "translator has less than 2 languages"     | [type: UserType.TRANSLATOR.toString(), primaryLanguage: LanguageEnum.ENGLISH.toString()]                                                              | "A translator user must have at least 1 translation language."
         "a regular user has translation languages" | [type: UserType.REGULAR_USER.toString(), primaryLanguage: LanguageEnum.ENGLISH.toString(), translationLanguages: [LanguageEnum.UKRAINIAN.toString()]] | "A regular user cannot have translation languages."
+    }
+
+    void "only cleanup"() {
+        cleanup:
+        repository.deleteAll().block()
     }
 }
