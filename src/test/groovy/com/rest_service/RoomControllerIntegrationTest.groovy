@@ -40,9 +40,11 @@ class RoomControllerIntegrationTest extends Specification {
     MemberRepository memberRepository
 
     @Shared
-    String user_token
+    String user_token_1
     @Shared
-    UUID user_id
+    UUID user_id_1
+    @Shared
+    UUID user_id_2
     @Shared
     UUID room_id
 
@@ -50,22 +52,27 @@ class RoomControllerIntegrationTest extends Specification {
 
 
     def setupSpec() {
-        user_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJ1c2VyLTFAZ21haWwuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ.B7NnRHclfkrcOgK4HX8fqogY-oq3Hv1GrWTylDqOhrg"
-        user_id = UUID.fromString("e83e9450-e60a-46bc-aa26-74a3152312d1")
+        user_token_1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJ1c2VyLTFAZ21haWwuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ.B7NnRHclfkrcOgK4HX8fqogY-oq3Hv1GrWTylDqOhrg"
+        user_id_1 = UUID.fromString("e83e9450-e60a-46bc-aa26-74a3152312d1")
+        user_id_2 = UUID.fromString("d2b3e3fb-c4a2-40a8-a4ca-ad276b34b81a")
         room_id = UUID.fromString("a0e7fde3-a4ea-45c1-80bd-bcd02fe20c60")
 
-        def user = new User(user_id, null, "user-1@gmail.com", null, LanguageEnum.ENGLISH, null, UserType.REGULAR_USER, 1, 1)
-        def member = new Member(UUID.randomUUID(), room_id, user_id, 1)
-        def room = new Room(room_id, null, user_id, 1, 1)
+        def user_1 = new User(user_id_1, null, "user-1@gmail.com", null, LanguageEnum.ENGLISH, null, UserType.REGULAR_USER, 1, 1)
+        def user_2 = new User(user_id_2, null, "user-2@gmail.com", null, LanguageEnum.ENGLISH, null, UserType.REGULAR_USER, 1, 1)
 
-        userRepository.save(user).block()
+        def member = new Member(UUID.randomUUID(), room_id, user_id_1, 1)
+        def room = new Room(room_id, null, user_id_1, 1, 1)
+
+        userRepository.save(user_1).block()
+        userRepository.save(user_2).block()
+
         roomRepository.save(room).block()
         memberRepository.save(member).block()
     }
 
     void "GET should return list of user's rooms"() {
         when:
-        def request = HttpRequest.GET("/").bearerAuth(user_token)
+        def request = HttpRequest.GET("/").bearerAuth(user_token_1)
         def response = client.toBlocking().exchange(request, List)
 
         then:
@@ -73,11 +80,25 @@ class RoomControllerIntegrationTest extends Specification {
             [
                 id         : room_id.toString(),
                 name       : null,
-                createdBy  : user_id.toString(),
+                createdBy  : user_id_1.toString(),
                 dateCreated: 1,
                 dateUpdated: 1,
             ]
         ]
+    }
+
+    void "POST should create new room"() {
+        given:
+        def command = [
+            userId: user_id_2.toString()
+        ]
+
+        when:
+        def request = HttpRequest.POST("/", command).bearerAuth(user_token_1)
+        def response = client.toBlocking().exchange(request, Object)
+
+        then:
+        response.body().createdBy == user_id_1.toString()
     }
 
     void "only cleanup"() {
