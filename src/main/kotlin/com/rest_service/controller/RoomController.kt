@@ -1,13 +1,16 @@
 package com.rest_service.controller
 
+import com.rest_service.command.RoomCommand
 import com.rest_service.dto.RoomDTO
 import com.rest_service.service.RoomService
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Produces
 import io.micronaut.security.annotation.Secured
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 @Controller("/v1/rooms")
 class RoomController(private val service: RoomService) {
@@ -17,5 +20,12 @@ class RoomController(private val service: RoomService) {
     @Produces(MediaType.APPLICATION_JSON)
     fun index(): Flux<RoomDTO> {
         return service.list()
+    }
+
+    @Secured("isAuthenticated()")
+    @Post("/")
+    @Produces(MediaType.APPLICATION_JSON)
+    fun create(command: RoomCommand): Mono<RoomDTO> {
+        return service.create(command)
     }
 }
