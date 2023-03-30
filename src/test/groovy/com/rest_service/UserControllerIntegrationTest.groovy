@@ -79,6 +79,18 @@ class UserControllerIntegrationTest extends Specification {
         UserType.TRANSLATOR.toString()   | [LanguageEnum.ENGLISH.toString(), LanguageEnum.UKRAINIAN.toString()] | "af7a16ae-cc5d-484e-8b1d-e89fd52d1150" | "user-4@gmail.com" | translator_user_4
     }
 
+    void "GET should return searched users"() {
+        when:
+        def request = HttpRequest.GET("/?query=user").bearerAuth(regular_user_1)
+        def response = client.toBlocking().exchange(request, List)
+
+        then:
+        response.body().collect { it.email } == [
+            "user-1@gmail.com",
+            "user-4@gmail.com"
+        ]
+    }
+
     void "GET should return 404 response if the user doesn't exist"() {
         when:
         def request = HttpRequest.GET("/currentUser").bearerAuth(user_2)
