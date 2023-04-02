@@ -13,6 +13,8 @@ import javax.transaction.Transactional
 interface MemberRepository : ReactorCrudRepository<Member, UUID> {
     fun findByUserId(userId: UUID): Flux<Member>
 
+    fun findByRoomId(roomId: UUID): Flux<Member>
+
     @Transactional
     fun save(member: Member): Mono<Member>
 }
