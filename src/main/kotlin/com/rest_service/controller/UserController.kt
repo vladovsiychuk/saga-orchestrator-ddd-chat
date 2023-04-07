@@ -5,11 +5,9 @@ import com.rest_service.command.UserCommand
 import com.rest_service.dto.UserDTO
 import com.rest_service.enums.UserType
 import com.rest_service.service.UserService
-import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
-import io.micronaut.http.annotation.Produces
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import reactor.core.publisher.Flux
@@ -21,25 +19,21 @@ import java.util.UUID
 class UserController(private val service: UserService) {
 
     @Get("/{?listCommand*}")
-    @Produces(MediaType.APPLICATION_JSON)
     fun index(listCommand: ListCommand): Flux<UserDTO> {
         return service.list(listCommand)
     }
 
     @Get("/currentUser")
-    @Produces(MediaType.APPLICATION_JSON)
     fun getCurrentUser(): Mono<UserDTO> {
         return service.getCurrentUser()
     }
 
     @Get("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
     fun get(id: UUID): Mono<UserDTO> {
         return service.get(id)
     }
 
     @Post("/currentUser")
-    @Produces(MediaType.APPLICATION_JSON)
     fun create(command: UserCommand): Mono<UserDTO> {
         if (command.type == UserType.TRANSLATOR) {
             command.translationLanguages = command.translationLanguages ?: mutableSetOf()
