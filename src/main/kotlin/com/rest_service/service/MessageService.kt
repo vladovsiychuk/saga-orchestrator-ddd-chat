@@ -1,7 +1,9 @@
 package com.rest_service.service
 
 import com.rest_service.command.MessageCommand
+import com.rest_service.domain.Member
 import com.rest_service.domain.MessageEvent
+import com.rest_service.domain.User
 import com.rest_service.dto.MessageDTO
 import com.rest_service.enums.MessageEventType
 import com.rest_service.event.MessageActionEvent
@@ -10,6 +12,7 @@ import com.rest_service.exception.NotFoundException
 import com.rest_service.repository.MemberRepository
 import com.rest_service.repository.MessageEventRepository
 import com.rest_service.repository.UserRepository
+import com.rest_service.resultReader.MessageResultReader
 import com.rest_service.util.MessageUtil
 import com.rest_service.util.SecurityUtil
 import io.micronaut.context.event.ApplicationEventPublisher
@@ -57,46 +60,67 @@ class MessageService(
     }
 
     fun create(command: MessageCommand): Mono<MessageDTO> {
-        val email = securityUtil.getUserEmail()
+        val userEmail = securityUtil.getUserEmail()
 
         return Mono.zip(
-            userRepository.findByEmail(email),
+            userRepository.findByEmail(userEmail),
             memberRepository.findByRoomId(command.roomId)
                 .switchIfEmpty(Flux.error(NotFoundException("Room with id ${command.roomId} doesn't exist.")))
                 .collectList()
         )
             .flatMap { result ->
                 val user = result.t1
-                val roomMemberIds = result.t2.map { it.userId }
+                val roomMembers = result.t2
 
-                if (user.id !in roomMemberIds)
-                    return@flatMap Mono.error(IncorrectInputException("User with id ${user.id} is not member of room with id ${command.roomId}"))
+                validateUserIsRoomMember(user, roomMembers, command.roomId)
 
-                val messageEvent = MessageEvent(
-                    UUID.randomUUID(),
-                    UUID.randomUUID(),
-                    user.primaryLanguage,
-                    command.content,
-                    command.roomId,
-                    user.id,
-                    MessageEventType.MESSAGE_NEW,
-                    Instant.now()
-                        .toEpochMilli()
-                )
+                val messageEvent = createMessageEvent(user, command)
 
-                messageEventRepository.save(messageEvent)
-                    .flatMap {
-                        messageUtil.rehydrateMessage(it.messageId)
+                saveMessageEvent(messageEvent)
+                    .flatMap { savedMessageEvent ->
+                        messageUtil.rehydrateMessage(savedMessageEvent.messageId)
                             .map { messageResultReader ->
-
-                                roomMemberIds.forEach { memberId ->
-                                    val event = MessageActionEvent(memberId, messageResultReader)
-                                    applicationEventPublisher.publishEventAsync(event)
-                                }
+                                val roomMemberIds = roomMembers.map { it.userId }
+                                broadcastMessageToRoomMembers(messageResultReader, roomMemberIds)
 
                                 messageResultReader.toDto(user)
                             }
                     }
             }
+    }
+
+    private fun validateUserIsRoomMember(user: User, roomMembers: List<Member>, roomId: UUID) {
+        val roomMemberIds = roomMembers.map { it.userId }
+        if (user.id !in roomMemberIds) {
+            throw IncorrectInputException("User with id ${user.id} is not a member of room with id $roomId")
+        }
+    }
+
+    private fun createMessageEvent(user: User, command: MessageCommand): MessageEvent {
+        return MessageEvent(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            user.primaryLanguage,
+            command.content,
+            command.roomId,
+            user.id,
+            MessageEventType.MESSAGE_NEW,
+            Instant.now()
+                .toEpochMilli()
+        )
+    }
+
+    private fun saveMessageEvent(messageEvent: MessageEvent): Mono<MessageEvent> {
+        return messageEventRepository.save(messageEvent)
+    }
+
+    private fun broadcastMessageToRoomMembers(
+        messageResultReader: MessageResultReader,
+        roomMemberIds: List<UUID>
+    ) {
+        roomMemberIds.forEach { memberId ->
+            val event = MessageActionEvent(memberId, messageResultReader)
+            applicationEventPublisher.publishEventAsync(event)
+        }
     }
 }
