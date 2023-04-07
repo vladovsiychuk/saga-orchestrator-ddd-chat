@@ -10,7 +10,7 @@ import java.util.UUID
 class MessageResultReader(
     messageId: UUID,
 ) {
-    
+
     private val message = RehydrateMessage(id = messageId)
 
     fun apply(event: MessageEvent) {
