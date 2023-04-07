@@ -6,25 +6,26 @@ import io.micronaut.websocket.annotation.OnClose
 import io.micronaut.websocket.annotation.OnMessage
 import io.micronaut.websocket.annotation.OnOpen
 import io.micronaut.websocket.annotation.ServerWebSocket
+import java.util.UUID
 
 @Secured("isAuthenticated()")
 @ServerWebSocket("/ws/chat/{userId}")
 class ChatServerWebSocket(private val service: WebSocketService) {
 
     @OnOpen
-    fun onOpen(userId: String) {
+    fun onOpen(userId: UUID) {
         val msg = "[$userId] Joined!"
         service.sendMessageToUser(msg, userId)
     }
 
     @OnMessage
-    fun onMessage(userId: String, message: String, session: WebSocketSession) {
+    fun onMessage(userId: UUID, message: String, session: WebSocketSession) {
         val msg = "[$userId] $message"
         service.sendMessageToUser(msg, userId)
     }
 
     @OnClose
-    fun onClose(userId: String) {
+    fun onClose(userId: UUID) {
         val msg = "[$userId] Disconnected!"
         service.sendMessageToUser(msg, userId)
     }
