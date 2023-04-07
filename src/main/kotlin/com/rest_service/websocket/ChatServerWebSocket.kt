@@ -11,33 +11,30 @@ import io.micronaut.websocket.annotation.ServerWebSocket
 import java.util.function.Predicate
 
 @Secured("isAuthenticated()")
-@ServerWebSocket("/ws/chat/{topic}/{username}") // (1)
+@ServerWebSocket("/ws/chat/{userId}")
 class ChatServerWebSocket(private val broadcaster: WebSocketBroadcaster) {
 
-    @OnOpen // (2)
-    fun onOpen(topic: String, username: String, session: WebSocketSession) {
-        val msg = "[$username] Joined!"
-        broadcaster.broadcastSync(msg, isValid(topic, session))
+    @OnOpen
+    fun onOpen(userId: String) {
+        val msg = "[$userId] Joined!"
+        broadcaster.broadcastSync(msg, isValid(userId))
     }
 
-    @OnMessage // (3)
-    fun onMessage(
-        topic: String, username: String,
-        message: String, session: WebSocketSession
-    ) {
-        val msg = "[$username] $message"
-        broadcaster.broadcastSync(msg, isValid(topic, session)) // (4)
+    @OnMessage
+    fun onMessage(userId: String, message: String, session: WebSocketSession) {
+        val msg = "[$userId] $message"
+        broadcaster.broadcastSync(msg, isValid(userId))
     }
 
-    @OnClose // (5)
-    fun onClose(topic: String, username: String, session: WebSocketSession) {
-        val msg = "[$username] Disconnected!"
-        broadcaster.broadcastSync(msg, isValid(topic, session))
+    @OnClose
+    fun onClose(userId: String) {
+        val msg = "[$userId] Disconnected!"
+        broadcaster.broadcastSync(msg, isValid(userId))
     }
 
-    private fun isValid(topic: String, session: WebSocketSession): Predicate<WebSocketSession> {
+    private fun isValid(userId: String): Predicate<WebSocketSession> {
         return Predicate<WebSocketSession> {
-            topic.equals(it.uriVariables.get("topic", String::class.java, null), ignoreCase = true)
+            userId.equals(it.uriVariables.get("userId", String::class.java, null), ignoreCase = true)
         }
     }
 }
