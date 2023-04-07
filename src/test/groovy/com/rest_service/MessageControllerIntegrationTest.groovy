@@ -11,11 +11,14 @@ import com.rest_service.repository.MemberRepository
 import com.rest_service.repository.MessageEventRepository
 import com.rest_service.repository.RoomRepository
 import com.rest_service.repository.UserRepository
+import com.rest_service.websocket.WebSocketService
+import com.rest_service.websocket.WebSocketServiceImpl
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.env.Environment
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.reactor.http.client.ReactorHttpClient
+import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import jakarta.inject.Inject
 import spock.lang.Shared
@@ -42,6 +45,9 @@ class MessageControllerIntegrationTest extends Specification {
     @Inject
     @Shared
     RoomRepository roomRepository
+
+    @Inject
+    WebSocketService webSocketService
 
     @Shared
     String user_token
@@ -161,11 +167,41 @@ class MessageControllerIntegrationTest extends Specification {
         ]
     }
 
+    void "POST should create the message, return it, and publish the message to websocket"() {
+        given: "command with new message"
+        def command = [
+            roomId : room_id.toString(),
+            content: "new message content"
+        ]
+
+        when: "message is created"
+        def request = HttpRequest.POST("/", command).bearerAuth(user_token)
+        def response = client.toBlocking().exchange(request, List)
+
+        then: "expected dto is returned"
+        response.body()["id"] as String != null
+        response.body()["roomId"] as String == room_id.toString()
+        response.body()["senderId"] as String == regular_user_id.toString()
+        response.body()["content"] as String == "new message content"
+        response.body()["read"] as List<String> == []
+        response.body()["originalLanguage"] as String == LanguageEnum.UKRAINIAN.toString()
+        response.body()["translation"] as String == null
+        response.body()["dateCreated"] as Long != null
+
+        and: "message to websocket is published"
+        1 * webSocketService.sendMessageToUser(_, _)
+    }
+
     void "only cleanup"() {
         cleanup:
         messageEventRepository.deleteAll().block()
         userRepository.deleteAll().block()
         memberRepository.deleteAll().block()
         roomRepository.deleteAll().block()
+    }
+
+    @MockBean(WebSocketServiceImpl)
+    WebSocketService webSocketService() {
+        Mock(WebSocketService)
     }
 }
