@@ -1,6 +1,5 @@
 package com.rest_service.resultReader
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.domain.MessageEvent
 import com.rest_service.domain.User
 import com.rest_service.dto.MessageDTO
@@ -10,11 +9,8 @@ import java.util.UUID
 
 class MessageResultReader(
     messageId: UUID,
-    private val user: User,
 ) {
-
-    private val mapper = jacksonObjectMapper()
-
+    
     private val message = RehydrateMessage(id = messageId)
 
     fun apply(event: MessageEvent) {
@@ -37,8 +33,7 @@ class MessageResultReader(
     }
 
     private fun replayRead(event: MessageEvent) {
-        if (event.responsibleId != user.id)
-            message.read.add(event.responsibleId)
+        message.read.add(event.responsibleId)
     }
 
     private fun replayModify(event: MessageEvent) {
@@ -47,12 +42,20 @@ class MessageResultReader(
     }
 
     private fun replayTranslateModify(event: MessageEvent) {
-        if (event.language == user.primaryLanguage)
-            message.translation = event.content!!
+        message.translationMap[event.language!!] = event.content!!
     }
 
-    fun toDto(): MessageDTO {
-        return mapper.convertValue(message, MessageDTO::class.java)
+    fun toDto(user: User): MessageDTO {
+        return MessageDTO(
+            message.id,
+            message.roomId!!,
+            message.senderId!!,
+            message.content,
+            message.read.filterNot { it == user.id },
+            message.originalLanguage!!,
+            message.translationMap[user.primaryLanguage] ?: "",
+            message.dateCreated!!
+        )
     }
 
     data class RehydrateMessage(
@@ -62,7 +65,7 @@ class MessageResultReader(
         var content: String = "",
         var read: MutableList<UUID> = mutableListOf(),
         var originalLanguage: LanguageEnum? = null,
-        var translation: String = "",
+        var translationMap: MutableMap<LanguageEnum, String> = mutableMapOf(),
         var dateCreated: Long? = null,
     )
 }
