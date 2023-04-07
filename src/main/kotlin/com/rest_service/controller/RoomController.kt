@@ -9,20 +9,20 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Produces
 import io.micronaut.security.annotation.Secured
+import io.micronaut.security.rules.SecurityRule
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Controller("/v1/rooms")
+@Secured(SecurityRule.IS_AUTHENTICATED)
 class RoomController(private val service: RoomService) {
 
-    @Secured("isAuthenticated()")
     @Get("/")
     @Produces(MediaType.APPLICATION_JSON)
     fun index(): Flux<RoomDTO> {
         return service.list()
     }
 
-    @Secured("isAuthenticated()")
     @Post("/")
     @Produces(MediaType.APPLICATION_JSON)
     fun create(command: RoomCommand): Mono<RoomDTO> {

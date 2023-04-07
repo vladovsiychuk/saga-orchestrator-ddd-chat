@@ -11,35 +11,33 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Produces
 import io.micronaut.security.annotation.Secured
+import io.micronaut.security.rules.SecurityRule
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.UUID
 
 @Controller("/v1/users")
+@Secured(SecurityRule.IS_AUTHENTICATED)
 class UserController(private val service: UserService) {
 
-    @Secured("isAuthenticated()")
     @Get("/{?listCommand*}")
     @Produces(MediaType.APPLICATION_JSON)
     fun index(listCommand: ListCommand): Flux<UserDTO> {
         return service.list(listCommand)
     }
 
-    @Secured("isAuthenticated()")
     @Get("/currentUser")
     @Produces(MediaType.APPLICATION_JSON)
     fun getCurrentUser(): Mono<UserDTO> {
         return service.getCurrentUser()
     }
 
-    @Secured("isAuthenticated()")
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     fun get(id: UUID): Mono<UserDTO> {
         return service.get(id)
     }
 
-    @Secured("isAuthenticated()")
     @Post("/currentUser")
     @Produces(MediaType.APPLICATION_JSON)
     fun create(command: UserCommand): Mono<UserDTO> {
