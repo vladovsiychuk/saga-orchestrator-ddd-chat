@@ -47,12 +47,14 @@ class MessageService(
                 val roomMembers = result.t2
 
                 validateUserIsRoomMember(user, roomMembers, roomId)
-
-                messageEventRepository.findProjectionMessage(roomId, user.id)
+                    .flux()
                     .flatMap {
-                        messageUtil.rehydrateMessage(it.messageId)
-                            .map { messageResultReader ->
-                                messageResultReader.toDto(user)
+                        messageEventRepository.findProjectionMessage(roomId, user.id)
+                            .flatMap {
+                                messageUtil.rehydrateMessage(it.messageId)
+                                    .map { messageResultReader ->
+                                        messageResultReader.toDto(user)
+                                    }
                             }
                     }
             }
@@ -72,40 +74,46 @@ class MessageService(
                 val roomMembers = result.t2
 
                 validateUserIsRoomMember(user, roomMembers, command.roomId)
+                    .flatMap {
+                        createMessageEvent(user, command)
+                            .flatMap { messageEvent ->
+                                saveMessageEvent(messageEvent)
+                                    .flatMap { savedMessageEvent ->
+                                        messageUtil.rehydrateMessage(savedMessageEvent.messageId)
+                                            .map { messageResultReader ->
+                                                val roomMemberIds = roomMembers.map { it.userId }
+                                                broadcastMessageToRoomMembers(messageResultReader, roomMemberIds)
 
-                val messageEvent = createMessageEvent(user, command)
-
-                saveMessageEvent(messageEvent)
-                    .flatMap { savedMessageEvent ->
-                        messageUtil.rehydrateMessage(savedMessageEvent.messageId)
-                            .map { messageResultReader ->
-                                val roomMemberIds = roomMembers.map { it.userId }
-                                broadcastMessageToRoomMembers(messageResultReader, roomMemberIds)
-
-                                messageResultReader.toDto(user)
+                                                messageResultReader.toDto(user)
+                                            }
+                                    }
                             }
                     }
             }
     }
 
-    private fun validateUserIsRoomMember(user: User, roomMembers: List<Member>, roomId: UUID) {
+    private fun validateUserIsRoomMember(user: User, roomMembers: List<Member>, roomId: UUID): Mono<Boolean> {
         val roomMemberIds = roomMembers.map { it.userId }
         if (user.id !in roomMemberIds) {
-            throw IncorrectInputException("User with id ${user.id} is not a member of room with id $roomId")
+            return Mono.error(IncorrectInputException("User with id ${user.id} is not a member of room with id $roomId"))
         }
+
+        return Mono.just(true)
     }
 
-    private fun createMessageEvent(user: User, command: MessageCommand): MessageEvent {
-        return MessageEvent(
-            UUID.randomUUID(),
-            UUID.randomUUID(),
-            user.primaryLanguage,
-            command.content,
-            command.roomId,
-            user.id,
-            MessageEventType.MESSAGE_NEW,
-            Instant.now()
-                .toEpochMilli()
+    private fun createMessageEvent(user: User, command: MessageCommand): Mono<MessageEvent> {
+        return Mono.just(
+            MessageEvent(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                user.primaryLanguage,
+                command.content,
+                command.roomId,
+                user.id,
+                MessageEventType.MESSAGE_NEW,
+                Instant.now()
+                    .toEpochMilli()
+            )
         )
     }
 
