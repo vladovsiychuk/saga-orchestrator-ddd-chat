@@ -44,10 +44,9 @@ class MessageService(
             .flux()
             .flatMap { result ->
                 val user = result.t1
-                val roomMemberIds = result.t2.map { it.userId }
+                val roomMembers = result.t2
 
-                if (user.id !in roomMemberIds)
-                    return@flatMap Flux.error(IncorrectInputException("User with id ${user.id} is not member of room with id $roomId"))
+                validateUserIsRoomMember(user, roomMembers, roomId)
 
                 messageEventRepository.findProjectionMessage(roomId, user.id)
                     .flatMap {
