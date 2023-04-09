@@ -1,18 +1,25 @@
 package com.rest_service.controller
 
 import com.rest_service.websocket.WebSocketService
+import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
-import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Get
 import io.micronaut.security.annotation.Secured
-import java.util.UUID
+import io.micronaut.security.rules.SecurityRule
 
 @Controller("/test")
 class TestController(private val webSocketService: WebSocketService) {
 
-    @Secured("isAuthenticated()")
-    @Post("/")
-    fun create(): String {
-        webSocketService.sendMessageToUser("hello user", UUID.fromString("824d060e-43f2-41bd-814e-478467c16011"))
-        return "works"
+    @Secured(SecurityRule.IS_AUTHENTICATED)
+    @Get("/")
+    fun create(@Body body: Map<*, *>): MyClass {
+        return MyClass("a", "b", listOf("A", "B"), body["bodyValue"].toString())
     }
 }
+
+data class MyClass(
+    val firstParam: String,
+    val secondParam: String,
+    val listParam: List<String>,
+    val bodyValue: String,
+)

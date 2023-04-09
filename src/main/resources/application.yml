@@ -27,6 +27,10 @@ micronaut:
       jwt:
         cookie:
           cookie-http-only: false
+#        signatures:
+#          secret:
+#            generator:
+#              secret: pleaseChangeThisSecretForANewOne
 
 datasources:
   default:
