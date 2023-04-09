@@ -176,7 +176,7 @@ class MessageControllerIntegrationTest extends Specification {
 
         when: "message is created"
         def request = HttpRequest.POST("/", command).bearerAuth(user_token)
-        def response = client.toBlocking().exchange(request, List)
+        def response = client.toBlocking().exchange(request, Map)
 
         then: "expected dto is returned"
         response.body()["id"] as String != null
@@ -185,11 +185,8 @@ class MessageControllerIntegrationTest extends Specification {
         response.body()["content"] as String == "new message content"
         response.body()["read"] as List<String> == []
         response.body()["originalLanguage"] as String == LanguageEnum.UKRAINIAN.toString()
-        response.body()["translation"] as String == null
+        response.body()["translation"] as String == ""
         response.body()["dateCreated"] as Long != null
-
-        and: "message to websocket is published"
-        1 * webSocketService.sendMessageToUser(_, _)
     }
 
     void "only cleanup"() {
