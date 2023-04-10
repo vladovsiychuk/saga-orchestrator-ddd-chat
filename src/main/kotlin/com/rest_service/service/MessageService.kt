@@ -75,10 +75,13 @@ class MessageService(
 
                 validateUserIsRoomMember(user, roomMembers, command.roomId)
                     .flatMap {
+
                         createMessageEvent(user, command)
                             .flatMap { messageEvent ->
+
                                 saveMessageEvent(messageEvent)
                                     .flatMap { savedMessageEvent ->
+
                                         messageUtil.rehydrateMessage(savedMessageEvent.messageId)
                                             .map { messageResultReader ->
                                                 val roomMemberIds = roomMembers.map { it.userId }

@@ -20,7 +20,8 @@ open class MessageListener(
     open fun messageActionListener(event: MessageActionEvent) {
         userRepository.findById(event.userId)
             .subscribe {
-                val message = mapper.writeValueAsString(event.message.toDto(it))
+                val messageDTO = event.message.toDto(it)
+                val message = mapper.writeValueAsString(messageDTO)
 
                 webSocketService.sendMessageToUser(message, event.userId)
             }
