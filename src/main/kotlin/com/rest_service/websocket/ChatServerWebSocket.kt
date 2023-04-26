@@ -14,8 +14,6 @@ class ChatServerWebSocket(private val service: WebSocketService) {
 
     @OnOpen
     fun onOpen(userId: UUID) {
-        val msg = "[$userId] Joined!"
-        service.sendMessageToUser(msg, userId)
     }
 
     @OnMessage
