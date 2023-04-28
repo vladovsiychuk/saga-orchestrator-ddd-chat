@@ -80,58 +80,58 @@ class MessageControllerIntegrationTest extends Specification {
         def room = new Room(room_id, null, regular_user_id, 1, 1)
 
         def message_1_message_new_event = new MessageEvent(
-            UUID.randomUUID(),
-            message_1_id,
-            LanguageEnum.ENGLISH,
-            "new message",
-            room_id,
-            companion_regular_user_id,
-            MessageEventType.MESSAGE_NEW,
-            1,
+                UUID.randomUUID(),
+                message_1_id,
+                LanguageEnum.ENGLISH,
+                "new message",
+                room_id,
+                companion_regular_user_id,
+                MessageEventType.MESSAGE_NEW,
+                1,
         )
 
         def message_1_message_read_event = new MessageEvent(
-            UUID.randomUUID(),
-            message_1_id,
-            null,
-            null,
-            null,
-            regular_user_id,
-            MessageEventType.MESSAGE_READ,
-            2,
+                UUID.randomUUID(),
+                message_1_id,
+                null,
+                null,
+                null,
+                regular_user_id,
+                MessageEventType.MESSAGE_READ,
+                2,
         )
 
         def message_1_message_modify_event = new MessageEvent(
-            UUID.randomUUID(),
-            message_1_id,
-            null,
-            "modified text",
-            null,
-            companion_regular_user_id,
-            MessageEventType.MESSAGE_MODIFY,
-            3,
+                UUID.randomUUID(),
+                message_1_id,
+                null,
+                "modified text",
+                null,
+                companion_regular_user_id,
+                MessageEventType.MESSAGE_MODIFY,
+                3,
         )
 
         def message_1_message_translate_event = new MessageEvent(
-            UUID.randomUUID(),
-            message_1_id,
-            LanguageEnum.UKRAINIAN,
-            "translation text",
-            null,
-            translator_user_id,
-            MessageEventType.MESSAGE_TRANSLATE,
-            4
+                UUID.randomUUID(),
+                message_1_id,
+                LanguageEnum.UKRAINIAN,
+                "translation text",
+                null,
+                translator_user_id,
+                MessageEventType.MESSAGE_TRANSLATE,
+                4
         )
 
         def message_1_message_translate_modify_event = new MessageEvent(
-            UUID.randomUUID(),
-            message_1_id,
-            LanguageEnum.UKRAINIAN,
-            "modified translation text",
-            null,
-            translator_user_id,
-            MessageEventType.MESSAGE_TRANSLATE_MODIFY,
-            5
+                UUID.randomUUID(),
+                message_1_id,
+                LanguageEnum.UKRAINIAN,
+                "modified translation text",
+                null,
+                translator_user_id,
+                MessageEventType.MESSAGE_TRANSLATE_MODIFY,
+                5
         )
 
         memberRepository.saveAll([regular_user_member, companion_user_member]).collectList().block()
@@ -139,11 +139,11 @@ class MessageControllerIntegrationTest extends Specification {
         roomRepository.save(room).block()
 
         messageEventRepository.saveAll([
-            message_1_message_new_event,
-            message_1_message_read_event,
-            message_1_message_modify_event,
-            message_1_message_translate_event,
-            message_1_message_translate_modify_event,
+                message_1_message_new_event,
+                message_1_message_read_event,
+                message_1_message_modify_event,
+                message_1_message_translate_event,
+                message_1_message_translate_modify_event,
         ]).collectList().block()
     }
 
@@ -154,24 +154,24 @@ class MessageControllerIntegrationTest extends Specification {
 
         then:
         response.body() == [
-            [
-                id              : message_1_id.toString(),
-                roomId          : room_id.toString(),
-                senderId        : companion_regular_user_id.toString(),
-                content         : "modified text",
-                read            : [],
-                originalLanguage: LanguageEnum.ENGLISH.toString(),
-                translation     : "modified translation text",
-                dateCreated     : 3
-            ]
+                [
+                        id              : message_1_id.toString(),
+                        roomId          : room_id.toString(),
+                        senderId        : companion_regular_user_id.toString(),
+                        content         : "modified text",
+                        read            : [],
+                        originalLanguage: LanguageEnum.ENGLISH.toString(),
+                        translation     : "modified translation text",
+                        dateCreated     : 3
+                ]
         ]
     }
 
     void "POST should create the message, return it, and publish the message to websocket"() {
         given: "command with new message"
         def command = [
-            roomId : room_id.toString(),
-            content: "new message content"
+                roomId : room_id.toString(),
+                content: "new message content"
         ]
 
         when: "message is created"
