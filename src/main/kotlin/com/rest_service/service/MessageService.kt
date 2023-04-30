@@ -40,6 +40,7 @@ class MessageService(
             .flux()
             .flatMap { user ->
 
+                // find rooms user is a member
                 memberRepository.findByUserId(user.id)
                     .flatMap {
 
