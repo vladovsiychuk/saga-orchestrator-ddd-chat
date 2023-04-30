@@ -20,7 +20,7 @@ import jakarta.inject.Singleton
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 @Singleton
 class MessageService(
@@ -32,7 +32,30 @@ class MessageService(
     private val applicationEventPublisher: ApplicationEventPublisher<MessageActionEvent>
 ) {
 
-    fun list(roomId: UUID): Flux<MessageDTO> {
+
+    fun list(messagesPerRoom: Int): Flux<MessageDTO> {
+        val email = securityUtil.getUserEmail()
+
+        return userRepository.findByEmail(email)
+            .flux()
+            .flatMap { user ->
+
+                memberRepository.findByUserId(user.id)
+                    .flatMap {
+
+                        messageEventRepository.findProjectionMessageWithLimit(it.roomId, messagesPerRoom)
+                            .flatMap { messageProjection ->
+
+                                messageUtil.rehydrateMessage(messageProjection.messageId)
+                                    .map { messageRR ->
+                                        messageRR.toDto(user)
+                                    }
+                            }
+                    }
+            }
+    }
+
+    fun getRoomMessages(roomId: UUID): Flux<MessageDTO> {
         val email = securityUtil.getUserEmail()
 
         return Mono.zip(
@@ -49,8 +72,10 @@ class MessageService(
                 validateUserIsRoomMember(user, roomMembers, roomId)
                     .flux()
                     .flatMap {
-                        messageEventRepository.findProjectionMessage(roomId, user.id)
+
+                        messageEventRepository.findProjectionMessage(roomId)
                             .flatMap {
+
                                 messageUtil.rehydrateMessage(it.messageId)
                                     .map { messageResultReader ->
                                         messageResultReader.toDto(user)

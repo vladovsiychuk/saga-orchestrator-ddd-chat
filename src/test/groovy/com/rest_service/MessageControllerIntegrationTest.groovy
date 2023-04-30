@@ -147,6 +147,26 @@ class MessageControllerIntegrationTest extends Specification {
         ]).collectList().block()
     }
 
+    void "GET should return messages of rooms user belongs to"() {
+        when:
+        def request = HttpRequest.GET("/rooms?messagesPerRoom=30").bearerAuth(user_token)
+        def response = client.toBlocking().exchange(request, List)
+
+        then:
+        response.body() == [
+                [
+                        id              : message_1_id.toString(),
+                        roomId          : room_id.toString(),
+                        senderId        : companion_regular_user_id.toString(),
+                        content         : "modified text",
+                        read            : [],
+                        originalLanguage: LanguageEnum.ENGLISH.toString(),
+                        translation     : "modified translation text",
+                        dateCreated     : 3
+                ]
+        ]
+    }
+
     void "GET should return messages of the room"() {
         when:
         def request = HttpRequest.GET("/rooms/$room_id").bearerAuth(user_token)

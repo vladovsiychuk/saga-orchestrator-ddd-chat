@@ -3,10 +3,7 @@ package com.rest_service.controller
 import com.rest_service.command.MessageCommand
 import com.rest_service.dto.MessageDTO
 import com.rest_service.service.MessageService
-import io.micronaut.http.annotation.Body
-import io.micronaut.http.annotation.Controller
-import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import reactor.core.publisher.Flux
@@ -18,13 +15,13 @@ import java.util.*
 class MessageController(private val service: MessageService) {
 
     @Get("/rooms")
-    fun list(): Flux<MessageDTO> {
-        TODO()
+    fun list(@QueryValue("messagesPerRoom") messagesPerRoom: Int): Flux<MessageDTO> {
+        return service.list(messagesPerRoom)
     }
 
     @Get("/rooms/{roomId}")
     fun getByRoom(roomId: UUID): Flux<MessageDTO> {
-        return service.list(roomId)
+        return service.getRoomMessages(roomId)
     }
 
     @Post("/")
