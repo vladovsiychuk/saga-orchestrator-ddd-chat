@@ -28,7 +28,7 @@ class UserControllerIntegrationTest extends Specification {
 
     @Inject
     @Shared
-    UserRepository repository
+    UserRepository userRepository
 
     @Shared
     String regular_user_1
@@ -38,6 +38,10 @@ class UserControllerIntegrationTest extends Specification {
     String user_3
     @Shared
     String translator_user_4
+    @Shared
+    UUID regular_user_1_id
+    @Shared
+    UUID translator_user_4_id
 
     def conditions = new PollingConditions(timeout: 5, initialDelay: 0.5, factor: 1.25)
 
@@ -47,11 +51,20 @@ class UserControllerIntegrationTest extends Specification {
         user_3 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJ1c2VyLTNAZ21haWwuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ._7KPCfylisPdIyvXcKAEjGKUPyKV_hfXKDsm4faF_4U"
         translator_user_4 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJ1c2VyLTRAZ21haWwuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ.lRP3YeXmsEIw-xDwgaHgzyBB1Z3xowApEvq4W4VWsx8"
 
-        def regularUser = new User(UUID.fromString("50b1cccd-2cbd-459b-9b63-c97145b97e94"), null, "user-1@gmail.com", null, LanguageEnum.ENGLISH, null, UserType.REGULAR_USER, 1, 1)
-        def translatorUser = new User(UUID.fromString("af7a16ae-cc5d-484e-8b1d-e89fd52d1150"), null, "user-4@gmail.com", null, LanguageEnum.ENGLISH, [LanguageEnum.ENGLISH.toString(), LanguageEnum.UKRAINIAN.toString()], UserType.TRANSLATOR, 1, 1)
+        regular_user_1_id = UUID.fromString("50b1cccd-2cbd-459b-9b63-c97145b97e94")
+        translator_user_4_id = UUID.fromString("af7a16ae-cc5d-484e-8b1d-e89fd52d1150")
 
-        repository.save(regularUser).block()
-        repository.save(translatorUser).block()
+        def room_id_1 = UUID.fromString("71ddb6fd-8640-4d23-a5b3-ae16e6945fd4")
+        def room_id_2 = UUID.fromString("3e878377-e0bc-423a-b307-3148e2f2c347")
+
+        def companion_regular_user_5_id = UUID.fromString("9444016a-c6d3-4356-85e9-1b285c1a000f")
+        def companion_regular_user_6_id = UUID.fromString("385346a0-be02-4536-a5a1-681eea69eb83")
+
+        def regularUser = new User(regular_user_1_id, null, "user-1@gmail.com", null, LanguageEnum.ENGLISH, null, UserType.REGULAR_USER, 1, 1)
+        def translatorUser = new User(translator_user_4_id, null, "user-4@gmail.com", null, LanguageEnum.ENGLISH, [LanguageEnum.ENGLISH.toString(), LanguageEnum.UKRAINIAN.toString()], UserType.TRANSLATOR, 1, 1)
+
+        userRepository.save(regularUser).block()
+        userRepository.save(translatorUser).block()
     }
 
     @Unroll
@@ -74,21 +87,24 @@ class UserControllerIntegrationTest extends Specification {
         ]
 
         where:
-        expectedType                     | expectedTranslationLanguages                                         | expectedUserId                         | expectedEmail      | token
-        UserType.REGULAR_USER.toString() | null                                                                 | "50b1cccd-2cbd-459b-9b63-c97145b97e94" | "user-1@gmail.com" | regular_user_1
-        UserType.TRANSLATOR.toString()   | [LanguageEnum.ENGLISH.toString(), LanguageEnum.UKRAINIAN.toString()] | "af7a16ae-cc5d-484e-8b1d-e89fd52d1150" | "user-4@gmail.com" | translator_user_4
+        expectedType                     | expectedTranslationLanguages                                         | expectedUserId                  | expectedEmail      | token
+        UserType.REGULAR_USER.toString() | null                                                                 | regular_user_1_id.toString()    | "user-1@gmail.com" | regular_user_1
+        UserType.TRANSLATOR.toString()   | [LanguageEnum.ENGLISH.toString(), LanguageEnum.UKRAINIAN.toString()] | translator_user_4_id.toString() | "user-4@gmail.com" | translator_user_4
     }
 
-    void "GET should return searched users"() {
+    @Unroll
+    void "GET should return list of users when command is #command"() {
         when:
-        def request = HttpRequest.GET("/?query=user").bearerAuth(regular_user_1)
+        def request = HttpRequest.GET("/?$command").bearerAuth(regular_user_1)
         def response = client.toBlocking().exchange(request, List)
 
         then:
-        response.body().collect { it.email } == [
-                "user-1@gmail.com",
-                "user-4@gmail.com"
-        ]
+        response.body().collect { it.email } == expectedUsers
+
+        where:
+        command        | expectedUsers
+        "query=user"   | ["user-1@gmail.com", "user-4@gmail.com"]
+//        "roomLimit=30" | []
     }
 
     void "GET should return 404 response if the user doesn't exist"() {
@@ -117,7 +133,7 @@ class UserControllerIntegrationTest extends Specification {
         body.type == type
 
         cleanup:
-        repository.deleteAll().block()
+        userRepository.deleteAll().block()
 
         where:
         type                             | command
@@ -145,6 +161,6 @@ class UserControllerIntegrationTest extends Specification {
 
     void "only cleanup"() {
         cleanup:
-        repository.deleteAll().block()
+        userRepository.deleteAll().block()
     }
 }
