@@ -34,26 +34,7 @@ class MessageService(
 
 
     fun list(roomLimit: Int): Flux<MessageDTO> {
-        val email = securityUtil.getUserEmail()
-
-        return userRepository.findByEmail(email)
-            .flux()
-            .flatMap { user ->
-
-                // find rooms user is a member
-                memberRepository.findByUserId(user.id)
-                    .flatMap {
-
-                        messageEventRepository.findProjectionMessageWithLimit(it.roomId, roomLimit)
-                            .flatMap { messageProjection ->
-
-                                messageUtil.rehydrateMessage(messageProjection.messageId)
-                                    .map { messageRR ->
-                                        messageRR.toDto(user)
-                                    }
-                            }
-                    }
-            }
+        return messageUtil.findLastMessagesPerRoom(roomLimit)
     }
 
     fun getRoomMessages(roomId: UUID): Flux<MessageDTO> {
