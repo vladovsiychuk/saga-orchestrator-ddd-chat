@@ -9,16 +9,21 @@ import com.rest_service.enums.UserType
 import com.rest_service.exception.IncorrectInputException
 import com.rest_service.exception.NotFoundException
 import com.rest_service.repository.UserRepository
+import com.rest_service.util.MessageUtil
 import com.rest_service.util.SecurityUtil
 import jakarta.inject.Singleton
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.util.UUID
+import java.util.*
 
 @Singleton
-class UserService(private val repository: UserRepository, private val securityUtil: SecurityUtil) {
+class UserService(
+    private val repository: UserRepository,
+    private val securityUtil: SecurityUtil,
+    private val messageUtil: MessageUtil,
+) {
 
     private val logger: Logger = LoggerFactory.getLogger(UserService::class.java)
     private val mapper = jacksonObjectMapper()
@@ -58,9 +63,34 @@ class UserService(private val repository: UserRepository, private val securityUt
     }
 
     fun list(listCommand: ListCommand): Flux<UserDTO> {
-        return repository.findByEmailIlike("%${listCommand.query}%")
+        return if (listCommand.roomLimit != null)
+            searchAllUsers(listCommand)
+        else
+            searchByQuery(listCommand)
+    }
+
+    private fun searchAllUsers(listCommand: ListCommand): Flux<UserDTO> {
+        val currentUserEmail = securityUtil.getUserEmail()
+
+        return messageUtil.findLastMessagesPerRoom(listCommand.roomLimit!!)
+            .flatMap {
+
+                Flux.fromIterable(it.read + it.senderId)
+                    .flatMap { userId ->
+
+                        repository.findById(userId)
+                            .map { user ->
+                                mapper.convertValue(user, UserDTO::class.java)
+                            }
+                    }
+            }
+            .filter { it.email != currentUserEmail }
+            .distinct { it.id }
+    }
+
+    private fun searchByQuery(listCommand: ListCommand): Flux<UserDTO> =
+        repository.findByEmailIlike("%${listCommand.query}%")
             .map {
                 mapper.convertValue(it, UserDTO::class.java)
             }
-    }
 }
