@@ -62,15 +62,15 @@ class UserControllerIntegrationTest extends Specification {
 
         then:
         response.body() == [
-            id                  : expectedUserId,
-            username            : null,
-            email               : expectedEmail,
-            avatar              : null,
-            primaryLanguage     : LanguageEnum.ENGLISH.toString(),
-            translationLanguages: expectedTranslationLanguages,
-            type                : expectedType,
-            dateCreated         : 1,
-            dateUpdated         : 1,
+                id                  : expectedUserId,
+                username            : null,
+                email               : expectedEmail,
+                avatar              : null,
+                primaryLanguage     : LanguageEnum.ENGLISH.toString(),
+                translationLanguages: expectedTranslationLanguages,
+                type                : expectedType,
+                dateCreated         : 1,
+                dateUpdated         : 1,
         ]
 
         where:
@@ -86,8 +86,8 @@ class UserControllerIntegrationTest extends Specification {
 
         then:
         response.body().collect { it.email } == [
-            "user-1@gmail.com",
-            "user-4@gmail.com"
+                "user-1@gmail.com",
+                "user-4@gmail.com"
         ]
     }
 
