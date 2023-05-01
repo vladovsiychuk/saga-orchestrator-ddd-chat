@@ -14,9 +14,9 @@ import java.util.*
 @Secured(SecurityRule.IS_AUTHENTICATED)
 class MessageController(private val service: MessageService) {
 
-    @Get("/rooms")
-    fun list(@QueryValue("messagesPerRoom") messagesPerRoom: Int): Flux<MessageDTO> {
-        return service.list(messagesPerRoom)
+    @Get("/")
+    fun list(@QueryValue("roomLimit") roomLimit: Int): Flux<MessageDTO> {
+        return service.list(roomLimit)
     }
 
     @Get("/rooms/{roomId}")

@@ -149,7 +149,7 @@ class MessageControllerIntegrationTest extends Specification {
 
     void "GET should return messages of rooms user belongs to"() {
         when:
-        def request = HttpRequest.GET("/rooms?messagesPerRoom=30").bearerAuth(user_token)
+        def request = HttpRequest.GET("/?roomLimit=30").bearerAuth(user_token)
         def response = client.toBlocking().exchange(request, List)
 
         then:

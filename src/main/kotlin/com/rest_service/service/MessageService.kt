@@ -33,7 +33,7 @@ class MessageService(
 ) {
 
 
-    fun list(messagesPerRoom: Int): Flux<MessageDTO> {
+    fun list(roomLimit: Int): Flux<MessageDTO> {
         val email = securityUtil.getUserEmail()
 
         return userRepository.findByEmail(email)
@@ -44,7 +44,7 @@ class MessageService(
                 memberRepository.findByUserId(user.id)
                     .flatMap {
 
-                        messageEventRepository.findProjectionMessageWithLimit(it.roomId, messagesPerRoom)
+                        messageEventRepository.findProjectionMessageWithLimit(it.roomId, roomLimit)
                             .flatMap { messageProjection ->
 
                                 messageUtil.rehydrateMessage(messageProjection.messageId)
