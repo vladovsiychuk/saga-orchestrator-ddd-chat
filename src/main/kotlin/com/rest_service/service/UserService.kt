@@ -12,11 +12,11 @@ import com.rest_service.repository.UserRepository
 import com.rest_service.util.MessageUtil
 import com.rest_service.util.SecurityUtil
 import jakarta.inject.Singleton
+import java.util.UUID
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.util.*
 
 @Singleton
 class UserService(
@@ -52,7 +52,13 @@ class UserService(
             return Mono.error(IncorrectInputException("A regular user cannot have translation languages."))
 
 
-        val user = User(command, securityUtil)
+        val user = User(
+            username = command.username,
+            email = securityUtil.getUserEmail(),
+            primaryLanguage = command.primaryLanguage,
+            translationLanguages = command.translationLanguages?.map { it.toString() },
+            type = command.type,
+        )
 
         return repository.save(user)
             .map {

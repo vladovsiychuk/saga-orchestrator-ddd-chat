@@ -6,9 +6,9 @@ import com.rest_service.repository.MessageEventRepository
 import com.rest_service.repository.UserRepository
 import com.rest_service.resultReader.MessageResultReader
 import jakarta.inject.Singleton
+import java.util.UUID
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.util.*
 
 @Singleton
 class MessageUtil(
@@ -27,7 +27,7 @@ class MessageUtil(
             .flatMap { user ->
 
                 // find rooms user is a member
-                memberRepository.findByUserId(user.id)
+                memberRepository.findByUserId(user.id!!)
                     .flatMap {
 
                         messageEventRepository.findProjectionMessageWithLimit(it.roomId, roomLimit)

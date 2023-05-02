@@ -33,7 +33,7 @@ class RoomService(
             .switchIfEmpty(Mono.error(NotFoundException("User with email $email was not found.")))
             .flux()
             .flatMap {
-                memberRepository.findByUserId(it.id)
+                memberRepository.findByUserId(it.id!!)
                     .flatMap { member ->
                         roomRepository.findById(member.roomId)
                             .map { room ->
@@ -55,12 +55,12 @@ class RoomService(
                 val currentUser = result.t1
                 val companionUser = result.t2
 
-                val room = Room(currentUser.id)
+                val room = Room(createdBy = currentUser.id!!)
 
                 roomRepository.save(room)
                     .flatMap { createdRoom ->
-                        val firstMember = Member(createdRoom.id, currentUser.id)
-                        val secondMember = Member(createdRoom.id, companionUser.id)
+                        val firstMember = Member(roomId = createdRoom.id!!, userId = currentUser.id!!)
+                        val secondMember = Member(roomId = createdRoom.id, userId = companionUser.id!!)
 
                         Mono.zip(
                             memberRepository.save(firstMember),

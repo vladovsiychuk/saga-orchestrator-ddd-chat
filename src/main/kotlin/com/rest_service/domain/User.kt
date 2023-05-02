@@ -1,9 +1,8 @@
 package com.rest_service.domain
 
-import com.rest_service.command.UserCommand
 import com.rest_service.enums.LanguageEnum
 import com.rest_service.enums.UserType
-import com.rest_service.util.SecurityUtil
+import io.micronaut.data.annotation.AutoPopulated
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.MappedProperty
@@ -15,10 +14,11 @@ import java.util.UUID
 @MappedEntity
 data class User(
     @field:Id
-    val id: UUID,
+    @AutoPopulated
+    val id: UUID? = null,
     val username: String?,
     val email: String,
-    val avatar: String?,
+    val avatar: String? = null,
     val primaryLanguage: LanguageEnum,
     @MappedProperty(type = DataType.JSON)
     val translationLanguages: List<String>?,
@@ -27,14 +27,4 @@ data class User(
         .toEpochMilli(),
     val dateUpdated: Long = Instant.now()
         .toEpochMilli(),
-) {
-    constructor(command: UserCommand, securityUtil: SecurityUtil) : this(
-        UUID.randomUUID(),
-        command.username,
-        securityUtil.getUserEmail(),
-        null,
-        command.primaryLanguage,
-        command.translationLanguages?.map { it.toString() },
-        command.type,
-    )
-}
+)

@@ -17,10 +17,9 @@ import com.rest_service.util.MessageUtil
 import com.rest_service.util.SecurityUtil
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
+import java.util.UUID
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.time.Instant
-import java.util.*
 
 @Singleton
 class MessageService(
@@ -114,15 +113,12 @@ class MessageService(
     private fun createMessageEvent(user: User, command: MessageCommand): Mono<MessageEvent> {
         return Mono.just(
             MessageEvent(
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                user.primaryLanguage,
-                command.content,
-                command.roomId,
-                user.id,
-                MessageEventType.MESSAGE_NEW,
-                Instant.now()
-                    .toEpochMilli()
+                messageId = UUID.randomUUID(),
+                language = user.primaryLanguage,
+                content = command.content,
+                roomId = command.roomId,
+                responsibleId = user.id!!,
+                type = MessageEventType.MESSAGE_NEW,
             )
         )
     }
