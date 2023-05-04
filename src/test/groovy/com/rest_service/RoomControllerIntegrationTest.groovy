@@ -26,15 +26,15 @@ class RoomControllerIntegrationTest extends Specification {
 
     void "GET should return list of user's rooms"() {
         when:
-        def request = HttpRequest.GET("/").bearerAuth(TestConstant.USER_1_TOKEN)
+        def request = HttpRequest.GET("/").bearerAuth(UserConstant.USER_1_TOKEN)
         def response = client.toBlocking().exchange(request, List)
 
         then:
         response.body() == [
                 [
-                        id         : "a0e7fde3-a4ea-45c1-80bd-bcd02fe20c60",
+                        id         : RoomConstant.ROOM_1_ID,
                         name       : "room-1",
-                        createdBy  : "e83e9450-e60a-46bc-aa26-74a3152312d1",
+                        createdBy  : UserConstant.USER_1_ID,
                         dateCreated: 1,
                         dateUpdated: 1,
                 ]
@@ -44,15 +44,15 @@ class RoomControllerIntegrationTest extends Specification {
     void "POST should create new room"() {
         given:
         def command = [
-                userId: "d2b3e3fb-c4a2-40a8-a4ca-ad276b34b81a"
+                userId: UserConstant.USER_2_ID
         ]
 
         when:
-        def request = HttpRequest.POST("/", command).bearerAuth(TestConstant.USER_1_TOKEN)
+        def request = HttpRequest.POST("/", command).bearerAuth(UserConstant.USER_1_TOKEN)
         def response = client.toBlocking().exchange(request, Object)
 
         then:
-        response.body().createdBy == "e83e9450-e60a-46bc-aa26-74a3152312d1"
+        response.body().createdBy == UserConstant.USER_1_ID
 
         cleanup:
         repository.deleteById(UUID.fromString(response.body().id))
