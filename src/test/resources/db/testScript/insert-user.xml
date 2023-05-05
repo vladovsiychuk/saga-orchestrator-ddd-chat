@@ -35,5 +35,16 @@
             <column name="date_created" value="1"/>
             <column name="date_updated" value="1"/>
         </insert>
+        <insert tableName="user">
+            <column name="id" value="89a6cea2-52de-4295-942c-a0b7f485f561"/>
+            <column name="username" value="username-4"/>
+            <column name="email" value="user-4@gmail.com"/>
+            <column name="avatar" value="avatar-4"/>
+            <column name="primary_language" value="ENGLISH"/>
+            <column name="translation_languages" value='["ENGLISH","UKRAINIAN"]'/>
+            <column name="type" value="TRANSLATOR"/>
+            <column name="date_created" value="1"/>
+            <column name="date_updated" value="1"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>
