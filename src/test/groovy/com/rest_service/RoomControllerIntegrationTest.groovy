@@ -1,5 +1,7 @@
 package com.rest_service
 
+import com.rest_service.constant.RoomConstant
+import com.rest_service.constant.UserConstant
 import com.rest_service.repository.RoomRepository
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.env.Environment

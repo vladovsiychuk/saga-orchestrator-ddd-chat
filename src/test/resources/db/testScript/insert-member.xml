@@ -11,5 +11,11 @@
             <column name="user_id" value="e83e9450-e60a-46bc-aa26-74a3152312d1"/>
             <column name="joined_at" value="1"/>
         </insert>
+        <insert tableName="member">
+            <column name="id" value="50feafc1-4e7f-4707-be1d-f1488fb77a0f"/>
+            <column name="room_id" value="a0e7fde3-a4ea-45c1-80bd-bcd02fe20c60"/>
+            <column name="user_id" value="7c7c40fb-2448-40be-8919-8982a844714d"/>
+            <column name="joined_at" value="1"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="1683218422311-1" author="Vlad">
+        <insert tableName="message_event">
+            <column name="id" value="741d4ca8-0026-40b1-b40c-99ca5a846e40"/>
+            <column name="message_id" value="a3ee957e-00da-459f-bacb-79e92c57abf8"/> <!--MESSAGE 1 -->
+            <column name="language" value="ENGLISH"/>
+            <column name="content" value="new message"/>
+            <column name="room_id" value="a0e7fde3-a4ea-45c1-80bd-bcd02fe20c60"/> <!-- ROOM 1 -->
+            <column name="responsible_id" value="7c7c40fb-2448-40be-8919-8982a844714d"/> <!-- USER 3 -->
+            <column name="type" value="MESSAGE_NEW"/>
+            <column name="date_created" value="1"/>
+        </insert>
+        <insert tableName="message_event">
+            <column name="id" value="97be110c-2ae2-4f91-8cbf-4313fc1912a2"/>
+            <column name="message_id" value="a3ee957e-00da-459f-bacb-79e92c57abf8"/> <!-- MESSAGE 1 -->
+            <column name="responsible_id" value="e83e9450-e60a-46bc-aa26-74a3152312d1"/> <!-- USER 1 -->
+            <column name="type" value="MESSAGE_READ"/>
+            <column name="date_created" value="2"/>
+        </insert>
+        <insert tableName="message_event">
+            <column name="id" value="9f0c9763-7c3e-406b-90fa-04973e7a66d1"/>
+            <column name="message_id" value="a3ee957e-00da-459f-bacb-79e92c57abf8"/> <!--MESSAGE 1 -->
+            <column name="content" value="modified text"/>
+            <column name="responsible_id" value="7c7c40fb-2448-40be-8919-8982a844714d"/> <!-- USER 3 -->
+            <column name="type" value="MESSAGE_MODIFY"/>
+            <column name="date_created" value="3"/>
+        </insert>
+        <insert tableName="message_event">
+            <column name="id" value="85155121-1e41-410a-90d4-2921e354fdd4"/>
+            <column name="message_id" value="a3ee957e-00da-459f-bacb-79e92c57abf8"/> <!--MESSAGE 1 -->
+            <column name="language" value="UKRAINIAN"/>
+            <column name="content" value="translation text"/>
+            <column name="responsible_id" value="89a6cea2-52de-4295-942c-a0b7f485f561"/> <!-- USER 4 -->
+            <column name="type" value="MESSAGE_TRANSLATE"/>
+            <column name="date_created" value="4"/>
+        </insert>
+        <insert tableName="message_event">
+            <column name="id" value="c19fc621-7190-49aa-bd68-9a399cc42827"/>
+            <column name="message_id" value="a3ee957e-00da-459f-bacb-79e92c57abf8"/> <!--MESSAGE 1 -->
+            <column name="language" value="UKRAINIAN"/>
+            <column name="content" value="modified translation text"/>
+            <column name="responsible_id" value="89a6cea2-52de-4295-942c-a0b7f485f561"/> <!-- USER 4 -->
+            <column name="type" value="MESSAGE_TRANSLATE_MODIFY"/>
+            <column name="date_created" value="5"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
