@@ -70,18 +70,18 @@ class UserService(
 
     fun list(listCommand: ListCommand): Flux<UserDTO> {
         return if (listCommand.roomLimit != null)
-            searchAllUsers(listCommand)
+            searchUserRelatedUsers(listCommand)
         else
             searchByQuery(listCommand)
     }
 
-    private fun searchAllUsers(listCommand: ListCommand): Flux<UserDTO> {
+    private fun searchUserRelatedUsers(listCommand: ListCommand): Flux<UserDTO> {
         val currentUserEmail = securityUtil.getUserEmail()
 
         return messageUtil.findLastMessagesPerRoom(listCommand.roomLimit!!)
             .flatMap {
 
-                Flux.fromIterable(it.read + it.senderId)
+                Flux.fromIterable((it.read + it.senderId).toSet())
                     .flatMap { userId ->
 
                         repository.findById(userId)
