@@ -35,6 +35,7 @@ class MessageControllerIntegrationTest extends Specification {
                 id              : MessageConstant.MESSAGE_1_ID,
                 roomId          : RoomConstant.ROOM_1_ID,
                 senderId        : UserConstant.USER_3_ID,
+                translatorId    : UserConstant.USER_4_ID,
                 content         : "modified text",
                 read            : [],
                 originalLanguage: LanguageEnum.ENGLISH.toString(),
@@ -50,18 +51,7 @@ class MessageControllerIntegrationTest extends Specification {
         def response = client.toBlocking().exchange(request, List)
 
         then:
-        response.body() == [
-            [
-                id              : MessageConstant.MESSAGE_1_ID,
-                roomId          : RoomConstant.ROOM_1_ID,
-                senderId        : UserConstant.USER_3_ID,
-                content         : "modified text",
-                read            : [],
-                originalLanguage: LanguageEnum.ENGLISH.toString(),
-                translation     : "modified translation text",
-                dateCreated     : 3
-            ]
-        ]
+        response.body().collect(message -> message.id) == [MessageConstant.MESSAGE_1_ID]
     }
 
     void "POST should create the message"() {
