@@ -31,16 +31,16 @@ class MessageControllerIntegrationTest extends Specification {
 
         then:
         response.body() == [
-                [
-                        id              : MessageConstant.MESSAGE_1_ID,
-                        roomId          : RoomConstant.ROOM_1_ID,
-                        senderId        : UserConstant.USER_3_ID,
-                        content         : "modified text",
-                        read            : [],
-                        originalLanguage: LanguageEnum.ENGLISH.toString(),
-                        translation     : "modified translation text",
-                        dateCreated     : 3
-                ]
+            [
+                id              : MessageConstant.MESSAGE_1_ID,
+                roomId          : RoomConstant.ROOM_1_ID,
+                senderId        : UserConstant.USER_3_ID,
+                content         : "modified text",
+                read            : [],
+                originalLanguage: LanguageEnum.ENGLISH.toString(),
+                translation     : "modified translation text",
+                dateCreated     : 3
+            ]
         ]
     }
 
@@ -51,24 +51,24 @@ class MessageControllerIntegrationTest extends Specification {
 
         then:
         response.body() == [
-                [
-                        id              : MessageConstant.MESSAGE_1_ID,
-                        roomId          : RoomConstant.ROOM_1_ID,
-                        senderId        : UserConstant.USER_3_ID,
-                        content         : "modified text",
-                        read            : [],
-                        originalLanguage: LanguageEnum.ENGLISH.toString(),
-                        translation     : "modified translation text",
-                        dateCreated     : 3
-                ]
+            [
+                id              : MessageConstant.MESSAGE_1_ID,
+                roomId          : RoomConstant.ROOM_1_ID,
+                senderId        : UserConstant.USER_3_ID,
+                content         : "modified text",
+                read            : [],
+                originalLanguage: LanguageEnum.ENGLISH.toString(),
+                translation     : "modified translation text",
+                dateCreated     : 3
+            ]
         ]
     }
 
     void "POST should create the message"() {
         given: "command with new message"
         def command = [
-                roomId : RoomConstant.ROOM_1_ID,
-                content: "new message content"
+            roomId : RoomConstant.ROOM_1_ID,
+            content: "new message content"
         ]
 
         when: "message is created"
