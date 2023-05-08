@@ -43,6 +43,7 @@ class MessageResultReader(
 
     private fun replayTranslateModify(event: MessageEvent) {
         message.translationMap[event.language!!] = event.content!!
+        message.translatorId = event.responsibleId
     }
 
     fun toDto(user: User): MessageDTO {
@@ -50,6 +51,7 @@ class MessageResultReader(
             message.id,
             message.roomId!!,
             message.senderId!!,
+            message.translatorId,
             message.content,
             message.read.filterNot { it == user.id },
             message.originalLanguage!!,
@@ -62,6 +64,7 @@ class MessageResultReader(
         val id: UUID,
         var roomId: UUID? = null,
         var senderId: UUID? = null,
+        var translatorId: UUID? = null,
         var content: String = "",
         var read: MutableList<UUID> = mutableListOf(),
         var originalLanguage: LanguageEnum? = null,

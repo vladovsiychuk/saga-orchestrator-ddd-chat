@@ -9,6 +9,7 @@ data class MessageDTO(
     val id: UUID,
     val roomId: UUID,
     val senderId: UUID,
+    val translatorId: UUID?,
     val content: String,
     val read: List<UUID>,
     val originalLanguage: LanguageEnum,

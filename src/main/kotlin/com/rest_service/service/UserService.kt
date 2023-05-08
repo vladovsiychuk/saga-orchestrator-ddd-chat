@@ -81,7 +81,7 @@ class UserService(
         return messageUtil.findLastMessagesPerRoom(listCommand.roomLimit!!)
             .flatMap {
 
-                Flux.fromIterable((it.read + it.senderId).toSet())
+                Flux.fromIterable((it.read + it.senderId + it.translatorId).filterNotNull().toSet())
                     .flatMap { userId ->
 
                         repository.findById(userId)
