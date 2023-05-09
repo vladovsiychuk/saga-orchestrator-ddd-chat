@@ -33,20 +33,20 @@ class RoomControllerIntegrationTest extends Specification {
 
         then:
         response.body() == [
-                [
-                        id         : RoomConstant.ROOM_1_ID,
-                        name       : "room-1",
-                        createdBy  : UserConstant.USER_1_ID,
-                        dateCreated: 1,
-                        dateUpdated: 1,
-                ]
+            [
+                id         : RoomConstant.ROOM_1_ID,
+                name       : "room-1",
+                createdBy  : UserConstant.USER_1_ID,
+                dateCreated: 1,
+                dateUpdated: 1,
+            ]
         ]
     }
 
     void "POST should create new room"() {
         given:
         def command = [
-                userId: UserConstant.USER_2_ID
+            userId: UserConstant.USER_2_ID
         ]
 
         when:
