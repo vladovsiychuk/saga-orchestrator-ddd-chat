@@ -6,9 +6,16 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
     <changeSet id="1683218422311-1" author="Vlad">
         <insert tableName="room">
-            <column name="id" value="a0e7fde3-a4ea-45c1-80bd-bcd02fe20c60"/>
+            <column name="id" value="a0e7fde3-a4ea-45c1-80bd-bcd02fe20c60"/> <!-- ROOM 1 -->
             <column name="name" value="room-1"/>
-            <column name="created_by" value="e83e9450-e60a-46bc-aa26-74a3152312d1"/>
+            <column name="created_by" value="e83e9450-e60a-46bc-aa26-74a3152312d1"/> <!-- USER 1 -->
+            <column name="date_created" value="1"/>
+            <column name="date_updated" value="1"/>
+        </insert>
+        <insert tableName="room">
+            <column name="id" value="fc44b723-cfad-46cb-8670-fc2554279d19"/> <!-- ROOM 2 -->
+            <column name="name" value="room-2"/>
+            <column name="created_by" value="d2b3e3fb-c4a2-40a8-a4ca-ad276b34b81a"/> <!-- USER 2 -->
             <column name="date_created" value="1"/>
             <column name="date_updated" value="1"/>
         </insert>
