@@ -2,12 +2,14 @@ package com.rest_service.repository
 
 import com.rest_service.domain.MessageEvent
 import com.rest_service.dto.MessageProjectionDTO
+import com.rest_service.enums.MessageEventType
 import io.micronaut.data.annotation.Query
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.r2dbc.annotation.R2dbcRepository
 import io.micronaut.data.repository.reactive.ReactorCrudRepository
-import reactor.core.publisher.Flux
 import java.util.*
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 @R2dbcRepository(dialect = Dialect.MYSQL)
 interface MessageEventRepository : ReactorCrudRepository<MessageEvent, UUID> {
@@ -50,4 +52,6 @@ interface MessageEventRepository : ReactorCrudRepository<MessageEvent, UUID> {
     fun findProjectionMessageWithLimit(roomId: UUID, limit: Int): Flux<MessageProjectionDTO>
 
     fun findByMessageIdOrderByDateCreated(messageId: UUID): Flux<MessageEvent>
+
+    fun existsByTypeAndRoomId(type: MessageEventType, roomId: UUID) : Mono<Boolean>
 }

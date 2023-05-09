@@ -5,8 +5,10 @@ import com.rest_service.command.RoomCommand
 import com.rest_service.domain.Member
 import com.rest_service.domain.Room
 import com.rest_service.dto.RoomDTO
+import com.rest_service.enums.MessageEventType
 import com.rest_service.exception.NotFoundException
 import com.rest_service.repository.MemberRepository
+import com.rest_service.repository.MessageEventRepository
 import com.rest_service.repository.RoomRepository
 import com.rest_service.repository.UserRepository
 import com.rest_service.util.SecurityUtil
@@ -22,6 +24,7 @@ class RoomService(
     private val userRepository: UserRepository,
     private val memberRepository: MemberRepository,
     private val roomRepository: RoomRepository,
+    private val messageEventRepository: MessageEventRepository,
 ) {
     private val mapper = jacksonObjectMapper()
     private val logger: Logger = LoggerFactory.getLogger(RoomService::class.java)
@@ -32,12 +35,22 @@ class RoomService(
         return userRepository.findByEmail(email)
             .switchIfEmpty(Mono.error(NotFoundException("User with email $email was not found.")))
             .flux()
-            .flatMap {
-                memberRepository.findByUserId(it.id!!)
+            .flatMap { currentUser ->
+
+                memberRepository.findByUserId(currentUser.id!!)
                     .flatMap { member ->
+
                         roomRepository.findById(member.roomId)
-                            .map { room ->
-                                mapper.convertValue(room, RoomDTO::class.java)
+                            .flatMap { room ->
+
+                                messageEventRepository.existsByTypeAndRoomId(MessageEventType.MESSAGE_NEW, room.id!!)
+                                    .flatMap { exist ->
+
+                                        if (exist || room.createdBy == currentUser.id) // user's rooms without messages
+                                            Mono.just(mapper.convertValue(room, RoomDTO::class.java))
+                                        else
+                                            Mono.empty()
+                                    }
                             }
                     }
             }
