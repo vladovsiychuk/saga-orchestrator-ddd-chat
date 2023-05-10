@@ -37,6 +37,7 @@ class RoomControllerIntegrationTest extends Specification {
                 id         : RoomConstant.ROOM_1_ID,
                 name       : "room-1",
                 createdBy  : UserConstant.USER_1_ID,
+                members    : [UserConstant.USER_3_ID, UserConstant.USER_1_ID],
                 dateCreated: 1,
                 dateUpdated: 1,
             ]
