@@ -46,9 +46,15 @@ class RoomService(
                                 messageEventRepository.existsByTypeAndRoomId(MessageEventType.MESSAGE_NEW, room.id!!)
                                     .flatMap { exist ->
 
-                                        if (exist || room.createdBy == currentUser.id) // user's rooms without messages
-                                            Mono.just(mapper.convertValue(room, RoomDTO::class.java))
-                                        else
+                                        if (exist || room.createdBy == currentUser.id) { // user's rooms without messages
+                                            memberRepository.findByRoomId(room.id)
+                                                .map { it.userId }
+                                                .collectList()
+                                                .flatMap { roomMembers ->
+
+                                                    Mono.just(RoomDTO(room, roomMembers))
+                                                }
+                                        } else
                                             Mono.empty()
                                     }
                             }
@@ -80,7 +86,7 @@ class RoomService(
                             memberRepository.save(secondMember)
                         )
                             .map {
-                                mapper.convertValue(createdRoom, RoomDTO::class.java)
+                                RoomDTO(createdRoom, listOf(currentUser.id, companionUser.id))
                             }
                     }
                     .doOnSuccess {
