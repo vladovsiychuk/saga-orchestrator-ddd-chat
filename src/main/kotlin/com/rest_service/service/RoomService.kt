@@ -1,6 +1,5 @@
 package com.rest_service.service
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.command.RoomCommand
 import com.rest_service.domain.Member
 import com.rest_service.domain.Room
@@ -26,7 +25,6 @@ class RoomService(
     private val roomRepository: RoomRepository,
     private val messageEventRepository: MessageEventRepository,
 ) {
-    private val mapper = jacksonObjectMapper()
     private val logger: Logger = LoggerFactory.getLogger(RoomService::class.java)
 
     fun list(): Flux<RoomDTO> {
@@ -78,7 +76,7 @@ class RoomService(
 
                 roomRepository.save(room)
                     .flatMap { createdRoom ->
-                        val firstMember = Member(roomId = createdRoom.id!!, userId = currentUser.id!!)
+                        val firstMember = Member(roomId = createdRoom.id!!, userId = currentUser.id)
                         val secondMember = Member(roomId = createdRoom.id, userId = companionUser.id!!)
 
                         Mono.zip(
