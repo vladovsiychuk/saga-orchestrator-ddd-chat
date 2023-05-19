@@ -46,5 +46,15 @@
             <column name="date_created" value="1"/>
             <column name="date_updated" value="1"/>
         </insert>
+        <insert tableName="user">
+            <column name="id" value="91c1ee3f-43b8-4709-8fbe-73470d626def"/>
+            <column name="username" value="username-5"/>
+            <column name="email" value="user-5@gmail.com"/>
+            <column name="avatar" value="avatar-5"/>
+            <column name="primary_language" value="ENGLISH"/>
+            <column name="type" value="REGULAR_USER"/>
+            <column name="date_created" value="1"/>
+            <column name="date_updated" value="1"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

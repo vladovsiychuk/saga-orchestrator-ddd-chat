@@ -63,8 +63,8 @@ class UserControllerIntegrationTest extends Specification {
 
         where:
         command        | expectedUsers
-        "query=user"   | ["user-1@gmail.com", "user-2@gmail.com", "user-3@gmail.com", "user-4@gmail.com"]
-        "roomLimit=30" | ["user-3@gmail.com", "user-4@gmail.com"]
+        "query=user"   | ["user-1@gmail.com", "user-2@gmail.com", "user-3@gmail.com", "user-4@gmail.com", "user-5@gmail.com"]
+        "roomLimit=30" | ["user-3@gmail.com", "user-4@gmail.com", "user-5@gmail.com"]
     }
 
     void "GET should return 404 response if the user doesn't exist"() {

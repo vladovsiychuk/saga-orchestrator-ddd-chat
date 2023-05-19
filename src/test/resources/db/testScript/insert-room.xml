@@ -19,5 +19,12 @@
             <column name="date_created" value="1"/>
             <column name="date_updated" value="1"/>
         </insert>
+        <insert tableName="room">
+            <column name="id" value="d0a549e0-8316-4e88-aea8-13565bc16045"/> <!-- ROOM 3 -->
+            <column name="name" value="room-3"/>
+            <column name="created_by" value="e83e9450-e60a-46bc-aa26-74a3152312d1"/> <!-- USER 1 -->
+            <column name="date_created" value="1"/>
+            <column name="date_updated" value="1"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

@@ -29,5 +29,17 @@
             <column name="user_id" value="d2b3e3fb-c4a2-40a8-a4ca-ad276b34b81a"/> <!-- USER 2 -->
             <column name="joined_at" value="1"/>
         </insert>
+        <insert tableName="member">
+            <column name="id" value="5441aaf6-b522-442d-99e5-15e338c1aaa5"/>
+            <column name="room_id" value="d0a549e0-8316-4e88-aea8-13565bc16045"/> <!-- ROOM 3 -->
+            <column name="user_id" value="e83e9450-e60a-46bc-aa26-74a3152312d1"/> <!-- USER 1 -->
+            <column name="joined_at" value="1"/>
+        </insert>
+        <insert tableName="member">
+            <column name="id" value="925967db-016c-425c-a848-d751c54eeda8"/>
+            <column name="room_id" value="d0a549e0-8316-4e88-aea8-13565bc16045"/> <!-- ROOM 3 -->
+            <column name="user_id" value="91c1ee3f-43b8-4709-8fbe-73470d626def"/> <!-- USER 5 -->
+            <column name="joined_at" value="1"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>
