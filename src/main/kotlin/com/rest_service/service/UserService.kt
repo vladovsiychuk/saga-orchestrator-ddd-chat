@@ -5,22 +5,29 @@ import com.rest_service.command.ListCommand
 import com.rest_service.command.UserCommand
 import com.rest_service.domain.User
 import com.rest_service.dto.UserDTO
+import com.rest_service.enums.MessageEventType
 import com.rest_service.enums.UserType
 import com.rest_service.exception.IncorrectInputException
 import com.rest_service.exception.NotFoundException
+import com.rest_service.repository.MemberRepository
+import com.rest_service.repository.MessageEventRepository
+import com.rest_service.repository.RoomRepository
 import com.rest_service.repository.UserRepository
 import com.rest_service.util.MessageUtil
 import com.rest_service.util.SecurityUtil
 import jakarta.inject.Singleton
-import java.util.UUID
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.util.*
 
 @Singleton
 class UserService(
-    private val repository: UserRepository,
+    private val userRepository: UserRepository,
+    private val memberRepository: MemberRepository,
+    private val messageEventRepository: MessageEventRepository,
+    private val roomRepository: RoomRepository,
     private val securityUtil: SecurityUtil,
     private val messageUtil: MessageUtil,
 ) {
@@ -31,7 +38,7 @@ class UserService(
     fun getCurrentUser(): Mono<UserDTO> {
         val email = securityUtil.getUserEmail()
 
-        return repository.findByEmail(email)
+        return userRepository.findByEmail(email)
             .switchIfEmpty(Mono.error(NotFoundException("User with email $email was not found.")))
             .map {
                 mapper.convertValue(it, UserDTO::class.java)
@@ -39,7 +46,7 @@ class UserService(
     }
 
     fun get(id: UUID): Mono<UserDTO> {
-        return repository.findById(id)
+        return userRepository.findById(id)
             .map {
                 mapper.convertValue(it, UserDTO::class.java)
             }
@@ -60,7 +67,7 @@ class UserService(
             type = command.type,
         )
 
-        return repository.save(user)
+        return userRepository.save(user)
             .map {
                 logger.info("User with email $it.email was created.")
 
@@ -78,13 +85,72 @@ class UserService(
     private fun searchUserRelatedUsers(listCommand: ListCommand): Flux<UserDTO> {
         val currentUserEmail = securityUtil.getUserEmail()
 
-        return messageUtil.findLastMessagesPerRoom(listCommand.roomLimit!!)
+        return Mono.zip(
+            usersFromLastMessages(listCommand, currentUserEmail),
+            usersFromEmptyRooms(currentUserEmail)
+        )
+            .flux()
+            .flatMap { result ->
+                val usersFromMessages = result.t1
+                val usersFromEmptyRooms = result.t2
+
+                Flux.fromIterable((usersFromMessages + usersFromEmptyRooms).distinctBy { it.id })
+            }
+    }
+
+    private fun usersFromEmptyRooms(currentUserEmail: String): Mono<List<UserDTO>> {
+        return userRepository.findByEmail(currentUserEmail)
+            .flatMap { currentUser ->
+
+                // find all user's rooms
+                memberRepository.findByUserId(currentUser.id!!)
+                    .flatMap { member ->
+
+
+                        // get only rooms created by user
+                        roomRepository.findById(member.roomId)
+                            .flux()
+                            .filter { it.createdBy == currentUser.id }
+                            .flatMap {
+
+                                // check that the room doesn't contain messages
+                                messageEventRepository.existsByTypeAndRoomId(
+                                    MessageEventType.MESSAGE_NEW,
+                                    member.roomId
+                                )
+                                    .flux()
+                                    .flatMap { exist ->
+                                        if (exist)
+                                            Flux.empty()
+                                        else
+                                            memberRepository.findByRoomId(member.roomId)
+                                                .filter { it.userId != currentUser.id }
+                                                .flatMap {
+
+                                                    userRepository.findById(it.userId)
+                                                        .map {
+                                                            mapper.convertValue(it, UserDTO::class.java)
+                                                        }
+                                                }
+                                    }
+                            }
+                    }
+                    .collectList()
+
+            }
+    }
+
+    private fun usersFromLastMessages(
+        listCommand: ListCommand,
+        currentUserEmail: String
+    ): Mono<List<UserDTO>> =
+        messageUtil.findLastMessagesPerRoom(listCommand.roomLimit!!)
             .flatMap {
 
                 Flux.fromIterable((it.read + it.senderId + it.translatorId).filterNotNull().toSet())
                     .flatMap { userId ->
 
-                        repository.findById(userId)
+                        userRepository.findById(userId)
                             .map { user ->
                                 mapper.convertValue(user, UserDTO::class.java)
                             }
@@ -92,10 +158,10 @@ class UserService(
             }
             .filter { it.email != currentUserEmail }
             .distinct { it.id }
-    }
+            .collectList()
 
     private fun searchByQuery(listCommand: ListCommand): Flux<UserDTO> =
-        repository.findByEmailIlike("%${listCommand.query}%")
+        userRepository.findByEmailIlike("%${listCommand.query}%")
             .map {
                 mapper.convertValue(it, UserDTO::class.java)
             }
