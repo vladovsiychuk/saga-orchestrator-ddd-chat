@@ -3,6 +3,7 @@ package com.rest_service.service
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.command.ListCommand
 import com.rest_service.command.UserCommand
+import com.rest_service.domain.Room
 import com.rest_service.domain.User
 import com.rest_service.dto.UserDTO
 import com.rest_service.enums.MessageEventType
@@ -102,43 +103,45 @@ class UserService(
         return userRepository.findByEmail(currentUserEmail)
             .flatMap { currentUser ->
 
-                // find all user's rooms
-                memberRepository.findByUserId(currentUser.id!!)
-                    .flatMap { member ->
+                findRoomsCreatedByUser(currentUser)
+                    .flatMap { room ->
 
-
-                        // get only rooms created by user
-                        roomRepository.findById(member.roomId)
+                        messageEventRepository.existsByTypeAndRoomId(
+                            MessageEventType.MESSAGE_NEW,
+                            room.id!!
+                        )
                             .flux()
-                            .filter { it.createdBy == currentUser.id }
-                            .flatMap {
-
-                                // check that the room doesn't contain messages
-                                messageEventRepository.existsByTypeAndRoomId(
-                                    MessageEventType.MESSAGE_NEW,
-                                    member.roomId
-                                )
-                                    .flux()
-                                    .flatMap { exist ->
-                                        if (exist)
-                                            Flux.empty()
-                                        else
-                                            memberRepository.findByRoomId(member.roomId)
-                                                .filter { it.userId != currentUser.id }
-                                                .flatMap {
-
-                                                    userRepository.findById(it.userId)
-                                                        .map {
-                                                            mapper.convertValue(it, UserDTO::class.java)
-                                                        }
-                                                }
-                                    }
+                            .flatMap { exist ->
+                                if (exist)
+                                    Flux.empty()
+                                else
+                                    getRoomMembers(room)
+                                        .filter { it.id != currentUser.id }
                             }
                     }
                     .collectList()
-
             }
     }
+
+    private fun getRoomMembers(room: Room): Flux<UserDTO> =
+        memberRepository.findByRoomId(room.id!!)
+            .flatMap {
+
+                userRepository.findById(it.userId)
+                    .map {
+                        mapper.convertValue(it, UserDTO::class.java)
+                    }
+            }
+
+    private fun findRoomsCreatedByUser(currentUser: User): Flux<Room> =
+        memberRepository.findByUserId(currentUser.id!!)
+            .flatMap { member ->
+
+                roomRepository.findById(member.roomId)
+                    .flux()
+                    .filter { it.createdBy == currentUser.id }
+            }
+
 
     private fun usersFromLastMessages(
         listCommand: ListCommand,
