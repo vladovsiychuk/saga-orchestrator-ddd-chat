@@ -17,11 +17,11 @@ import com.rest_service.repository.UserRepository
 import com.rest_service.util.MessageUtil
 import com.rest_service.util.SecurityUtil
 import jakarta.inject.Singleton
+import java.util.UUID
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.util.*
 
 @Singleton
 class UserService(
@@ -148,14 +148,31 @@ class UserService(
         currentUserEmail: String
     ): Mono<List<UserDTO>> =
         messageUtil.findLastMessagesPerRoom(listCommand.roomLimit!!)
-            .flatMap {
+            .groupBy { it.roomId }
+            .flatMap { roomToMessages ->
 
-                Flux.fromIterable((it.read + it.senderId + it.translatorId).filterNotNull().toSet())
-                    .flatMap { userId ->
+                memberRepository.findByRoomId(roomToMessages.key())
+                    .collectList()
+                    .flux()
+                    .flatMap { members ->
+                        val isOneToOneChat = members.size == 2
 
-                        userRepository.findById(userId)
-                            .map { user ->
-                                mapper.convertValue(user, UserDTO::class.java)
+                        roomToMessages
+                            .collectList()
+                            .flux()
+                            .flatMap { messages ->
+                                val messagesRelatedUsers =
+                                    messages.flatMap { it.read + it.senderId + it.translatorId }
+
+                                Flux.fromIterable((messagesRelatedUsers + if (isOneToOneChat) members.map { it.userId } else emptyList()).filterNotNull()
+                                    .toSet())
+                                    .flatMap { userId ->
+
+                                        userRepository.findById(userId)
+                                            .map { user ->
+                                                mapper.convertValue(user, UserDTO::class.java)
+                                            }
+                                    }
                             }
                     }
             }
