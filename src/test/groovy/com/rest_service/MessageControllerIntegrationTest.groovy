@@ -30,7 +30,7 @@ class MessageControllerIntegrationTest extends Specification {
         def response = client.toBlocking().exchange(request, List)
 
         then:
-        response.body() == [
+        response.body().sort() == [
             [
                 id              : MessageConstant.MESSAGE_1_ID,
                 roomId          : RoomConstant.ROOM_1_ID,
@@ -41,8 +41,19 @@ class MessageControllerIntegrationTest extends Specification {
                 originalLanguage: LanguageEnum.ENGLISH.toString(),
                 translation     : "modified translation text",
                 dateCreated     : 3
+            ],
+            [
+                id              : MessageConstant.MESSAGE_2_ID,
+                roomId          : RoomConstant.ROOM_4_ID,
+                senderId        : UserConstant.USER_1_ID,
+                translatorId    : null,
+                content         : "new message 2",
+                read            : [],
+                originalLanguage: LanguageEnum.ENGLISH.toString(),
+                translation     : '',
+                dateCreated     : 1
             ]
-        ]
+        ].sort()
     }
 
     void "GET should return messages of the room"() {

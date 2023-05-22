@@ -17,6 +17,7 @@
             <column name="user_id" value="7c7c40fb-2448-40be-8919-8982a844714d"/> <!-- USER 3 -->
             <column name="joined_at" value="1"/>
         </insert>
+
         <insert tableName="member">
             <column name="id" value="e2c68558-820b-416d-90d4-1e2fe8fff8bf"/>
             <column name="room_id" value="fc44b723-cfad-46cb-8670-fc2554279d19"/> <!-- ROOM 2 -->
@@ -29,6 +30,7 @@
             <column name="user_id" value="d2b3e3fb-c4a2-40a8-a4ca-ad276b34b81a"/> <!-- USER 2 -->
             <column name="joined_at" value="1"/>
         </insert>
+
         <insert tableName="member">
             <column name="id" value="5441aaf6-b522-442d-99e5-15e338c1aaa5"/>
             <column name="room_id" value="d0a549e0-8316-4e88-aea8-13565bc16045"/> <!-- ROOM 3 -->
@@ -39,6 +41,19 @@
             <column name="id" value="925967db-016c-425c-a848-d751c54eeda8"/>
             <column name="room_id" value="d0a549e0-8316-4e88-aea8-13565bc16045"/> <!-- ROOM 3 -->
             <column name="user_id" value="91c1ee3f-43b8-4709-8fbe-73470d626def"/> <!-- USER 5 -->
+            <column name="joined_at" value="1"/>
+        </insert>
+
+        <insert tableName="member">
+            <column name="id" value="8ba632d2-c26c-4b1f-b4da-4152ab3438b7"/>
+            <column name="room_id" value="e695ea0c-9beb-4443-abea-8fd323bea483"/> <!-- ROOM 4 -->
+            <column name="user_id" value="e83e9450-e60a-46bc-aa26-74a3152312d1"/> <!-- USER 1 -->
+            <column name="joined_at" value="1"/>
+        </insert>
+        <insert tableName="member">
+            <column name="id" value="9506b74b-98f3-45dd-b441-017b5a0499a3"/>
+            <column name="room_id" value="e695ea0c-9beb-4443-abea-8fd323bea483"/> <!-- ROOM 4 -->
+            <column name="user_id" value="be545334-dda7-485c-b05d-fa1c80e115d5"/> <!-- USER 6 -->
             <column name="joined_at" value="1"/>
         </insert>
     </changeSet>

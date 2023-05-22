@@ -48,5 +48,16 @@
             <column name="type" value="MESSAGE_TRANSLATE_MODIFY"/>
             <column name="date_created" value="5"/>
         </insert>
+
+        <insert tableName="message_event">
+            <column name="id" value="b0a2690d-1d2f-4af2-a3ce-34a92ae25d5d"/>
+            <column name="message_id" value="c6f4399a-7766-4e78-9651-99382d2d7977"/> <!--MESSAGE 2 -->
+            <column name="language" value="ENGLISH"/>
+            <column name="content" value="new message 2"/>
+            <column name="room_id" value="e695ea0c-9beb-4443-abea-8fd323bea483"/> <!-- ROOM 4 -->
+            <column name="responsible_id" value="e83e9450-e60a-46bc-aa26-74a3152312d1"/> <!-- USER 1 -->
+            <column name="type" value="MESSAGE_NEW"/>
+            <column name="date_created" value="1"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

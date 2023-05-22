@@ -10,6 +10,8 @@ class UserConstant {
 
     static final USER_5_ID = "91c1ee3f-43b8-4709-8fbe-73470d626def"
 
+    static final USER_6_ID = "be545334-dda7-485c-b05d-fa1c80e115d5"
+
     /**
      * TRANSLATOR USER
      */
