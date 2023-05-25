@@ -26,6 +26,22 @@ class RoomControllerIntegrationTest extends Specification {
 
     def conditions = new PollingConditions(timeout: 5, initialDelay: 0.5, factor: 1.25)
 
+    void "GET should return room by id"() {
+        when:
+        def request = HttpRequest.GET("/$RoomConstant.ROOM_1_ID").bearerAuth(UserConstant.USER_1_TOKEN)
+        def response = client.toBlocking().exchange(request, Object)
+
+        then:
+        response.body() == [
+            id         : RoomConstant.ROOM_1_ID,
+            name       : "room-1",
+            createdBy  : UserConstant.USER_1_ID,
+            members    : [UserConstant.USER_3_ID, UserConstant.USER_1_ID],
+            dateCreated: 1,
+            dateUpdated: 1,
+        ]
+    }
+
     void "GET should return list of user's rooms"() {
         when:
         def request = HttpRequest.GET("/").bearerAuth(UserConstant.USER_1_TOKEN)
