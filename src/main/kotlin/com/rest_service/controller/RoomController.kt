@@ -10,14 +10,20 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.util.*
 
 @Controller("/v1/rooms")
 @Secured(SecurityRule.IS_AUTHENTICATED)
 class RoomController(private val service: RoomService) {
 
     @Get("/")
-    fun index(): Flux<RoomDTO> {
+    fun list(): Flux<RoomDTO> {
         return service.list()
+    }
+
+    @Get("/{id}")
+    fun get(id: UUID): Mono<RoomDTO> {
+        return service.get(id)
     }
 
     @Post("/")
