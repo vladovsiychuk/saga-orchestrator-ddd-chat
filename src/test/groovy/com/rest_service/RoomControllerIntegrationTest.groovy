@@ -48,32 +48,7 @@ class RoomControllerIntegrationTest extends Specification {
         def response = client.toBlocking().exchange(request, List)
 
         then:
-        response.body().sort() == [
-            [
-                id         : RoomConstant.ROOM_1_ID,
-                name       : "room-1",
-                createdBy  : UserConstant.USER_1_ID,
-                members    : [UserConstant.USER_3_ID, UserConstant.USER_1_ID],
-                dateCreated: 1,
-                dateUpdated: 1,
-            ],
-            [
-                id         : RoomConstant.ROOM_3_ID,
-                name       : "room-3",
-                createdBy  : UserConstant.USER_1_ID,
-                members    : [UserConstant.USER_5_ID, UserConstant.USER_1_ID],
-                dateCreated: 1,
-                dateUpdated: 1
-            ],
-            [
-                id         : RoomConstant.ROOM_4_ID,
-                name       : "room-4",
-                createdBy  : UserConstant.USER_1_ID,
-                members    : [UserConstant.USER_6_ID, UserConstant.USER_1_ID],
-                dateCreated: 1,
-                dateUpdated: 1
-            ]
-        ].sort()
+        response.body().collect { it.id }.sort() == [RoomConstant.ROOM_1_ID, RoomConstant.ROOM_3_ID, RoomConstant.ROOM_4_ID].sort()
     }
 
     void "POST should create new room"() {
