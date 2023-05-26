@@ -36,7 +36,7 @@ class UserService(
     private val logger: Logger = LoggerFactory.getLogger(UserService::class.java)
     private val mapper = jacksonObjectMapper()
 
-    fun getCurrentUser(): Mono<UserDTO> {
+    fun getCurrentUser() : Mono<UserDTO> {
         val email = securityUtil.getUserEmail()
 
         return userRepository.findByEmail(email)
