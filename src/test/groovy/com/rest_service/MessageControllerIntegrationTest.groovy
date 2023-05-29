@@ -86,4 +86,18 @@ class MessageControllerIntegrationTest extends Specification {
         response.body()["translation"] as String == ""
         response.body()["dateCreated"] as Long != null
     }
+
+    void "PUT read endpoint should add the user to read list"() {
+        when:
+        def request = HttpRequest.PUT("/${MessageConstant.MESSAGE_1_ID}/read", null).bearerAuth(UserConstant.USER_3_TOKEN)
+        client.toBlocking().exchange(request, Map)
+
+        then:
+        conditions.eventually {
+            def request2 = HttpRequest.GET("/?roomLimit=30").bearerAuth(UserConstant.USER_1_TOKEN)
+            def response = client.toBlocking().exchange(request2, List)
+
+            response.body().find {it.id == MessageConstant.MESSAGE_1_ID}["read"] == [UserConstant.USER_3_ID]
+        }
+    }
 }

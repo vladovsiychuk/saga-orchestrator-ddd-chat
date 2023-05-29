@@ -7,6 +7,7 @@ class UserConstant {
     static final USER_2_ID = "d2b3e3fb-c4a2-40a8-a4ca-ad276b34b81a"
 
     static final USER_3_ID = "7c7c40fb-2448-40be-8919-8982a844714d"
+    static final USER_3_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJ1c2VyLTNAZ21haWwuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ._7KPCfylisPdIyvXcKAEjGKUPyKV_hfXKDsm4faF_4U"
 
     static final USER_5_ID = "91c1ee3f-43b8-4709-8fbe-73470d626def"
 
