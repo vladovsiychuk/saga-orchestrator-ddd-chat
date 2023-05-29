@@ -11,7 +11,7 @@ class MessageResultReader(
     messageId: UUID,
 ) {
 
-    private val message = RehydrateMessage(id = messageId)
+    val message = RehydrateMessage(id = messageId)
 
     fun apply(event: MessageEvent) {
         when (event.type) {

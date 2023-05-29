@@ -15,9 +15,9 @@ data class MessageEvent(
     @AutoPopulated
     val id: UUID? = null,
     val messageId: UUID,
-    val language: LanguageEnum?,
-    val content: String?,
-    val roomId: UUID?,
+    val language: LanguageEnum? = null,
+    val content: String? = null,
+    val roomId: UUID? = null,
     val responsibleId: UUID,
     val type: MessageEventType,
     val dateCreated: Long = Instant.now()

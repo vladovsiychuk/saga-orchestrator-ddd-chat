@@ -101,6 +101,37 @@ class MessageService(
             }
     }
 
+    fun read(id: UUID): Mono<MessageDTO> {
+        val email = securityUtil.getUserEmail()
+
+        return Mono.zip(
+            userRepository.findByEmail(email),
+            messageUtil.rehydrateMessage(id)
+        ).flatMap { result ->
+            val user = result.t1
+            val messageRR = result.t2
+            val roomId = messageRR.message.roomId
+
+            memberRepository.findByRoomId(roomId!!)
+                .collectList()
+                .flatMap { members ->
+                    validateUserIsRoomMember(user, members, roomId)
+                        .map {
+                            val event = MessageEvent(
+                                messageId = id,
+                                responsibleId = user.id!!,
+                                type = MessageEventType.MESSAGE_READ
+                            )
+
+                            messageRR.apply(event)
+                            broadcastMessageToRoomMembers(messageRR, members.map { it.userId })
+
+                            messageRR.toDto(user)
+                        }
+                }
+        }
+    }
+
     private fun validateUserIsRoomMember(user: User, roomMembers: List<Member>, roomId: UUID): Mono<Boolean> {
         val roomMemberIds = roomMembers.map { it.userId }
         if (user.id !in roomMemberIds) {
