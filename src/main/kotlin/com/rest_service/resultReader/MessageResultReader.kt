@@ -53,7 +53,7 @@ class MessageResultReader(
             message.senderId!!,
             message.translatorId,
             message.content,
-            message.read.filterNot { it == user.id },
+            message.read,
             message.originalLanguage!!,
             message.translationMap[user.primaryLanguage] ?: "",
             message.dateCreated!!

@@ -17,9 +17,9 @@ import com.rest_service.util.MessageUtil
 import com.rest_service.util.SecurityUtil
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
-import java.util.UUID
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.util.UUID
 
 @Singleton
 class MessageService(
@@ -116,17 +116,20 @@ class MessageService(
                 .collectList()
                 .flatMap { members ->
                     validateUserIsRoomMember(user, members, roomId)
-                        .map {
-                            val event = MessageEvent(
+                        .flatMap {
+                            val messageEvent = MessageEvent(
                                 messageId = id,
                                 responsibleId = user.id!!,
                                 type = MessageEventType.MESSAGE_READ
                             )
 
-                            messageRR.apply(event)
-                            broadcastMessageToRoomMembers(messageRR, members.map { it.userId })
+                            messageEventRepository.save(messageEvent)
+                                .map { event ->
+                                    messageRR.apply(event)
+                                    broadcastMessageToRoomMembers(messageRR, members.map { it.userId })
 
-                            messageRR.toDto(user)
+                                    messageRR.toDto(user)
+                                }
                         }
                 }
         }
