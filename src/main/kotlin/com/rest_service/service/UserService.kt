@@ -181,7 +181,7 @@ class UserService(
             .collectList()
 
     private fun searchByQuery(listCommand: ListCommand): Flux<UserDTO> =
-        userRepository.findByEmailIlike("%${listCommand.query}%")
+        userRepository.findByTypeAndEmail(listCommand.type, "%${listCommand.query}%")
             .map {
                 mapper.convertValue(it, UserDTO::class.java)
             }

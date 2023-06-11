@@ -1,6 +1,8 @@
 package com.rest_service.repository
 
 import com.rest_service.domain.User
+import com.rest_service.enums.UserType
+import io.micronaut.data.annotation.Query
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.r2dbc.annotation.R2dbcRepository
 import io.micronaut.data.repository.reactive.ReactorCrudRepository
@@ -13,7 +15,14 @@ interface UserRepository : ReactorCrudRepository<User, UUID> {
     fun save(user: User): Mono<User>
     fun findByEmail(email: String): Mono<User>
 
-    fun findByEmailIlike(email: String): Flux<User>
+    @Query(
+        """
+            SELECT * FROM user
+            WHERE (type = :type OR :type IS NULL)
+            AND username LIKE :query
+        """
+    )
+    fun findByTypeAndEmail(type: UserType?, query: String): Flux<User>
 
     override fun findById(id: UUID): Mono<User>
 }

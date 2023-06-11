@@ -62,9 +62,10 @@ class UserControllerIntegrationTest extends Specification {
         response.body().collect { it.email }.sort() == expectedUsers.sort()
 
         where:
-        command        | expectedUsers
-        "query=user"   | ["user-1@gmail.com", "user-2@gmail.com", "user-3@gmail.com", "user-4@gmail.com", "user-5@gmail.com", "user-6@gmail.com"]
-        "roomLimit=30" | ["user-3@gmail.com", "user-4@gmail.com", "user-5@gmail.com", "user-6@gmail.com"]
+        command                      | expectedUsers
+        "query=user"                 | ["user-1@gmail.com", "user-2@gmail.com", "user-3@gmail.com", "user-4@gmail.com", "user-5@gmail.com", "user-6@gmail.com"]
+        "roomLimit=30"               | ["user-3@gmail.com", "user-4@gmail.com", "user-5@gmail.com", "user-6@gmail.com"]
+        "query=user&type=TRANSLATOR" | ["user-4@gmail.com"]
     }
 
     void "GET should return 404 response if the user doesn't exist"() {
