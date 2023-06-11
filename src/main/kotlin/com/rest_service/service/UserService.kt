@@ -17,11 +17,11 @@ import com.rest_service.repository.UserRepository
 import com.rest_service.util.MessageUtil
 import com.rest_service.util.SecurityUtil
 import jakarta.inject.Singleton
-import java.util.UUID
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.util.UUID
 
 @Singleton
 class UserService(
@@ -36,7 +36,7 @@ class UserService(
     private val logger: Logger = LoggerFactory.getLogger(UserService::class.java)
     private val mapper = jacksonObjectMapper()
 
-    fun getCurrentUser() : Mono<UserDTO> {
+    fun getCurrentUser(): Mono<UserDTO> {
         val email = securityUtil.getUserEmail()
 
         return userRepository.findByEmail(email)
