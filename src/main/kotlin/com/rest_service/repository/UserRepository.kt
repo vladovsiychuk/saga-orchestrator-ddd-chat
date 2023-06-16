@@ -19,7 +19,7 @@ interface UserRepository : ReactorCrudRepository<User, UUID> {
         """
             SELECT * FROM user
             WHERE (type = :type OR :type IS NULL)
-            AND username LIKE :query
+            AND email LIKE :query
         """
     )
     fun findByTypeAndEmail(type: UserType?, query: String): Flux<User>
