@@ -7,6 +7,7 @@ import com.rest_service.dto.RoomDTO
 import com.rest_service.enums.MessageEventType
 import com.rest_service.exception.IncorrectInputException
 import com.rest_service.exception.NotFoundException
+import com.rest_service.exception.UnauthorizedException
 import com.rest_service.repository.MemberRepository
 import com.rest_service.repository.MessageEventRepository
 import com.rest_service.repository.RoomRepository
@@ -17,7 +18,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.util.*
+import java.util.UUID
 
 @Singleton
 class RoomService(
@@ -110,6 +111,39 @@ class RoomService(
                     }
                     .doOnSuccess {
                         logger.info("New chat between ${currentUser.email} and ${companionUser.email} created.")
+                    }
+            }
+    }
+
+    fun addMember(roomId: UUID, command: RoomCommand): Mono<RoomDTO> {
+        val email = securityUtil.getUserEmail()
+
+        return Mono.zip(
+            memberRepository.findByRoomId(roomId).collectList(),
+            roomRepository.findById(roomId)
+                .switchIfEmpty(Mono.error(NotFoundException("Room with id $roomId does not exist."))),
+            userRepository.findById(command.userId)
+                .switchIfEmpty(Mono.error(NotFoundException("User with id ${command.userId} does not exist."))),
+            userRepository.findByEmail(email)
+        )
+            .flatMap { result ->
+                val members = result.t1
+                val room = result.t2
+                val currentUser = result.t4
+
+
+                if (currentUser.id != room.createdBy)
+                    return@flatMap Mono.error(UnauthorizedException())
+                else if (members.map { it.userId }.contains(command.userId))
+                    return@flatMap Mono.error(IncorrectInputException("User with id ${command.userId} is already a room member."))
+
+
+                val newMember = Member(roomId = roomId, userId = command.userId)
+
+                memberRepository.save(newMember)
+                    .flatMap {
+
+                        get(roomId)
                     }
             }
     }
