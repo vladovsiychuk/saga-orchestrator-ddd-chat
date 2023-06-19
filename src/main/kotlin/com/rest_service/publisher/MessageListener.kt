@@ -2,6 +2,9 @@ package com.rest_service.publisher
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.event.MessageActionEvent
+import com.rest_service.event.RoomActionEvent
+import com.rest_service.event.websocket.MessageWebSocketEvent
+import com.rest_service.event.websocket.RoomWebSocketEvent
 import com.rest_service.repository.UserRepository
 import com.rest_service.websocket.WebSocketService
 import io.micronaut.runtime.event.annotation.EventListener
@@ -21,7 +24,22 @@ open class MessageListener(
         userRepository.findById(event.userId)
             .subscribe {
                 val messageDTO = event.message.toDto(it)
-                val message = mapper.writeValueAsString(messageDTO)
+                val webSocketEvent = MessageWebSocketEvent(messageDTO)
+
+                val message = mapper.writeValueAsString(webSocketEvent)
+
+                webSocketService.sendMessageToUser(message, event.userId)
+            }
+    }
+
+    @EventListener
+    @Async
+    open fun roomActionListener(event: RoomActionEvent) {
+        userRepository.findById(event.userId)
+            .subscribe {
+                val webSocketEvent = RoomWebSocketEvent(event.room)
+
+                val message = mapper.writeValueAsString(webSocketEvent)
 
                 webSocketService.sendMessageToUser(message, event.userId)
             }

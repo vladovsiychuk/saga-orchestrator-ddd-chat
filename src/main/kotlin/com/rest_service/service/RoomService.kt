@@ -5,6 +5,7 @@ import com.rest_service.domain.Member
 import com.rest_service.domain.Room
 import com.rest_service.dto.RoomDTO
 import com.rest_service.enums.MessageEventType
+import com.rest_service.event.RoomActionEvent
 import com.rest_service.exception.IncorrectInputException
 import com.rest_service.exception.NotFoundException
 import com.rest_service.exception.UnauthorizedException
@@ -13,6 +14,7 @@ import com.rest_service.repository.MessageEventRepository
 import com.rest_service.repository.RoomRepository
 import com.rest_service.repository.UserRepository
 import com.rest_service.util.SecurityUtil
+import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -27,6 +29,7 @@ class RoomService(
     private val memberRepository: MemberRepository,
     private val roomRepository: RoomRepository,
     private val messageEventRepository: MessageEventRepository,
+    private val applicationEventPublisher: ApplicationEventPublisher<RoomActionEvent>,
 ) {
     private val logger: Logger = LoggerFactory.getLogger(RoomService::class.java)
 
@@ -144,7 +147,23 @@ class RoomService(
                     .flatMap {
 
                         get(roomId)
+                            .map { roomDTO ->
+
+                                broadcastMessageToRoomMembers(roomDTO, roomDTO.members)
+
+                                roomDTO
+                            }
                     }
             }
+    }
+
+    private fun broadcastMessageToRoomMembers(
+        roomDTO: RoomDTO,
+        roomMemberIds: List<UUID>
+    ) {
+        roomMemberIds.forEach { memberId ->
+            val event = RoomActionEvent(memberId, roomDTO)
+            applicationEventPublisher.publishEventAsync(event)
+        }
     }
 }
