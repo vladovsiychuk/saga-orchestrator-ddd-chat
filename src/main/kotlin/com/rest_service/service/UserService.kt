@@ -3,10 +3,8 @@ package com.rest_service.service
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.command.ListCommand
 import com.rest_service.command.UserCommand
-import com.rest_service.domain.Room
 import com.rest_service.domain.User
 import com.rest_service.dto.UserDTO
-import com.rest_service.enums.MessageEventType
 import com.rest_service.enums.UserType
 import com.rest_service.exception.IncorrectInputException
 import com.rest_service.exception.NotFoundException
@@ -14,14 +12,13 @@ import com.rest_service.repository.MemberRepository
 import com.rest_service.repository.MessageEventRepository
 import com.rest_service.repository.RoomRepository
 import com.rest_service.repository.UserRepository
-import com.rest_service.util.MessageUtil
 import com.rest_service.util.SecurityUtil
 import jakarta.inject.Singleton
+import java.util.UUID
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.util.UUID
 
 @Singleton
 class UserService(
@@ -30,7 +27,6 @@ class UserService(
     private val messageEventRepository: MessageEventRepository,
     private val roomRepository: RoomRepository,
     private val securityUtil: SecurityUtil,
-    private val messageUtil: MessageUtil,
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(UserService::class.java)
@@ -77,112 +73,33 @@ class UserService(
     }
 
     fun list(listCommand: ListCommand): Flux<UserDTO> {
-        return if (listCommand.roomLimit != null)
-            searchUserRelatedUsers(listCommand)
-        else
-            searchByQuery(listCommand)
-    }
-
-    private fun searchUserRelatedUsers(listCommand: ListCommand): Flux<UserDTO> {
-        val currentUserEmail = securityUtil.getUserEmail()
-
-        return Mono.zip(
-            usersFromLastMessages(listCommand, currentUserEmail),
-            usersFromEmptyRooms(currentUserEmail)
-        )
-            .flux()
-            .flatMap { result ->
-                val usersFromMessages = result.t1
-                val usersFromEmptyRooms = result.t2
-
-                Flux.fromIterable((usersFromMessages + usersFromEmptyRooms).distinctBy { it.id })
+        return userRepository.findByTypeAndEmail(listCommand.type, "%${listCommand.query}%")
+            .map {
+                mapper.convertValue(it, UserDTO::class.java)
             }
     }
 
-    private fun usersFromEmptyRooms(currentUserEmail: String): Mono<List<UserDTO>> {
-        return userRepository.findByEmail(currentUserEmail)
-            .flatMap { currentUser ->
+    fun getMembersOfUserRooms(): Flux<UserDTO> {
+        val email = securityUtil.getUserEmail()
 
-                findRoomsCreatedByUser(currentUser)
-                    .flatMap { room ->
-
-                        messageEventRepository.existsByTypeAndRoomId(
-                            MessageEventType.MESSAGE_NEW,
-                            room.id!!
-                        )
-                            .flux()
-                            .flatMap { exist ->
-                                if (exist)
-                                    Flux.empty()
-                                else
-                                    getRoomMembers(room)
-                                        .filter { it.id != currentUser.id }
-                            }
+        return userRepository.findByEmail(email)
+            .flatMapMany { currentUser ->
+                memberRepository.findByUserId(currentUser.id!!)
+                    .map { member -> member.roomId }
+                    .flatMap {
+                        getRoomMembers(it)
+                            .filter { user -> user.id != currentUser.id }
                     }
-                    .collectList()
             }
     }
 
-    private fun getRoomMembers(room: Room): Flux<UserDTO> =
-        memberRepository.findByRoomId(room.id!!)
+    private fun getRoomMembers(roomId: UUID): Flux<UserDTO> =
+        memberRepository.findByRoomId(roomId)
             .flatMap {
 
                 userRepository.findById(it.userId)
                     .map {
                         mapper.convertValue(it, UserDTO::class.java)
                     }
-            }
-
-    private fun findRoomsCreatedByUser(currentUser: User): Flux<Room> =
-        memberRepository.findByUserId(currentUser.id!!)
-            .flatMap { member ->
-
-                roomRepository.findById(member.roomId)
-                    .flux()
-                    .filter { it.createdBy == currentUser.id }
-            }
-
-
-    private fun usersFromLastMessages(
-        listCommand: ListCommand,
-        currentUserEmail: String
-    ): Mono<List<UserDTO>> =
-        messageUtil.findLastMessagesPerRoom(listCommand.roomLimit!!)
-            .groupBy { it.roomId }
-            .flatMap { roomToMessages ->
-
-                memberRepository.findByRoomId(roomToMessages.key())
-                    .collectList()
-                    .flux()
-                    .flatMap { members ->
-                        val isOneToOneChat = members.size == 2
-
-                        roomToMessages
-                            .collectList()
-                            .flux()
-                            .flatMap { messages ->
-                                val messagesRelatedUsers =
-                                    messages.flatMap { it.read + it.senderId + it.translatorId }
-
-                                Flux.fromIterable((messagesRelatedUsers + if (isOneToOneChat) members.map { it.userId } else emptyList()).filterNotNull()
-                                    .toSet())
-                                    .flatMap { userId ->
-
-                                        userRepository.findById(userId)
-                                            .map { user ->
-                                                mapper.convertValue(user, UserDTO::class.java)
-                                            }
-                                    }
-                            }
-                    }
-            }
-            .filter { it.email != currentUserEmail }
-            .distinct { it.id }
-            .collectList()
-
-    private fun searchByQuery(listCommand: ListCommand): Flux<UserDTO> =
-        userRepository.findByTypeAndEmail(listCommand.type, "%${listCommand.query}%")
-            .map {
-                mapper.convertValue(it, UserDTO::class.java)
             }
 }

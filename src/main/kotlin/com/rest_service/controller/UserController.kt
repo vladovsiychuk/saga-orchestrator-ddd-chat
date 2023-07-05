@@ -10,9 +10,9 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
+import java.util.UUID
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.util.UUID
 
 @Controller("/v1/users")
 @Secured(SecurityRule.IS_AUTHENTICATED)
@@ -21,6 +21,11 @@ class UserController(private val service: UserService) {
     @Get("/{?listCommand*}")
     fun index(listCommand: ListCommand): Flux<UserDTO> {
         return service.list(listCommand)
+    }
+
+    @Get("/rooms")
+    fun roomsMembers(): Flux<UserDTO> {
+        return service.getMembersOfUserRooms()
     }
 
     @Get("/currentUser")
