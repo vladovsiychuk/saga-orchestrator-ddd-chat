@@ -9,6 +9,7 @@ import com.rest_service.enums.MessageEventType
 import com.rest_service.event.MessageActionEvent
 import com.rest_service.exception.IncorrectInputException
 import com.rest_service.exception.NotFoundException
+import com.rest_service.exception.UnauthorizedException
 import com.rest_service.repository.MemberRepository
 import com.rest_service.repository.MessageEventRepository
 import com.rest_service.repository.UserRepository
@@ -17,9 +18,9 @@ import com.rest_service.util.MessageUtil
 import com.rest_service.util.SecurityUtil
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
+import java.util.UUID
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.util.UUID
 
 @Singleton
 class MessageService(
@@ -71,7 +72,7 @@ class MessageService(
 
         return Mono.zip(
             userRepository.findByEmail(userEmail),
-            memberRepository.findByRoomId(command.roomId)
+            memberRepository.findByRoomId(command.roomId!!)
                 .switchIfEmpty(Flux.error(NotFoundException("Room with id ${command.roomId} doesn't exist.")))
                 .collectList()
         )
@@ -99,6 +100,44 @@ class MessageService(
                             }
                     }
             }
+    }
+
+    fun update(command: MessageCommand, messageId: UUID): Mono<MessageDTO> {
+        val userEmail = securityUtil.getUserEmail()
+
+        return Mono.zip(
+            userRepository.findByEmail(userEmail),
+            messageUtil.rehydrateMessage(messageId)
+        ).flatMap { result ->
+            val user = result.t1
+            val messageResultReader = result.t2
+
+            val messageDTO = messageResultReader.toDto(user)
+
+            if (messageDTO.senderId != user.id)
+                return@flatMap Mono.error(UnauthorizedException())
+
+            val event = MessageEvent(
+                messageId = messageId,
+                content = command.content,
+                responsibleId = user.id,
+                type = MessageEventType.MESSAGE_MODIFY
+            )
+
+            Mono.zip(
+                saveMessageEvent(event),
+                memberRepository.findByRoomId(messageDTO.roomId)
+                    .collectList()
+            ).map {
+                val savedEvent = it.t1
+                val roomMembers = it.t2.map { member -> member.userId }
+
+                messageResultReader.apply(savedEvent)
+                broadcastMessageToRoomMembers(messageResultReader, roomMembers)
+
+                messageResultReader.toDto(user)
+            }
+        }
     }
 
     fun read(id: UUID): Mono<MessageDTO> {

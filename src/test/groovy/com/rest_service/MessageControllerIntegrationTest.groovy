@@ -103,4 +103,18 @@ class MessageControllerIntegrationTest extends Specification {
             assert response2.body().find { it.id == MessageConstant.MESSAGE_2_ID }["read"] == [UserConstant.USER_6_ID]
         }
     }
+
+    void "PUT should modify the content of the message"() {
+        given:
+        def command = [
+            content: "new content text"
+        ]
+
+        when: 'message content is modified'
+        def request = HttpRequest.PUT("/$MessageConstant.MESSAGE_1_ID", command).bearerAuth(UserConstant.USER_3_TOKEN)
+        def response = client.toBlocking().exchange(request, Map)
+
+        then:
+        response.body()["content"] == "new content text"
+    }
 }

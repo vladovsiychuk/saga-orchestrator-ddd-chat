@@ -5,6 +5,6 @@ import java.util.UUID
 
 @Introspected
 data class MessageCommand(
-    val roomId: UUID,
+    val roomId: UUID?,
     val content: String,
 )

@@ -29,6 +29,11 @@ class MessageController(private val service: MessageService) {
         return service.create(command)
     }
 
+    @Put("/{messageId}")
+    fun update(@Body command: MessageCommand, messageId: UUID): Mono<MessageDTO> {
+        return service.update(command, messageId)
+    }
+
     @Put("/{id}/read")
     fun read(id: UUID): Mono<MessageDTO> {
         return service.read(id)
