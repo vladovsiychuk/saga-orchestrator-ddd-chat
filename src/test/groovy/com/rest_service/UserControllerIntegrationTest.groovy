@@ -47,9 +47,9 @@ class UserControllerIntegrationTest extends Specification {
         ]
 
         where:
-        expectedType                     | expectedTranslationLanguages                                         | expectedPrimaryLanguage | expectedUserId         | expectedEmail      | expectedUsername | expectedAvatar | token
-        UserType.REGULAR_USER.toString() | null                                                                 | LanguageEnum.UKRAINIAN  | UserConstant.USER_1_ID | "user-1@gmail.com" | 'username-1'     | 'avatar-1'     | UserConstant.USER_1_TOKEN
-        UserType.TRANSLATOR.toString()   | [LanguageEnum.ENGLISH.toString(), LanguageEnum.UKRAINIAN.toString()] | LanguageEnum.ENGLISH    | UserConstant.USER_4_ID | "user-4@gmail.com" | 'username-4'     | 'avatar-4'     | UserConstant.USER_4_TOKEN
+        expectedType                     | expectedTranslationLanguages                                                                          | expectedPrimaryLanguage | expectedUserId         | expectedEmail      | expectedUsername | expectedAvatar | token
+        UserType.REGULAR_USER.toString() | null                                                                                                  | LanguageEnum.UKRAINIAN  | UserConstant.USER_1_ID | "user-1@gmail.com" | 'username-1'     | 'avatar-1'     | UserConstant.USER_1_TOKEN
+        UserType.TRANSLATOR.toString()   | [LanguageEnum.ENGLISH.toString(), LanguageEnum.UKRAINIAN.toString(), LanguageEnum.ITALIAN.toString()] | LanguageEnum.ENGLISH    | UserConstant.USER_4_ID | "user-4@gmail.com" | 'username-4'     | 'avatar-4'     | UserConstant.USER_4_TOKEN
     }
 
     @Unroll
@@ -63,8 +63,8 @@ class UserControllerIntegrationTest extends Specification {
 
         where:
         command                      | expectedUsers
-        "query=user"                 | ["user-1@gmail.com", "user-2@gmail.com", "user-3@gmail.com", "user-4@gmail.com", "user-5@gmail.com", "user-6@gmail.com"]
-        "query=user&type=TRANSLATOR" | ["user-4@gmail.com"]
+        "query=user"                 | ["user-1@gmail.com", "user-2@gmail.com", "user-3@gmail.com", "user-4@gmail.com", "user-5@gmail.com", "user-6@gmail.com", "user-7@gmail.com"]
+        "query=user&type=TRANSLATOR" | ["user-4@gmail.com", "user-7@gmail.com"]
     }
 
     void "GET should return all members from all rooms"() {
@@ -73,7 +73,7 @@ class UserControllerIntegrationTest extends Specification {
         def response = client.toBlocking().exchange(request, List)
 
         then:
-        response.body().collect { it.email }.sort() == ["user-3@gmail.com", "user-2@gmail.com", "user-5@gmail.com", "user-6@gmail.com"].sort()
+        response.body().collect { it["email"] }.sort() == ["user-2@gmail.com", "user-3@gmail.com", "user-4@gmail.com", "user-5@gmail.com", "user-6@gmail.com", "user-7@gmail.com"].sort()
     }
 
     void "GET should return 404 response if the user doesn't exist"() {

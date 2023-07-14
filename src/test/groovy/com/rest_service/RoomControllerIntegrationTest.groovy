@@ -42,7 +42,7 @@ class RoomControllerIntegrationTest extends Specification {
             id         : RoomConstant.ROOM_1_ID,
             name       : "room-1",
             createdBy  : UserConstant.USER_1_ID,
-            members    : [UserConstant.USER_3_ID, UserConstant.USER_1_ID],
+            members    : [UserConstant.USER_7_ID, UserConstant.USER_3_ID, UserConstant.USER_4_ID, UserConstant.USER_1_ID],
             dateCreated: 1,
             dateUpdated: 1,
         ]
@@ -85,7 +85,7 @@ class RoomControllerIntegrationTest extends Specification {
         def response = client.toBlocking().exchange(request, Object)
 
         then: "new member should be added"
-        response.body().members.sort() == [UserConstant.USER_1_ID, UserConstant.USER_3_ID, UserConstant.USER_2_ID].sort()
+        response.body().members.sort() == [UserConstant.USER_1_ID, UserConstant.USER_3_ID, UserConstant.USER_2_ID, UserConstant.USER_4_ID, UserConstant.USER_7_ID].sort()
 
         cleanup:
         memberRepository.deleteByUserIdAndRoomId(UUID.fromString(UserConstant.USER_2_ID), UUID.fromString(RoomConstant.ROOM_1_ID))

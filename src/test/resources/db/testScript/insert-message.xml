@@ -48,6 +48,15 @@
             <column name="type" value="MESSAGE_TRANSLATE_MODIFY"/>
             <column name="date_created" value="5"/>
         </insert>
+        <insert tableName="message_event">
+            <column name="id" value="5a957ae2-df41-49f7-b655-b4658a6c294c"/>
+            <column name="message_id" value="a3ee957e-00da-459f-bacb-79e92c57abf8"/> <!--MESSAGE 1 -->
+            <column name="language" value="ITALIAN"/>
+            <column name="content" value="second translation text"/>
+            <column name="responsible_id" value="1145e007-575a-47fe-a3d1-2d24866b524e"/> <!-- USER 7 -->
+            <column name="type" value="MESSAGE_TRANSLATE"/>
+            <column name="date_created" value="6"/>
+        </insert>
 
         <insert tableName="message_event">
             <column name="id" value="b0a2690d-1d2f-4af2-a3ce-34a92ae25d5d"/>

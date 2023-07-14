@@ -41,7 +41,7 @@
             <column name="email" value="user-4@gmail.com"/>
             <column name="avatar" value="avatar-4"/>
             <column name="primary_language" value="ENGLISH"/>
-            <column name="translation_languages" value='["ENGLISH","UKRAINIAN"]'/>
+            <column name="translation_languages" value='["ENGLISH","UKRAINIAN","ITALIAN"]'/>
             <column name="type" value="TRANSLATOR"/>
             <column name="date_created" value="1"/>
             <column name="date_updated" value="1"/>
@@ -63,6 +63,17 @@
             <column name="avatar" value="avatar-6"/>
             <column name="primary_language" value="ENGLISH"/>
             <column name="type" value="REGULAR_USER"/>
+            <column name="date_created" value="1"/>
+            <column name="date_updated" value="1"/>
+        </insert>
+        <insert tableName="user">
+            <column name="id" value="1145e007-575a-47fe-a3d1-2d24866b524e"/>
+            <column name="username" value="username-7"/>
+            <column name="email" value="user-7@gmail.com"/>
+            <column name="avatar" value="avatar-7"/>
+            <column name="primary_language" value="ENGLISH"/>
+            <column name="translation_languages" value='["ENGLISH","UKRAINIAN","ITALIAN"]'/>
+            <column name="type" value="TRANSLATOR"/>
             <column name="date_created" value="1"/>
             <column name="date_updated" value="1"/>
         </insert>
