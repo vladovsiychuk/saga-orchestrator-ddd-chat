@@ -9,8 +9,6 @@ import com.rest_service.enums.UserType
 import com.rest_service.exception.IncorrectInputException
 import com.rest_service.exception.NotFoundException
 import com.rest_service.repository.MemberRepository
-import com.rest_service.repository.MessageEventRepository
-import com.rest_service.repository.RoomRepository
 import com.rest_service.repository.UserRepository
 import com.rest_service.util.SecurityUtil
 import jakarta.inject.Singleton
@@ -24,8 +22,6 @@ import reactor.core.publisher.Mono
 class UserService(
     private val userRepository: UserRepository,
     private val memberRepository: MemberRepository,
-    private val messageEventRepository: MessageEventRepository,
-    private val roomRepository: RoomRepository,
     private val securityUtil: SecurityUtil,
 ) {
 
@@ -89,7 +85,7 @@ class UserService(
                     .flatMap {
                         getRoomMembers(it)
                             .filter { user -> user.id != currentUser.id }
-                    }
+                    }.distinct()
             }
     }
 

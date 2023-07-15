@@ -3,6 +3,7 @@ package com.rest_service.resultReader
 import com.rest_service.domain.MessageEvent
 import com.rest_service.domain.User
 import com.rest_service.dto.MessageDTO
+import com.rest_service.dto.TranslationDTO
 import com.rest_service.enums.LanguageEnum
 import com.rest_service.enums.MessageEventType
 import java.util.UUID
@@ -42,20 +43,21 @@ class MessageResultReader(
     }
 
     private fun replayTranslateModify(event: MessageEvent) {
-        message.translationMap[event.language!!] = event.content!!
-        message.translatorId = event.responsibleId
+        message.translationMap[event.language!!] = TranslationDTO(event.responsibleId, event.content!!, event.language)
     }
 
     fun toDto(user: User): MessageDTO {
+        val userLanguages = user.translationLanguages?.toMutableSet() ?: mutableSetOf()
+        userLanguages.add(user.primaryLanguage.toString())
+
         return MessageDTO(
             message.id,
             message.roomId!!,
             message.senderId!!,
-            message.translatorId,
             message.content,
             message.read,
             message.originalLanguage!!,
-            message.translationMap[user.primaryLanguage] ?: "",
+            message.translationMap.filterKeys { it.toString() in userLanguages }.values.toList(),
             message.dateCreated!!
         )
     }
@@ -64,11 +66,10 @@ class MessageResultReader(
         val id: UUID,
         var roomId: UUID? = null,
         var senderId: UUID? = null,
-        var translatorId: UUID? = null,
         var content: String = "",
         var read: MutableList<UUID> = mutableListOf(),
         var originalLanguage: LanguageEnum? = null,
-        var translationMap: MutableMap<LanguageEnum, String> = mutableMapOf(),
+        var translationMap: MutableMap<LanguageEnum, TranslationDTO> = mutableMapOf(),
         var dateCreated: Long? = null,
     )
 }
