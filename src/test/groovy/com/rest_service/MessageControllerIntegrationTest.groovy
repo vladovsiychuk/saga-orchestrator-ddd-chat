@@ -135,23 +135,24 @@ class MessageControllerIntegrationTest extends Specification {
         response.body()["content"] == "new content text"
     }
 
-//    void "PUT should add the translation to the message"() {
-//        given:
-//        def command = [
-//            translation: "new translation text",
-//            language   : LanguageEnum.UKRAINIAN.toString()
-//        ]
-//
-//        when: 'message is translated'
-//        def request = HttpRequest.PUT("/$MessageConstant.MESSAGE_2_ID", command).bearerAuth(UserConstant.USER_4_TOKEN)
-//        def response = client.toBlocking().exchange(request, Map)
-//
-//        then:
-//        response.body()["translations"] == [
-//            [
-//                translatorId: UserConstant.USER_4_ID,
-//                translation : "new translation text",
-//            ]
-//        ]
-//    }
+    void "PUT should add the translation to the message"() {
+        given:
+        def command = [
+            translation: "new translation text",
+            language   : LanguageEnum.UKRAINIAN.toString()
+        ]
+
+        when: 'message is translated'
+        def request = HttpRequest.PUT("/$MessageConstant.MESSAGE_2_ID/translate", command).bearerAuth(UserConstant.USER_4_TOKEN)
+        def response = client.toBlocking().exchange(request, Map)
+
+        then:
+        response.body()["translations"] == [
+            [
+                translatorId: UserConstant.USER_4_ID,
+                translation : "new translation text",
+                language    : LanguageEnum.UKRAINIAN.toString(),
+            ]
+        ]
+    }
 }
