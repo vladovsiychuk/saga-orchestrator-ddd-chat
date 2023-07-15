@@ -1,11 +1,13 @@
 package com.rest_service.service
 
 import com.rest_service.command.MessageCommand
+import com.rest_service.command.TranslationCommand
 import com.rest_service.domain.Member
 import com.rest_service.domain.MessageEvent
 import com.rest_service.domain.User
 import com.rest_service.dto.MessageDTO
 import com.rest_service.enums.MessageEventType
+import com.rest_service.enums.UserType
 import com.rest_service.event.MessageActionEvent
 import com.rest_service.exception.IncorrectInputException
 import com.rest_service.exception.NotFoundException
@@ -173,6 +175,57 @@ class MessageService(
                 }
         }
     }
+
+
+    fun translate(messageId: UUID, command: TranslationCommand): Mono<MessageDTO> {
+        val email = securityUtil.getUserEmail()
+
+        return userRepository.findByEmail(email)
+            .flatMap { currentUser ->
+
+                if (currentUser.type != UserType.TRANSLATOR || command.language.toString() !in currentUser.translationLanguages!!)
+                    return@flatMap Mono.error(UnauthorizedException())
+
+                messageUtil.rehydrateMessage(messageId)
+                    .flatMap { messageResultReader ->
+
+                        val message = messageResultReader.toDto(currentUser)
+
+                        memberRepository.findByRoomId(message.roomId)
+                            .collectList()
+                            .flatMap { roomMembers ->
+
+                                val existingTranslation = message.translations.find { it.language == command.language }
+
+                                if (
+                                    currentUser.id !in roomMembers.map { it.userId }
+                                    || existingTranslation != null && existingTranslation.translatorId != currentUser.id
+                                )
+                                    return@flatMap Mono.error(UnauthorizedException())
+
+                                val type = if (existingTranslation != null)
+                                    MessageEventType.MESSAGE_TRANSLATE_MODIFY
+                                else
+                                    MessageEventType.MESSAGE_TRANSLATE
+
+                                val event = MessageEvent(
+                                    messageId = messageId,
+                                    language = command.language,
+                                    content = command.translation,
+                                    responsibleId = currentUser.id!!,
+                                    type = type,
+                                )
+
+                                messageEventRepository.save(event)
+                                    .map {
+                                        messageResultReader.apply(event)
+                                        messageResultReader.toDto(currentUser)
+                                    }
+                            }
+                    }
+            }
+    }
+
 
     private fun validateUserIsRoomMember(user: User, roomMembers: List<Member>, roomId: UUID): Mono<Boolean> {
         val roomMemberIds = roomMembers.map { it.userId }

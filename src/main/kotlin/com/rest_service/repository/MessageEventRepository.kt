@@ -53,5 +53,5 @@ interface MessageEventRepository : ReactorCrudRepository<MessageEvent, UUID> {
 
     fun findByMessageIdOrderByDateCreated(messageId: UUID): Flux<MessageEvent>
 
-    fun existsByTypeAndRoomId(type: MessageEventType, roomId: UUID) : Mono<Boolean>
+    fun existsByTypeAndRoomId(type: MessageEventType, roomId: UUID): Mono<Boolean>
 }

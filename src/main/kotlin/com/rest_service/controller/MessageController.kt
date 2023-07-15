@@ -1,6 +1,7 @@
 package com.rest_service.controller
 
 import com.rest_service.command.MessageCommand
+import com.rest_service.command.TranslationCommand
 import com.rest_service.dto.MessageDTO
 import com.rest_service.service.MessageService
 import io.micronaut.http.annotation.*
@@ -37,5 +38,10 @@ class MessageController(private val service: MessageService) {
     @Put("/{id}/read")
     fun read(id: UUID): Mono<MessageDTO> {
         return service.read(id)
+    }
+
+    @Put("/{id}/translate")
+    fun translate(@Body command: TranslationCommand, id: UUID): Mono<MessageDTO> {
+        return service.translate(id, command)
     }
 }
