@@ -43,8 +43,10 @@ class MessageControllerIntegrationTest extends Specification {
                         translatorId: UserConstant.USER_4_ID,
                         translation : "modified translation text",
                         language    : LanguageEnum.UKRAINIAN.toString(),
+                        isModified  : true,
                     ]
                 ],
+                isModified      : true,
                 dateCreated     : 3
             ],
             [
@@ -55,6 +57,7 @@ class MessageControllerIntegrationTest extends Specification {
                 read            : [],
                 originalLanguage: LanguageEnum.ENGLISH.toString(),
                 translations    : [],
+                isModified      : false,
                 dateCreated     : 1
             ]
         ].sort()
@@ -71,11 +74,13 @@ class MessageControllerIntegrationTest extends Specification {
                 translatorId: UserConstant.USER_4_ID,
                 translation : "modified translation text",
                 language    : LanguageEnum.UKRAINIAN.toString(),
+                isModified  : true,
             ],
             [
                 translatorId: UserConstant.USER_7_ID,
                 translation : "second translation text",
                 language    : LanguageEnum.ITALIAN.toString(),
+                isModified  : false,
             ]
         ]
     }
@@ -133,6 +138,7 @@ class MessageControllerIntegrationTest extends Specification {
 
         then:
         response.body()["content"] == "new content text"
+        response.body()["isModified"] == true
     }
 
     void "PUT should add the translation to the message"() {
@@ -152,6 +158,7 @@ class MessageControllerIntegrationTest extends Specification {
                 translatorId: UserConstant.USER_4_ID,
                 translation : "new translation text",
                 language    : LanguageEnum.UKRAINIAN.toString(),
+                isModified  : false,
             ]
         ]
     }

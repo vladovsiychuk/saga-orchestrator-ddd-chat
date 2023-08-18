@@ -40,10 +40,11 @@ class MessageResultReader(
     private fun replayModify(event: MessageEvent) {
         message.content = event.content!!
         message.dateCreated = event.dateCreated
+        message.modified = true
     }
 
     private fun replayTranslateModify(event: MessageEvent) {
-        message.translationMap[event.language!!] = TranslationDTO(event.responsibleId, event.content!!, event.language)
+        message.translationMap[event.language!!] = TranslationDTO(event.responsibleId, event.content!!, event.language, event.type == MessageEventType.MESSAGE_TRANSLATE_MODIFY)
     }
 
     fun toDto(user: User): MessageDTO {
@@ -58,6 +59,7 @@ class MessageResultReader(
             message.read,
             message.originalLanguage!!,
             message.translationMap.filterKeys { it.toString() in userLanguages }.values.toList(),
+            message.modified,
             message.dateCreated!!
         )
     }
@@ -70,6 +72,7 @@ class MessageResultReader(
         var read: MutableList<UUID> = mutableListOf(),
         var originalLanguage: LanguageEnum? = null,
         var translationMap: MutableMap<LanguageEnum, TranslationDTO> = mutableMapOf(),
+        var modified: Boolean = false,
         var dateCreated: Long? = null,
     )
 }
