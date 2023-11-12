@@ -1,4 +1,4 @@
-package com.rest_service.domain
+package com.rest_service.entity
 
 import com.rest_service.enums.LanguageEnum
 import com.rest_service.enums.MessageEventType

@@ -3,8 +3,8 @@ package com.rest_service.service
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.command.ListCommand
 import com.rest_service.command.UserCommand
-import com.rest_service.domain.User
 import com.rest_service.dto.UserDTO
+import com.rest_service.entity.User
 import com.rest_service.enums.UserType
 import com.rest_service.exception.IncorrectInputException
 import com.rest_service.exception.NotFoundException

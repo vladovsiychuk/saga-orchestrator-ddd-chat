@@ -1,4 +1,4 @@
-package com.rest_service.domain
+package com.rest_service.entity
 
 import io.micronaut.data.annotation.AutoPopulated
 import io.micronaut.data.annotation.Id
@@ -7,12 +7,14 @@ import java.time.Instant
 import java.util.UUID
 
 @MappedEntity
-data class Member(
+data class Room(
     @field:Id
     @AutoPopulated
     val id: UUID? = null,
-    val roomId: UUID,
-    val userId: UUID,
-    val joinedAt: Long = Instant.now()
+    val name: String? = null,
+    val createdBy: UUID,
+    val dateCreated: Long = Instant.now()
+        .toEpochMilli(),
+    val dateUpdated: Long = Instant.now()
         .toEpochMilli(),
 )

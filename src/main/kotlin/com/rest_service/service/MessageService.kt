@@ -2,10 +2,10 @@ package com.rest_service.service
 
 import com.rest_service.command.MessageCommand
 import com.rest_service.command.TranslationCommand
-import com.rest_service.domain.Member
-import com.rest_service.domain.MessageEvent
-import com.rest_service.domain.User
 import com.rest_service.dto.MessageDTO
+import com.rest_service.entity.Member
+import com.rest_service.entity.MessageEvent
+import com.rest_service.entity.User
 import com.rest_service.enums.MessageEventType
 import com.rest_service.enums.UserType
 import com.rest_service.event.MessageActionEvent

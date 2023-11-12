@@ -1,9 +1,9 @@
 package com.rest_service.service
 
 import com.rest_service.command.RoomCommand
-import com.rest_service.domain.Member
-import com.rest_service.domain.Room
 import com.rest_service.dto.RoomDTO
+import com.rest_service.entity.Member
+import com.rest_service.entity.Room
 import com.rest_service.enums.MessageEventType
 import com.rest_service.event.RoomActionEvent
 import com.rest_service.exception.IncorrectInputException
@@ -16,11 +16,11 @@ import com.rest_service.repository.UserRepository
 import com.rest_service.util.SecurityUtil
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
+import java.util.UUID
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.util.UUID
 
 @Singleton
 class RoomService(

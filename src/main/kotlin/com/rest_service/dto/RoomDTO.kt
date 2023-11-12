@@ -1,6 +1,6 @@
 package com.rest_service.dto
 
-import com.rest_service.domain.Room
+import com.rest_service.entity.Room
 import io.micronaut.core.annotation.Introspected
 import java.util.UUID
 

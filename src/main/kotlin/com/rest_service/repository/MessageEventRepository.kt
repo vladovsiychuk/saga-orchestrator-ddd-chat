@@ -1,13 +1,13 @@
 package com.rest_service.repository
 
-import com.rest_service.domain.MessageEvent
 import com.rest_service.dto.MessageProjectionDTO
+import com.rest_service.entity.MessageEvent
 import com.rest_service.enums.MessageEventType
 import io.micronaut.data.annotation.Query
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.r2dbc.annotation.R2dbcRepository
 import io.micronaut.data.repository.reactive.ReactorCrudRepository
-import java.util.*
+import java.util.UUID
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 

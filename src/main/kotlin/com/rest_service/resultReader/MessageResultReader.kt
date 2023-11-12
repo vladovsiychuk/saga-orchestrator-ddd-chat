@@ -1,9 +1,9 @@
 package com.rest_service.resultReader
 
-import com.rest_service.domain.MessageEvent
-import com.rest_service.domain.User
 import com.rest_service.dto.MessageDTO
 import com.rest_service.dto.TranslationDTO
+import com.rest_service.entity.MessageEvent
+import com.rest_service.entity.User
 import com.rest_service.enums.LanguageEnum
 import com.rest_service.enums.MessageEventType
 import java.util.UUID
