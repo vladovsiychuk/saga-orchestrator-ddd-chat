@@ -57,7 +57,7 @@ class MessageService(
                     .flux()
                     .flatMap {
 
-                        messageEventRepository.findProjectionMessage(roomId)
+                        messageEventRepository.findProjectionByRoomId(roomId)
                             .flatMap {
 
                                 messageUtil.rehydrateMessage(it.messageId)

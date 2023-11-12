@@ -5,7 +5,6 @@ import com.rest_service.entity.User
 import com.rest_service.enums.LanguageEnum
 import com.rest_service.enums.UserType
 import java.util.UUID
-import reactor.core.publisher.Mono
 
 class UserDomain(
     private val id: UUID,
@@ -30,19 +29,17 @@ class UserDomain(
         user.dateUpdated,
     )
 
-    fun toDto(): Mono<UserDTO> {
-        return Mono.just(
-            UserDTO(
-                id,
-                username,
-                email,
-                avatar,
-                primaryLanguage,
-                translationLanguages,
-                type,
-                dateCreated,
-                dateUpdated,
-            )
+    fun toDto(): UserDTO {
+        return UserDTO(
+            id,
+            username,
+            email,
+            avatar,
+            primaryLanguage,
+            translationLanguages,
+            type,
+            dateCreated,
+            dateUpdated,
         )
     }
 }

@@ -30,7 +30,7 @@ interface MessageEventRepository : ReactorCrudRepository<MessageEvent, UUID> {
         ORDER BY me.date_created
         """
     )
-    fun findProjectionMessage(roomId: UUID): Flux<MessageProjectionDTO>
+    fun findProjectionByRoomId(roomId: UUID): Flux<MessageProjectionDTO>
 
     @Query(
         """

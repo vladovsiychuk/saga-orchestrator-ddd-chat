@@ -4,7 +4,6 @@ import com.rest_service.command.RoomCommand
 import com.rest_service.dto.RoomDTO
 import com.rest_service.entity.Member
 import com.rest_service.entity.Room
-import com.rest_service.enums.MessageEventType
 import com.rest_service.event.RoomActionEvent
 import com.rest_service.exception.IncorrectInputException
 import com.rest_service.exception.NotFoundException
@@ -41,45 +40,24 @@ class RoomService(
         return Mono.zip(
             userUtil.getCurrentUser(),
             roomUtil.findById(roomId)
-        ) { user, room ->
-            user.toDto()
-                .flatMap {
-                    room.userIsMember(it.id)
-                        .flatMap { room.toDTO() }
-                }
-        }.flatMap { it }
+        ) { userDomain, roomDomain ->
+            val user = userDomain.toDto()
+            val room = roomDomain.toDTO()
+
+            if (roomDomain.userIsMember(user.id)) room
+            else throw IncorrectInputException("User with id ${user.id} is not a member of room with id ${room.id}")
+        }
     }
 
     fun list(): Flux<RoomDTO> {
-        val email = securityUtil.getUserEmail()
-
-        return userRepository.findByEmail(email)
+        return userUtil.getCurrentUser()
             .flux()
-            .flatMap { currentUser ->
+            .flatMap { userDomain ->
+                val currentUser = userDomain.toDto()
 
-                memberRepository.findByUserId(currentUser.id!!)
-                    .flatMap { member ->
-
-                        roomRepository.findById(member.roomId)
-                            .flatMap { room ->
-
-                                messageEventRepository.existsByTypeAndRoomId(MessageEventType.MESSAGE_NEW, room.id!!)
-                                    .flatMap { exist ->
-
-                                        if (exist || room.createdBy == currentUser.id) { // user's rooms without messages
-                                            memberRepository.findByRoomId(room.id)
-                                                .map { it.userId }
-                                                .collectList()
-                                                .flatMap { roomMembers ->
-
-                                                    Mono.just(RoomDTO(room, roomMembers))
-                                                }
-                                        } else
-                                            Mono.empty()
-                                    }
-                            }
-                    }
-            }
+                roomUtil.listByUserId(currentUser.id)
+                    .filter { it.hasAMessage() || it.createdByUser(currentUser.id) }
+            }.map { roomDomain -> roomDomain.toDTO() }
     }
 
     fun create(command: RoomCommand): Mono<RoomDTO> {
