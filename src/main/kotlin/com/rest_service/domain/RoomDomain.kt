@@ -15,7 +15,7 @@ class RoomDomain(
     private val dateCreated: Long,
     private val dateUpdated: Long,
 ) {
-    constructor(room: Room, members: List<Member>, messages: List<MessageProjectionDTO>) : this(
+    constructor(room: Room, members: List<Member>, messages: List<MessageProjectionDTO> = emptyList()) : this(
         room.id!!,
         room.name,
         room.createdBy,

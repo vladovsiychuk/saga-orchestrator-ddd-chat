@@ -3,7 +3,6 @@ package com.rest_service.service
 import com.rest_service.command.RoomCommand
 import com.rest_service.dto.RoomDTO
 import com.rest_service.entity.Member
-import com.rest_service.entity.Room
 import com.rest_service.event.RoomActionEvent
 import com.rest_service.exception.IncorrectInputException
 import com.rest_service.exception.NotFoundException
@@ -61,36 +60,13 @@ class RoomService(
     }
 
     fun create(command: RoomCommand): Mono<RoomDTO> {
-        val email = securityUtil.getUserEmail()
-
         return Mono.zip(
-            userRepository.findByEmail(email),
-            userRepository.findById(command.userId)
-                .switchIfEmpty(Mono.error(NotFoundException("User with id ${command.userId} does not exist.")))
-        )
-            .flatMap { result ->
-                val currentUser = result.t1
-                val companionUser = result.t2
-
-                val room = Room(createdBy = currentUser.id!!)
-
-                roomRepository.save(room)
-                    .flatMap { createdRoom ->
-                        val firstMember = Member(roomId = createdRoom.id!!, userId = currentUser.id)
-                        val secondMember = Member(roomId = createdRoom.id, userId = companionUser.id!!)
-
-                        Mono.zip(
-                            memberRepository.save(firstMember),
-                            memberRepository.save(secondMember)
-                        )
-                            .map {
-                                RoomDTO(createdRoom, listOf(currentUser.id, companionUser.id))
-                            }
-                    }
-                    .doOnSuccess {
-                        logger.info("New chat between ${currentUser.email} and ${companionUser.email} created.")
-                    }
-            }
+            userUtil.getCurrentUser(),
+            userUtil.findByUserId(command.userId)
+                .switchIfEmpty(Mono.error(NotFoundException("User with id ${command.userId} does not exist."))),
+        ) { currentUser, companionUser ->
+            roomUtil.createRoom(currentUser, companionUser)
+        }.flatMap { it.map { room -> room.toDTO() } }
     }
 
     fun addMember(roomId: UUID, command: RoomCommand): Mono<RoomDTO> {

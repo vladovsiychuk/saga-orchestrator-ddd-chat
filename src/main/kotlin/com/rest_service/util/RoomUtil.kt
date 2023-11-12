@@ -1,6 +1,9 @@
 package com.rest_service.util
 
 import com.rest_service.domain.RoomDomain
+import com.rest_service.domain.UserDomain
+import com.rest_service.entity.Member
+import com.rest_service.entity.Room
 import com.rest_service.repository.MemberRepository
 import com.rest_service.repository.MessageEventRepository
 import com.rest_service.repository.RoomRepository
@@ -32,5 +35,25 @@ class RoomUtil(
     fun listByUserId(userId: UUID): Flux<RoomDomain> {
         return memberRepository.findByUserId(userId)
             .flatMap { findById(it.roomId, withMessages = true) }
+    }
+
+    fun createRoom(currentUserDomain: UserDomain, companionUserDomain: UserDomain): Mono<RoomDomain> {
+        val currentUser = currentUserDomain.toDto()
+        val companionUser = companionUserDomain.toDto()
+
+        val room = Room(createdBy = currentUser.id)
+
+        return roomRepository.save(room)
+            .flatMap { createdRoom ->
+                val firstMember = Member(roomId = createdRoom.id!!, userId = currentUser.id)
+                val secondMember = Member(roomId = createdRoom.id, userId = companionUser.id)
+
+                Mono.zip(
+                    memberRepository.save(firstMember),
+                    memberRepository.save(secondMember)
+                ) { _, _ ->
+                    RoomDomain(createdRoom, listOf(firstMember, secondMember))
+                }
+            }
     }
 }
