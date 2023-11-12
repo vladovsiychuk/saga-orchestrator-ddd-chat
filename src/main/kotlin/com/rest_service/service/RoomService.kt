@@ -13,7 +13,9 @@ import com.rest_service.repository.MemberRepository
 import com.rest_service.repository.MessageEventRepository
 import com.rest_service.repository.RoomRepository
 import com.rest_service.repository.UserRepository
+import com.rest_service.util.RoomUtil
 import com.rest_service.util.SecurityUtil
+import com.rest_service.util.UserUtil
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import java.util.UUID
@@ -30,27 +32,22 @@ class RoomService(
     private val roomRepository: RoomRepository,
     private val messageEventRepository: MessageEventRepository,
     private val applicationEventPublisher: ApplicationEventPublisher<RoomActionEvent>,
+    private val roomUtil: RoomUtil,
+    private val userUtil: UserUtil,
 ) {
     private val logger: Logger = LoggerFactory.getLogger(RoomService::class.java)
 
     fun get(roomId: UUID): Mono<RoomDTO> {
-        val email = securityUtil.getUserEmail()
-
-        return userRepository.findByEmail(email)
-            .flatMap { user ->
-                memberRepository.findByRoomId(roomId)
-                    .map { it.userId }
-                    .collectList()
-                    .flatMap { members ->
-                        if (user.id !in members)
-                            return@flatMap Mono.error(IncorrectInputException("User with id ${user.id} is not a member of room with id $roomId"))
-
-                        roomRepository.findById(roomId)
-                            .map {
-                                RoomDTO(it, members)
-                            }
-                    }
-            }
+        return Mono.zip(
+            userUtil.getCurrentUser(),
+            roomUtil.findById(roomId)
+        ) { user, room ->
+            user.toDto()
+                .flatMap {
+                    room.userIsMember(it.id)
+                        .flatMap { room.toDTO() }
+                }
+        }.flatMap { it }
     }
 
     fun list(): Flux<RoomDTO> {
