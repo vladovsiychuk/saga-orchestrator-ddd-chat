@@ -54,9 +54,7 @@ class RoomUtil(
                 Mono.zip(
                     memberRepository.save(firstMember),
                     memberRepository.save(secondMember)
-                ) { _, _ ->
-                    RoomDomain(createdRoom, listOf(firstMember, secondMember))
-                }
+                ).flatMap { _ -> findById(createdRoom.id) }
             }
     }
 
