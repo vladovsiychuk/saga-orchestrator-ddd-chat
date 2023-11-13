@@ -9,8 +9,6 @@ import com.rest_service.util.RoomUtil
 import com.rest_service.util.UserUtil
 import jakarta.inject.Singleton
 import java.util.UUID
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
@@ -19,8 +17,6 @@ class RoomService(
     private val roomUtil: RoomUtil,
     private val userUtil: UserUtil,
 ) {
-    private val logger: Logger = LoggerFactory.getLogger(RoomService::class.java)
-
     fun get(roomId: UUID): Mono<RoomDTO> {
         return Mono.zip(
             userUtil.getCurrentUser(),
