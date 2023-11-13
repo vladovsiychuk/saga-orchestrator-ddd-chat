@@ -2,19 +2,11 @@ package com.rest_service.service
 
 import com.rest_service.command.RoomCommand
 import com.rest_service.dto.RoomDTO
-import com.rest_service.entity.Member
-import com.rest_service.event.RoomActionEvent
 import com.rest_service.exception.IncorrectInputException
 import com.rest_service.exception.NotFoundException
 import com.rest_service.exception.UnauthorizedException
-import com.rest_service.repository.MemberRepository
-import com.rest_service.repository.MessageEventRepository
-import com.rest_service.repository.RoomRepository
-import com.rest_service.repository.UserRepository
 import com.rest_service.util.RoomUtil
-import com.rest_service.util.SecurityUtil
 import com.rest_service.util.UserUtil
-import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import java.util.UUID
 import org.slf4j.Logger
@@ -24,12 +16,6 @@ import reactor.core.publisher.Mono
 
 @Singleton
 class RoomService(
-    private val securityUtil: SecurityUtil,
-    private val userRepository: UserRepository,
-    private val memberRepository: MemberRepository,
-    private val roomRepository: RoomRepository,
-    private val messageEventRepository: MessageEventRepository,
-    private val applicationEventPublisher: ApplicationEventPublisher<RoomActionEvent>,
     private val roomUtil: RoomUtil,
     private val userUtil: UserUtil,
 ) {
@@ -65,51 +51,29 @@ class RoomService(
     }
 
     fun addMember(roomId: UUID, command: RoomCommand): Mono<RoomDTO> {
-        val email = securityUtil.getUserEmail()
-
         return Mono.zip(
-            memberRepository.findByRoomId(roomId).collectList(),
-            roomRepository.findById(roomId)
-                .switchIfEmpty(Mono.error(NotFoundException("Room with id $roomId does not exist."))),
-            userRepository.findById(command.userId)
+            userUtil.getCurrentUser(),
+            userUtil.findByUserId(command.userId)
                 .switchIfEmpty(Mono.error(NotFoundException("User with id ${command.userId} does not exist."))),
-            userRepository.findByEmail(email)
-        )
-            .flatMap { result ->
-                val members = result.t1
-                val room = result.t2
-                val currentUser = result.t4
+            roomUtil.findById(roomId)
+                .switchIfEmpty(Mono.error(NotFoundException("Room with id $roomId does not exist."))),
+        ).flatMap {
+            val currentUser = it.t1
+            val newMemberUser = it.t2
+            val room = it.t3
 
+            if (!room.createdByUser(currentUser))
+                return@flatMap Mono.error(UnauthorizedException())
+            else if (room.userIsMember(newMemberUser))
+                return@flatMap Mono.error(IncorrectInputException("User with id ${command.userId} is already a room member."))
 
-                if (currentUser.id != room.createdBy)
-                    return@flatMap Mono.error(UnauthorizedException())
-                else if (members.map { it.userId }.contains(command.userId))
-                    return@flatMap Mono.error(IncorrectInputException("User with id ${command.userId} is already a room member."))
-
-
-                val newMember = Member(roomId = roomId, userId = command.userId)
-
-                memberRepository.save(newMember)
-                    .flatMap {
-
-                        get(roomId)
-                            .map { roomDTO ->
-
-                                broadcastMessageToRoomMembers(roomDTO, roomDTO.members)
-
-                                roomDTO
-                            }
-                    }
-            }
-    }
-
-    private fun broadcastMessageToRoomMembers(
-        roomDTO: RoomDTO,
-        roomMemberIds: List<UUID>
-    ) {
-        roomMemberIds.forEach { memberId ->
-            val event = RoomActionEvent(memberId, roomDTO)
-            applicationEventPublisher.publishEventAsync(event)
+            roomUtil.addNewMember(room, newMemberUser)
+                .flatMap { updatedRoom ->
+                    Mono.zip(
+                        roomUtil.broadcastMessageToRoomMembers(updatedRoom),
+                        Mono.just(updatedRoom)
+                    ) { _, room -> room.toDto() }
+                }
         }
     }
 }
