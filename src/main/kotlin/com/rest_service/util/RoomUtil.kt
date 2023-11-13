@@ -37,7 +37,7 @@ class RoomUtil(
 
     fun listByUser(user: UserDomain): Flux<RoomDomain> {
         return memberRepository.findByUserId(user.toDto().id)
-            .flatMap { findById(it.roomId, withMessages = true) }
+            .flatMap { this.findById(it.roomId, withMessages = true) }
     }
 
     fun createRoom(currentUserDomain: UserDomain, companionUserDomain: UserDomain): Mono<RoomDomain> {
@@ -54,7 +54,7 @@ class RoomUtil(
                 Mono.zip(
                     memberRepository.save(firstMember),
                     memberRepository.save(secondMember)
-                ).flatMap { _ -> findById(createdRoom.id) }
+                ).flatMap { _ -> this.findById(createdRoom.id) }
             }
     }
 
@@ -63,7 +63,7 @@ class RoomUtil(
         val newMember = Member(roomId = roomId, userId = newMemberUser.toDto().id)
 
         return memberRepository.save(newMember)
-            .flatMap { findById(roomId) }
+            .flatMap { this.findById(roomId) }
     }
 
     fun broadcastMessageToRoomMembers(updatedRoom: RoomDomain): Mono<Boolean> {
