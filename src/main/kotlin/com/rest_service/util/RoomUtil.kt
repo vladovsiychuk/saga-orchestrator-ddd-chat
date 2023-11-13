@@ -32,8 +32,8 @@ class RoomUtil(
         }
     }
 
-    fun listByUserId(userId: UUID): Flux<RoomDomain> {
-        return memberRepository.findByUserId(userId)
+    fun listByUser(user: UserDomain): Flux<RoomDomain> {
+        return memberRepository.findByUserId(user.toDto().id)
             .flatMap { findById(it.roomId, withMessages = true) }
     }
 

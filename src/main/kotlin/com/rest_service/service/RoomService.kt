@@ -39,24 +39,19 @@ class RoomService(
         return Mono.zip(
             userUtil.getCurrentUser(),
             roomUtil.findById(roomId)
-        ) { userDomain, roomDomain ->
-            val user = userDomain.toDto()
-            val room = roomDomain.toDTO()
-
-            if (roomDomain.userIsMember(user.id)) room
-            else throw IncorrectInputException("User with id ${user.id} is not a member of room with id ${room.id}")
+        ) { user, room ->
+            if (room.userIsMember(user)) room.toDto()
+            else throw IncorrectInputException("User with id ${user.toDto().id} is not a member of room with id ${room.toDto().id}")
         }
     }
 
     fun list(): Flux<RoomDTO> {
         return userUtil.getCurrentUser()
             .flux()
-            .flatMap { userDomain ->
-                val currentUser = userDomain.toDto()
-
-                roomUtil.listByUserId(currentUser.id)
-                    .filter { it.hasAMessage() || it.createdByUser(currentUser.id) }
-            }.map { roomDomain -> roomDomain.toDTO() }
+            .flatMap { currentUser ->
+                roomUtil.listByUser(currentUser)
+                    .filter { it.hasAMessage() || it.createdByUser(currentUser) }
+            }.map { roomDomain -> roomDomain.toDto() }
     }
 
     fun create(command: RoomCommand): Mono<RoomDTO> {
@@ -66,7 +61,7 @@ class RoomService(
                 .switchIfEmpty(Mono.error(NotFoundException("User with id ${command.userId} does not exist."))),
         ) { currentUser, companionUser ->
             roomUtil.createRoom(currentUser, companionUser)
-        }.flatMap { it.map { room -> room.toDTO() } }
+        }.flatMap { it.map { room -> room.toDto() } }
     }
 
     fun addMember(roomId: UUID, command: RoomCommand): Mono<RoomDTO> {

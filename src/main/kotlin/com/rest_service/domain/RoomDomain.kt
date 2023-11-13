@@ -25,19 +25,19 @@ class RoomDomain(
         room.dateUpdated,
     )
 
-    fun userIsMember(userId: UUID): Boolean {
-        return userId in members
+    fun userIsMember(user: UserDomain): Boolean {
+        return user.toDto().id in members
     }
 
     fun hasAMessage(): Boolean {
         return messages.isNotEmpty()
     }
 
-    fun createdByUser(userId: UUID): Boolean {
-        return userId == createdBy
+    fun createdByUser(user: UserDomain): Boolean {
+        return user.toDto().id == createdBy
     }
 
-    fun toDTO(): RoomDTO {
+    fun toDto(): RoomDTO {
         return RoomDTO(
             id,
             name,
