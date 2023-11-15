@@ -3,8 +3,6 @@ package com.rest_service.service
 import com.rest_service.command.MessageCommand
 import com.rest_service.command.TranslationCommand
 import com.rest_service.dto.MessageDTO
-import com.rest_service.exception.IncorrectInputException
-import com.rest_service.exception.NotFoundException
 import com.rest_service.exception.UnauthorizedException
 import com.rest_service.util.MessageUtil
 import com.rest_service.util.RoomUtil
@@ -31,17 +29,15 @@ class MessageService(
         return Mono.zip(
             userUtil.getCurrentUser(),
             roomUtil.findById(roomId, withMessages = true)
-                .switchIfEmpty(Mono.error(NotFoundException("Room with id $roomId doesn't exist.")))
         )
             .flux()
             .flatMap { result ->
                 val currentUser = result.t1
                 val room = result.t2
 
-                if (!room.isRoomMember(currentUser))
-                    return@flatMap Flux.error(IncorrectInputException("User with id ${currentUser.toDto().id} is not a member of room with id $roomId"))
-
-                Flux.fromIterable(room.messages)
+                roomUtil.validateUserIsRoomMember(currentUser, room)
+                    .flux()
+                    .flatMap { Flux.fromIterable(room.messages) }
                     .flatMap { messageUtil.findMessage(it, currentUser) }
             }.map { it.toDto() }
     }
@@ -51,10 +47,8 @@ class MessageService(
             userUtil.getCurrentUser(),
             roomUtil.findById(command.roomId!!)
         ) { currentUser, room ->
-            if (!room.isRoomMember(currentUser))
-                return@zip Mono.error(IncorrectInputException("User with id ${currentUser.toDto().id} is not a member of room with id ${room.toDto().id}"))
-
-            messageUtil.createMessage(command, currentUser)
+            roomUtil.validateUserIsRoomMember(currentUser, room)
+                .flatMap { messageUtil.createMessage(command, currentUser) }
                 .flatMap { messageRR ->
                     Mono.zip(
                         roomUtil.broadcastMessageToRoomMembers(room, messageRR),
@@ -93,10 +87,8 @@ class MessageService(
                     .flatMap { message ->
                         roomUtil.findById(message.toDto().roomId)
                             .flatMap { room ->
-                                if (!room.isRoomMember(currentUser))
-                                    return@flatMap Mono.error(IncorrectInputException("User with id ${currentUser.toDto().id} is not a member of room with id ${room.toDto().id}"))
-
-                                messageUtil.readMessage(message, currentUser)
+                                roomUtil.validateUserIsRoomMember(currentUser, room)
+                                    .flatMap { messageUtil.readMessage(message, currentUser) }
                                     .flatMap { messageRR ->
                                         Mono.zip(
                                             roomUtil.broadcastMessageToRoomMembers(room, messageRR),

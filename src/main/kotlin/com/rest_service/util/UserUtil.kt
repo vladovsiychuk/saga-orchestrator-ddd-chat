@@ -1,6 +1,7 @@
 package com.rest_service.util
 
 import com.rest_service.domain.UserDomain
+import com.rest_service.exception.NotFoundException
 import com.rest_service.repository.UserRepository
 import jakarta.inject.Singleton
 import java.util.UUID
@@ -20,5 +21,6 @@ class UserUtil(
     fun findByUserId(userId: UUID): Mono<UserDomain> {
         return userRepository.findById(userId)
             .map { UserDomain(it) }
+            .switchIfEmpty(Mono.error(NotFoundException("User with id $userId does not exist.")))
     }
 }

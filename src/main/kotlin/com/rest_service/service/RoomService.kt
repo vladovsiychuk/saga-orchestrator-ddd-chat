@@ -3,7 +3,6 @@ package com.rest_service.service
 import com.rest_service.command.RoomCommand
 import com.rest_service.dto.RoomDTO
 import com.rest_service.exception.IncorrectInputException
-import com.rest_service.exception.NotFoundException
 import com.rest_service.exception.UnauthorizedException
 import com.rest_service.util.RoomUtil
 import com.rest_service.util.UserUtil
@@ -22,9 +21,9 @@ class RoomService(
             userUtil.getCurrentUser(),
             roomUtil.findById(roomId)
         ) { user, room ->
-            if (room.isRoomMember(user)) room.toDto()
-            else throw IncorrectInputException("User with id ${user.toDto().id} is not a member of room with id ${room.toDto().id}")
-        }
+            roomUtil.validateUserIsRoomMember(user, room)
+                .map { room.toDto() }
+        }.flatMap { it }
     }
 
     fun list(): Flux<RoomDTO> {
@@ -40,7 +39,6 @@ class RoomService(
         return Mono.zip(
             userUtil.getCurrentUser(),
             userUtil.findByUserId(command.userId)
-                .switchIfEmpty(Mono.error(NotFoundException("User with id ${command.userId} does not exist."))),
         ) { currentUser, companionUser ->
             roomUtil.createRoom(currentUser, companionUser)
         }.flatMap { it.map { room -> room.toDto() } }
@@ -49,10 +47,8 @@ class RoomService(
     fun addMember(roomId: UUID, command: RoomCommand): Mono<RoomDTO> {
         return Mono.zip(
             userUtil.getCurrentUser(),
-            userUtil.findByUserId(command.userId)
-                .switchIfEmpty(Mono.error(NotFoundException("User with id ${command.userId} does not exist."))),
+            userUtil.findByUserId(command.userId),
             roomUtil.findById(roomId)
-                .switchIfEmpty(Mono.error(NotFoundException("Room with id $roomId does not exist."))),
         ).flatMap {
             val currentUser = it.t1
             val newMemberUser = it.t2
