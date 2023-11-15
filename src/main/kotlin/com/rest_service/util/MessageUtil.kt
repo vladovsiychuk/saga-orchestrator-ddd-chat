@@ -6,6 +6,7 @@ import com.rest_service.domain.MessageDomain
 import com.rest_service.domain.UserDomain
 import com.rest_service.entity.MessageEvent
 import com.rest_service.enums.MessageEventType
+import com.rest_service.exception.NotFoundException
 import com.rest_service.repository.MessageEventRepository
 import com.rest_service.resultReader.MessageResultReader
 import jakarta.inject.Singleton
@@ -44,6 +45,7 @@ class MessageUtil(
     fun findMessage(messageId: UUID, user: UserDomain): Mono<MessageDomain> {
         return rehydrateMessage(messageId)
             .map { it.toDomain(user) }
+            .switchIfEmpty(Mono.error(NotFoundException("Message with id $messageId doesn't exist.")))
     }
 
     fun createMessage(command: MessageCommand, currentUserDomain: UserDomain): Mono<MessageResultReader> {
