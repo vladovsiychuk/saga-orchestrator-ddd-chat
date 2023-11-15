@@ -22,7 +22,7 @@ class RoomService(
             userUtil.getCurrentUser(),
             roomUtil.findById(roomId)
         ) { user, room ->
-            if (room.userIsMember(user)) room.toDto()
+            if (room.isRoomMember(user)) room.toDto()
             else throw IncorrectInputException("User with id ${user.toDto().id} is not a member of room with id ${room.toDto().id}")
         }
     }
@@ -60,7 +60,7 @@ class RoomService(
 
             if (!room.createdByUser(currentUser))
                 return@flatMap Mono.error(UnauthorizedException())
-            else if (room.userIsMember(newMemberUser))
+            else if (room.isRoomMember(newMemberUser))
                 return@flatMap Mono.error(IncorrectInputException("User with id ${command.userId} is already a room member."))
 
             roomUtil.addNewMember(room, newMemberUser)

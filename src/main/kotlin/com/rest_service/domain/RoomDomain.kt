@@ -11,7 +11,7 @@ class RoomDomain(
     private val name: String?,
     private val createdBy: UUID,
     private val members: List<UUID>,
-    private val messages: List<UUID>,
+    val messages: List<UUID>,
     private val dateCreated: Long,
     private val dateUpdated: Long,
 ) {
@@ -25,7 +25,7 @@ class RoomDomain(
         room.dateUpdated,
     )
 
-    fun userIsMember(user: UserDomain): Boolean {
+    fun isRoomMember(user: UserDomain): Boolean {
         return user.toDto().id in members
     }
 
@@ -35,6 +35,10 @@ class RoomDomain(
 
     fun createdByUser(user: UserDomain): Boolean {
         return user.toDto().id == createdBy
+    }
+
+    fun takeLastMessageIds(roomLimit: Int): List<UUID> {
+        return messages.takeLast(roomLimit)
     }
 
     fun toDto(): RoomDTO {

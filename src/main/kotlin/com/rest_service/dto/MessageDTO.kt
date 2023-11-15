@@ -15,6 +15,6 @@ data class MessageDTO(
     val originalLanguage: LanguageEnum,
     val translations: List<TranslationDTO>,
     @JsonProperty("isModified")
-    val modified: Boolean = false,
+    val modified: Boolean,
     val dateCreated: Long,
 )

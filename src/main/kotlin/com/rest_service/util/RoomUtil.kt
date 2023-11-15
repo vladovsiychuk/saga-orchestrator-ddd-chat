@@ -4,10 +4,13 @@ import com.rest_service.domain.RoomDomain
 import com.rest_service.domain.UserDomain
 import com.rest_service.entity.Member
 import com.rest_service.entity.Room
+import com.rest_service.event.ActionEvent
+import com.rest_service.event.MessageActionEvent
 import com.rest_service.event.RoomActionEvent
 import com.rest_service.repository.MemberRepository
 import com.rest_service.repository.MessageEventRepository
 import com.rest_service.repository.RoomRepository
+import com.rest_service.resultReader.MessageResultReader
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import java.util.UUID
@@ -19,7 +22,8 @@ class RoomUtil(
     private val roomRepository: RoomRepository,
     private val memberRepository: MemberRepository,
     private val messageEventRepository: MessageEventRepository,
-    private val applicationEventPublisher: ApplicationEventPublisher<RoomActionEvent>,
+    private val applicationEventPublisher: ApplicationEventPublisher<ActionEvent>,
+    private val userUtil: UserUtil,
 ) {
     fun findById(roomId: UUID, withMessages: Boolean = false): Mono<RoomDomain> {
         return Mono.zip(
@@ -71,6 +75,18 @@ class RoomUtil(
             .map { memberId ->
                 val event = RoomActionEvent(memberId, updatedRoom.toDto())
                 applicationEventPublisher.publishEventAsync(event)
+            }
+            .collectList()
+            .map { true }
+    }
+
+    fun broadcastMessageToRoomMembers(room: RoomDomain, message: MessageResultReader): Mono<Boolean> {
+        return Flux.fromIterable(room.toDto().members)
+            .flatMap { userUtil.findByUserId(it) }
+            .map { user ->
+                val messageDto = message.toDomain(user).toDto()
+                val messageEvent = MessageActionEvent(user.toDto().id, messageDto)
+                applicationEventPublisher.publishEventAsync(messageEvent)
             }
             .collectList()
             .map { true }

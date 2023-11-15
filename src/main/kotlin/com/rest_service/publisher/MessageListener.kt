@@ -21,15 +21,12 @@ open class MessageListener(
     @EventListener
     @Async
     open fun messageActionListener(event: MessageActionEvent) {
-        userRepository.findById(event.userId)
-            .subscribe {
-                val messageDTO = event.message.toDto(it)
-                val webSocketEvent = MessageWebSocketEvent(messageDTO)
+        val messageDTO = event.message
+        val webSocketEvent = MessageWebSocketEvent(messageDTO)
 
-                val message = mapper.writeValueAsString(webSocketEvent)
+        val message = mapper.writeValueAsString(webSocketEvent)
 
-                webSocketService.sendMessageToUser(message, event.userId)
-            }
+        webSocketService.sendMessageToUser(message, event.userId)
     }
 
     @EventListener

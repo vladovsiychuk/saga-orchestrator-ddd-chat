@@ -1,9 +1,9 @@
 package com.rest_service.resultReader
 
-import com.rest_service.dto.MessageDTO
+import com.rest_service.domain.MessageDomain
+import com.rest_service.domain.UserDomain
 import com.rest_service.dto.TranslationDTO
 import com.rest_service.entity.MessageEvent
-import com.rest_service.entity.User
 import com.rest_service.enums.LanguageEnum
 import com.rest_service.enums.MessageEventType
 import java.util.UUID
@@ -47,11 +47,13 @@ class MessageResultReader(
         message.translationMap[event.language!!] = TranslationDTO(event.responsibleId, event.content!!, event.language, event.type == MessageEventType.MESSAGE_TRANSLATE_MODIFY)
     }
 
-    fun toDto(user: User): MessageDTO {
+    fun toDomain(userDomain: UserDomain): MessageDomain {
+        val user = userDomain.toDto()
+
         val userLanguages = user.translationLanguages?.toMutableSet() ?: mutableSetOf()
         userLanguages.add(user.primaryLanguage.toString())
 
-        return MessageDTO(
+        return MessageDomain(
             message.id,
             message.roomId!!,
             message.senderId!!,

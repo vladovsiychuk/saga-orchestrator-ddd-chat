@@ -8,4 +8,4 @@ import java.util.UUID
 data class RoomActionEvent(
     val userId: UUID,
     val room: RoomDTO,
-)
+) : ActionEvent

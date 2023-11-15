@@ -29,6 +29,10 @@ class UserDomain(
         user.dateUpdated,
     )
 
+    fun canTranslateLanguage(language: LanguageEnum): Boolean {
+        return translationLanguages?.contains(language.toString()) ?: false
+    }
+
     fun toDto(): UserDTO {
         return UserDTO(
             id,
