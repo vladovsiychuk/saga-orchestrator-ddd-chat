@@ -5,7 +5,6 @@ import com.rest_service.event.MessageActionEvent
 import com.rest_service.event.RoomActionEvent
 import com.rest_service.event.websocket.MessageWebSocketEvent
 import com.rest_service.event.websocket.RoomWebSocketEvent
-import com.rest_service.repository.UserRepository
 import com.rest_service.websocket.WebSocketService
 import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.scheduling.annotation.Async
@@ -13,7 +12,6 @@ import jakarta.inject.Singleton
 
 @Singleton
 open class MessageListener(
-    private val userRepository: UserRepository,
     private val webSocketService: WebSocketService,
 ) {
     private val mapper = jacksonObjectMapper()
@@ -32,13 +30,10 @@ open class MessageListener(
     @EventListener
     @Async
     open fun roomActionListener(event: RoomActionEvent) {
-        userRepository.findById(event.userId)
-            .subscribe {
-                val webSocketEvent = RoomWebSocketEvent(event.room)
+        val webSocketEvent = RoomWebSocketEvent(event.room)
 
-                val message = mapper.writeValueAsString(webSocketEvent)
+        val message = mapper.writeValueAsString(webSocketEvent)
 
-                webSocketService.sendMessageToUser(message, event.userId)
-            }
+        webSocketService.sendMessageToUser(message, event.userId)
     }
 }
