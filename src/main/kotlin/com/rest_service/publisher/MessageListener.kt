@@ -1,6 +1,7 @@
 package com.rest_service.publisher
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.rest_service.event.ActionEvent
 import com.rest_service.event.MessageActionEvent
 import com.rest_service.event.RoomActionEvent
 import com.rest_service.event.websocket.MessageWebSocketEvent
@@ -16,8 +17,16 @@ open class MessageListener(
 ) {
     private val mapper = jacksonObjectMapper()
 
+
     @EventListener
     @Async
+    open fun messageActionListener(event: ActionEvent) {
+        when (event) {
+            is MessageActionEvent -> messageActionListener(event)
+            is RoomActionEvent    -> roomActionListener(event)
+        }
+    }
+
     open fun messageActionListener(event: MessageActionEvent) {
         val messageDTO = event.message
         val webSocketEvent = MessageWebSocketEvent(messageDTO)
@@ -27,8 +36,6 @@ open class MessageListener(
         webSocketService.sendMessageToUser(message, event.userId)
     }
 
-    @EventListener
-    @Async
     open fun roomActionListener(event: RoomActionEvent) {
         val webSocketEvent = RoomWebSocketEvent(event.room)
 
