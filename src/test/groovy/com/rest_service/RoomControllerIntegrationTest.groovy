@@ -57,6 +57,16 @@ class RoomControllerIntegrationTest extends Specification {
         response.body().collect { it.id }.sort() == [RoomConstant.ROOM_1_ID, RoomConstant.ROOM_3_ID, RoomConstant.ROOM_4_ID].sort()
     }
 
+    void "GET should throw an error when not a room member is trying to get the room"() {
+        when:
+        def request = HttpRequest.GET("/$RoomConstant.ROOM_1_ID").bearerAuth(UserConstant.USER_6_TOKEN)
+        client.toBlocking().exchange(request, Object)
+
+        then:
+        HttpClientResponseException exception = thrown()
+        exception.response.code() == HttpStatus.UNAUTHORIZED.code
+    }
+
     void "POST should create new room"() {
         given:
         def command = [
@@ -72,6 +82,7 @@ class RoomControllerIntegrationTest extends Specification {
 
         cleanup:
         roomRepository.deleteById(UUID.fromString(response.body().id)).block()
+        memberRepository.deleteByRoomId(UUID.fromString(response.body().id)).block()
     }
 
     void "PUT should add new member to the room"() {

@@ -7,8 +7,8 @@ import com.rest_service.entity.Room
 import com.rest_service.event.ActionEvent
 import com.rest_service.event.MessageActionEvent
 import com.rest_service.event.RoomActionEvent
-import com.rest_service.exception.IncorrectInputException
 import com.rest_service.exception.NotFoundException
+import com.rest_service.exception.UnauthorizedException
 import com.rest_service.repository.MemberRepository
 import com.rest_service.repository.MessageEventRepository
 import com.rest_service.repository.RoomRepository
@@ -96,7 +96,7 @@ class RoomUtil(
 
     fun validateUserIsRoomMember(user: UserDomain, room: RoomDomain): Mono<Boolean> {
         if (!room.isRoomMember(user))
-            return Mono.error(IncorrectInputException("User with id ${user.toDto().id} is not a member of room with id ${room.toDto().id}"))
+            return Mono.error(UnauthorizedException())
 
         return Mono.just(true);
     }

@@ -20,4 +20,6 @@ interface MemberRepository : ReactorCrudRepository<Member, UUID> {
 
     //Used only for testing
     fun deleteByUserIdAndRoomId(userId: UUID, roomId: UUID): Mono<Long>
+
+    fun deleteByRoomId(roomId: UUID): Mono<Long>
 }
