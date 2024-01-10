@@ -37,6 +37,7 @@ dependencies {
     implementation("io.swagger.core.v3:swagger-annotations")
     implementation("io.micronaut.security:micronaut-security-oauth2")
     implementation("io.micronaut.reactor:micronaut-reactor-http-client")
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.2.2")
 
     runtimeOnly("io.r2dbc:r2dbc-pool:1.0.0.RELEASE")
     runtimeOnly("ch.qos.logback:logback-classic")

@@ -18,6 +18,12 @@ import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.publisher.Mono.zip
+import reactor.kotlin.core.publisher.toFlux
+import reactor.kotlin.core.publisher.toMono
+import reactor.kotlin.core.util.function.component1
+import reactor.kotlin.core.util.function.component2
+import reactor.kotlin.core.util.function.component3
 
 @Singleton
 class RoomManager(
@@ -28,17 +34,14 @@ class RoomManager(
     private val userManager: UserManager,
 ) {
     fun findById(roomId: UUID, withMessages: Boolean = false): Mono<RoomDomain> {
-        return Mono.zip(
+        return zip(
             roomRepository.findById(roomId),
             memberRepository.findByRoomId(roomId).collectList(),
             if (withMessages) messageEventRepository.findProjectionByRoomId(roomId).collectList() else Mono.just(listOf())
-        ).map { result ->
-            val room = result.t1
-            val members = result.t2
-            val messages = result.t3
-
-            RoomDomain(room, members, messages)
-        }.switchIfEmpty(Mono.error(NotFoundException("Room with id $roomId doesn't exist.")))
+        )
+            .map { (room, members, messages) ->
+                RoomDomain(room, members, messages)
+            }.switchIfEmpty(NotFoundException("Room with id $roomId doesn't exist.").toMono())
     }
 
     fun listByUser(user: UserDomain): Flux<RoomDomain> {
@@ -57,10 +60,11 @@ class RoomManager(
                 val firstMember = Member(roomId = createdRoom.id!!, userId = currentUser.id)
                 val secondMember = Member(roomId = createdRoom.id, userId = companionUser.id)
 
-                Mono.zip(
+                zip(
                     memberRepository.save(firstMember),
                     memberRepository.save(secondMember)
-                ).flatMap { _ -> this.findById(createdRoom.id) }
+                )
+                    .then(this.findById(createdRoom.id))
             }
     }
 
@@ -69,35 +73,33 @@ class RoomManager(
         val newMember = Member(roomId = roomId, userId = newMemberUser.toDto().id)
 
         return memberRepository.save(newMember)
-            .flatMap { this.findById(roomId) }
+            .then(this.findById(roomId))
     }
 
     fun broadcastMessageToRoomMembers(updatedRoom: RoomDomain): Mono<Boolean> {
-        return Flux.fromIterable(updatedRoom.toDto().members)
-            .map { memberId ->
+        return updatedRoom.toDto().members.toFlux()
+            .doOnNext { memberId ->
                 val event = RoomActionEvent(memberId, updatedRoom.toDto())
                 applicationEventPublisher.publishEventAsync(event)
             }
-            .collectList()
-            .map { true }
+            .then(true.toMono())
     }
 
     fun broadcastMessageToRoomMembers(room: RoomDomain, message: MessageResultReader): Mono<Boolean> {
-        return Flux.fromIterable(room.toDto().members)
+        return room.toDto().members.toFlux()
             .flatMap { userManager.findByUserId(it) }
-            .map { user ->
+            .doOnNext { user ->
                 val messageDto = message.toDomain(user).toDto()
                 val messageEvent = MessageActionEvent(user.toDto().id, messageDto)
                 applicationEventPublisher.publishEventAsync(messageEvent)
             }
-            .collectList()
-            .map { true }
+            .then(true.toMono())
     }
 
     fun validateUserIsRoomMember(user: UserDomain, room: RoomDomain): Mono<Boolean> {
         if (!room.isRoomMember(user))
-            return Mono.error(UnauthorizedException())
+            return UnauthorizedException().toMono()
 
-        return Mono.just(true);
+        return true.toMono()
     }
 }

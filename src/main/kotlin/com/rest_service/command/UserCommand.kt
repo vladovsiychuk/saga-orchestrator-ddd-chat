@@ -5,6 +5,7 @@ import com.rest_service.enums.UserType
 import com.rest_service.exception.IncorrectInputException
 import io.micronaut.core.annotation.Introspected
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 
 @Introspected
 data class UserCommand(
@@ -15,9 +16,9 @@ data class UserCommand(
 ) {
     fun validate(): Mono<Boolean> {
         return if (type == UserType.TRANSLATOR && translationLanguages!!.size < 2)
-            Mono.error(IncorrectInputException("A translator user must have at least 1 translation language."))
+            IncorrectInputException("A translator user must have at least 1 translation language.").toMono()
         else if (type == UserType.REGULAR_USER && !translationLanguages.isNullOrEmpty())
-            Mono.error(IncorrectInputException("A regular user cannot have translation languages."))
+            IncorrectInputException("A regular user cannot have translation languages.").toMono()
         else
             Mono.just(true)
     }

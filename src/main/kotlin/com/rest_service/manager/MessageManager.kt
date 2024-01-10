@@ -13,6 +13,7 @@ import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 
 @Singleton
 class MessageManager(
@@ -20,32 +21,21 @@ class MessageManager(
     private val userManager: UserManager,
     private val roomManager: RoomManager,
 ) {
-
-    /**
-     * Collects the last n messages in each room for the current user.
-     *
-     * 1. get the current user
-     * 2. get user rooms
-     * 3. take last n messages per room
-     * 4. rehydrate each message
-     * 5. @return list of MessageDomain
-     */
     fun collectLastMessagesInEachRoom(messageLimit: Int): Flux<MessageDomain> {
         return userManager.getCurrentUser()
-            .flux()
-            .flatMap { currentUser ->
+            .flatMapMany { currentUser ->
                 roomManager.listByUser(currentUser)
                     .map { it.takeLastMessageIds(messageLimit) }
-                    .flatMap { Flux.fromIterable(it) }
+                    .flatMapIterable { it }
                     .flatMap { this.rehydrateMessage(it) }
                     .map { it.toDomain(currentUser) }
             }
     }
 
     fun findMessage(messageId: UUID, user: UserDomain): Mono<MessageDomain> {
-        return rehydrateMessage(messageId)
+        return this.rehydrateMessage(messageId)
             .map { it.toDomain(user) }
-            .switchIfEmpty(Mono.error(NotFoundException("Message with id $messageId doesn't exist.")))
+            .switchIfEmpty(NotFoundException("Message with id $messageId doesn't exist.").toMono())
     }
 
     fun createMessage(command: MessageCommand, currentUserDomain: UserDomain): Mono<MessageResultReader> {
@@ -107,14 +97,8 @@ class MessageManager(
 
     private fun rehydrateMessage(messageId: UUID): Mono<MessageResultReader> {
         return eventRepository.findByMessageIdOrderByDateCreated(messageId)
-            .collectList()
-            .map { events ->
-                val resultReader = MessageResultReader(messageId)
-
-                events.forEach {
-                    resultReader.apply(it)
-                }
-
+            .reduce(MessageResultReader(messageId)) { resultReader, event ->
+                resultReader.apply(event)
                 resultReader
             }
     }

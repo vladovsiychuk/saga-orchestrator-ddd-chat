@@ -1,6 +1,7 @@
 package com.rest_service.service
 
 import com.rest_service.command.RoomCommand
+import com.rest_service.domain.RoomDomain
 import com.rest_service.dto.RoomDTO
 import com.rest_service.exception.IncorrectInputException
 import com.rest_service.exception.UnauthorizedException
@@ -10,6 +11,11 @@ import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.publisher.Mono.zip
+import reactor.kotlin.core.publisher.toMono
+import reactor.kotlin.core.util.function.component1
+import reactor.kotlin.core.util.function.component2
+import reactor.kotlin.core.util.function.component3
 
 @Singleton
 class RoomService(
@@ -17,55 +23,54 @@ class RoomService(
     private val userManager: UserManager,
 ) {
     fun get(roomId: UUID): Mono<RoomDTO> {
-        return Mono.zip(
+        return zip(
             userManager.getCurrentUser(),
             roomManager.findById(roomId)
-        ) { user, room ->
-            roomManager.validateUserIsRoomMember(user, room)
-                .map { room.toDto() }
-        }.flatMap { it }
+        )
+            .flatMap { (user, room) ->
+                roomManager.validateUserIsRoomMember(user, room)
+                    .thenReturn(room.toDto())
+            }
     }
 
     fun list(): Flux<RoomDTO> {
         return userManager.getCurrentUser()
-            .flux()
-            .flatMap { currentUser ->
+            .flatMapMany { currentUser ->
                 roomManager.listByUser(currentUser)
                     .filter { it.hasAMessage() || it.createdByUser(currentUser) }
-            }.map { roomDomain -> roomDomain.toDto() }
+                    .map(RoomDomain::toDto)
+            }
     }
 
     fun create(command: RoomCommand): Mono<RoomDTO> {
-        return Mono.zip(
+        return zip(
             userManager.getCurrentUser(),
             userManager.findByUserId(command.userId)
-        ) { currentUser, companionUser ->
-            roomManager.createRoom(currentUser, companionUser)
-        }.flatMap { it.map { room -> room.toDto() } }
+        )
+            .flatMap { (currentUser, companionUser) ->
+                roomManager.createRoom(currentUser, companionUser)
+                    .map(RoomDomain::toDto)
+            }
     }
 
     fun addMember(roomId: UUID, command: RoomCommand): Mono<RoomDTO> {
-        return Mono.zip(
+        return zip(
             userManager.getCurrentUser(),
             userManager.findByUserId(command.userId),
             roomManager.findById(roomId)
-        ).flatMap {
-            val currentUser = it.t1
-            val newMemberUser = it.t2
-            val room = it.t3
+        )
+            .flatMap { (currentUser, newMemberUser, room) ->
+                when {
+                    !room.createdByUser(currentUser) -> UnauthorizedException().toMono()
+                    room.isRoomMember(newMemberUser) -> IncorrectInputException("User with id ${command.userId} is already a room member.").toMono()
 
-            if (!room.createdByUser(currentUser))
-                return@flatMap Mono.error(UnauthorizedException())
-            else if (room.isRoomMember(newMemberUser))
-                return@flatMap Mono.error(IncorrectInputException("User with id ${command.userId} is already a room member."))
-
-            roomManager.addNewMember(room, newMemberUser)
-                .flatMap { updatedRoom ->
-                    Mono.zip(
-                        roomManager.broadcastMessageToRoomMembers(updatedRoom),
-                        Mono.just(updatedRoom)
-                    ) { _, room -> room.toDto() }
+                    else                             ->
+                        roomManager.addNewMember(room, newMemberUser)
+                            .flatMap { updatedRoom ->
+                                roomManager.broadcastMessageToRoomMembers(updatedRoom)
+                                    .thenReturn(updatedRoom.toDto())
+                            }
                 }
-        }
+            }
     }
 }

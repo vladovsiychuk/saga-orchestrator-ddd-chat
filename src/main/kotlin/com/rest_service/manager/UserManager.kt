@@ -13,6 +13,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 
 @Singleton
 class UserManager(
@@ -30,7 +31,7 @@ class UserManager(
     fun findByUserId(userId: UUID): Mono<UserDomain> {
         return repository.findById(userId)
             .map { UserDomain(it) }
-            .switchIfEmpty(Mono.error(NotFoundException("User with id $userId does not exist.")))
+            .switchIfEmpty(NotFoundException("User with id $userId does not exist.").toMono())
     }
 
     fun createUser(command: UserCommand): Mono<UserDomain> {
