@@ -4,9 +4,9 @@ import com.rest_service.command.MessageCommand
 import com.rest_service.command.TranslationCommand
 import com.rest_service.dto.MessageDTO
 import com.rest_service.exception.UnauthorizedException
-import com.rest_service.util.MessageUtil
-import com.rest_service.util.RoomUtil
-import com.rest_service.util.UserUtil
+import com.rest_service.manager.MessageManager
+import com.rest_service.manager.RoomManager
+import com.rest_service.manager.UserManager
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Flux
@@ -14,44 +14,44 @@ import reactor.core.publisher.Mono
 
 @Singleton
 class MessageService(
-    private val messageUtil: MessageUtil,
-    private val userUtil: UserUtil,
-    private val roomUtil: RoomUtil,
+    private val messageManager: MessageManager,
+    private val userManager: UserManager,
+    private val roomManager: RoomManager,
 ) {
 
 
     fun list(roomLimit: Int): Flux<MessageDTO> {
-        return messageUtil.collectLastMessagesInEachRoom(roomLimit)
+        return messageManager.collectLastMessagesInEachRoom(roomLimit)
             .map { message -> message.toDto() }
     }
 
     fun getRoomMessages(roomId: UUID): Flux<MessageDTO> {
         return Mono.zip(
-            userUtil.getCurrentUser(),
-            roomUtil.findById(roomId, withMessages = true)
+            userManager.getCurrentUser(),
+            roomManager.findById(roomId, withMessages = true)
         )
             .flux()
             .flatMap { result ->
                 val currentUser = result.t1
                 val room = result.t2
 
-                roomUtil.validateUserIsRoomMember(currentUser, room)
+                roomManager.validateUserIsRoomMember(currentUser, room)
                     .flux()
                     .flatMap { Flux.fromIterable(room.messages) }
-                    .flatMap { messageUtil.findMessage(it, currentUser) }
+                    .flatMap { messageManager.findMessage(it, currentUser) }
             }.map { it.toDto() }
     }
 
     fun create(command: MessageCommand): Mono<MessageDTO> {
         return Mono.zip(
-            userUtil.getCurrentUser(),
-            roomUtil.findById(command.roomId!!)
+            userManager.getCurrentUser(),
+            roomManager.findById(command.roomId!!)
         ) { currentUser, room ->
-            roomUtil.validateUserIsRoomMember(currentUser, room)
-                .flatMap { messageUtil.createMessage(command, currentUser) }
+            roomManager.validateUserIsRoomMember(currentUser, room)
+                .flatMap { messageManager.createMessage(command, currentUser) }
                 .flatMap { messageRR ->
                     Mono.zip(
-                        roomUtil.broadcastMessageToRoomMembers(room, messageRR),
+                        roomManager.broadcastMessageToRoomMembers(room, messageRR),
                         Mono.just(messageRR.toDomain(currentUser).toDto())
                     ) { _, message -> message }
                 }
@@ -59,20 +59,20 @@ class MessageService(
     }
 
     fun update(command: MessageCommand, messageId: UUID): Mono<MessageDTO> {
-        return userUtil.getCurrentUser()
+        return userManager.getCurrentUser()
             .flatMap { currentUser ->
-                messageUtil.findMessage(messageId, currentUser)
+                messageManager.findMessage(messageId, currentUser)
                     .flatMap { message ->
                         if (!message.isSender(currentUser))
                             return@flatMap Mono.error(UnauthorizedException())
 
                         Mono.zip(
-                            roomUtil.findById(message.toDto().roomId),
-                            messageUtil.modifyMessageContent(message, command, currentUser)
+                            roomManager.findById(message.toDto().roomId),
+                            messageManager.modifyMessageContent(message, command, currentUser)
                         ) { room, messageRR ->
 
                             Mono.zip(
-                                roomUtil.broadcastMessageToRoomMembers(room, messageRR),
+                                roomManager.broadcastMessageToRoomMembers(room, messageRR),
                                 Mono.just(messageRR.toDomain(currentUser).toDto())
                             ) { _, message -> message }
                         }
@@ -81,17 +81,17 @@ class MessageService(
     }
 
     fun read(messageId: UUID): Mono<MessageDTO> {
-        return userUtil.getCurrentUser()
+        return userManager.getCurrentUser()
             .flatMap { currentUser ->
-                messageUtil.findMessage(messageId, currentUser)
+                messageManager.findMessage(messageId, currentUser)
                     .flatMap { message ->
-                        roomUtil.findById(message.toDto().roomId)
+                        roomManager.findById(message.toDto().roomId)
                             .flatMap { room ->
-                                roomUtil.validateUserIsRoomMember(currentUser, room)
-                                    .flatMap { messageUtil.readMessage(message, currentUser) }
+                                roomManager.validateUserIsRoomMember(currentUser, room)
+                                    .flatMap { messageManager.readMessage(message, currentUser) }
                                     .flatMap { messageRR ->
                                         Mono.zip(
-                                            roomUtil.broadcastMessageToRoomMembers(room, messageRR),
+                                            roomManager.broadcastMessageToRoomMembers(room, messageRR),
                                             Mono.just(messageRR.toDomain(currentUser).toDto())
                                         ) { _, message -> message }
                                     }
@@ -102,24 +102,24 @@ class MessageService(
 
 
     fun translate(messageId: UUID, command: TranslationCommand): Mono<MessageDTO> {
-        return userUtil.getCurrentUser()
+        return userManager.getCurrentUser()
             .flatMap { currentUser ->
                 if (!currentUser.canTranslateLanguage(command.language))
                     return@flatMap Mono.error(UnauthorizedException())
 
-                messageUtil.findMessage(messageId, currentUser)
+                messageManager.findMessage(messageId, currentUser)
                     .flatMap { message ->
-                        roomUtil.findById(message.toDto().roomId)
+                        roomManager.findById(message.toDto().roomId)
                             .flatMap { room ->
                                 if (!room.isRoomMember(currentUser) ||
                                     message.isTranslatedByAnotherUser(currentUser, command.language)
                                 )
                                     return@flatMap Mono.error(UnauthorizedException())
 
-                                messageUtil.updateTranslation(message, command, currentUser)
+                                messageManager.updateTranslation(message, command, currentUser)
                                     .flatMap { messageRR ->
                                         Mono.zip(
-                                            roomUtil.broadcastMessageToRoomMembers(room, messageRR),
+                                            roomManager.broadcastMessageToRoomMembers(room, messageRR),
                                             Mono.just(messageRR.toDomain(currentUser).toDto())
                                         ) { _, message -> message }
                                     }

@@ -1,4 +1,4 @@
-package com.rest_service.util
+package com.rest_service.manager
 
 import com.rest_service.command.MessageCommand
 import com.rest_service.command.TranslationCommand
@@ -15,10 +15,10 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Singleton
-class MessageUtil(
+class MessageManager(
     private val eventRepository: MessageEventRepository,
-    private val userUtil: UserUtil,
-    private val roomUtil: RoomUtil,
+    private val userManager: UserManager,
+    private val roomManager: RoomManager,
 ) {
 
     /**
@@ -31,10 +31,10 @@ class MessageUtil(
      * 5. @return list of MessageDomain
      */
     fun collectLastMessagesInEachRoom(messageLimit: Int): Flux<MessageDomain> {
-        return userUtil.getCurrentUser()
+        return userManager.getCurrentUser()
             .flux()
             .flatMap { currentUser ->
-                roomUtil.listByUser(currentUser)
+                roomManager.listByUser(currentUser)
                     .map { it.takeLastMessageIds(messageLimit) }
                     .flatMap { Flux.fromIterable(it) }
                     .flatMap { this.rehydrateMessage(it) }

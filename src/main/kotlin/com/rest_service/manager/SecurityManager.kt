@@ -1,4 +1,4 @@
-package com.rest_service.util
+package com.rest_service.manager
 
 import io.micronaut.context.annotation.Primary
 import io.micronaut.security.utils.SecurityService
@@ -6,7 +6,7 @@ import jakarta.inject.Singleton
 
 @Singleton
 @Primary
-open class SecurityUtil(
+open class SecurityManager(
     private val securityService: SecurityService,
 ) {
     fun getUserEmail(): String {

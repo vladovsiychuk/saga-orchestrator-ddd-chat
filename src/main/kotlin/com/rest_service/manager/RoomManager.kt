@@ -1,4 +1,4 @@
-package com.rest_service.util
+package com.rest_service.manager
 
 import com.rest_service.domain.RoomDomain
 import com.rest_service.domain.UserDomain
@@ -20,12 +20,12 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Singleton
-class RoomUtil(
+class RoomManager(
     private val roomRepository: RoomRepository,
     private val memberRepository: MemberRepository,
     private val messageEventRepository: MessageEventRepository,
     private val applicationEventPublisher: ApplicationEventPublisher<ActionEvent>,
-    private val userUtil: UserUtil,
+    private val userManager: UserManager,
 ) {
     fun findById(roomId: UUID, withMessages: Boolean = false): Mono<RoomDomain> {
         return Mono.zip(
@@ -84,7 +84,7 @@ class RoomUtil(
 
     fun broadcastMessageToRoomMembers(room: RoomDomain, message: MessageResultReader): Mono<Boolean> {
         return Flux.fromIterable(room.toDto().members)
-            .flatMap { userUtil.findByUserId(it) }
+            .flatMap { userManager.findByUserId(it) }
             .map { user ->
                 val messageDto = message.toDomain(user).toDto()
                 val messageEvent = MessageActionEvent(user.toDto().id, messageDto)

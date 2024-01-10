@@ -1,4 +1,4 @@
-package com.rest_service.util
+package com.rest_service.manager
 
 import com.rest_service.command.ListCommand
 import com.rest_service.command.UserCommand
@@ -15,14 +15,14 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Singleton
-class UserUtil(
-    private val securityUtil: SecurityUtil,
+class UserManager(
+    private val securityManager: SecurityManager,
     private val repository: UserRepository,
 ) {
     private val logger: Logger = LoggerFactory.getLogger(UserService::class.java)
 
     fun getCurrentUser(): Mono<UserDomain> {
-        val email = securityUtil.getUserEmail()
+        val email = securityManager.getUserEmail()
         return repository.findByEmail(email)
             .map { UserDomain(it) }
     }
@@ -36,7 +36,7 @@ class UserUtil(
     fun createUser(command: UserCommand): Mono<UserDomain> {
         val user = User(
             username = command.username,
-            email = securityUtil.getUserEmail(),
+            email = securityManager.getUserEmail(),
             primaryLanguage = command.primaryLanguage,
             translationLanguages = command.translationLanguages?.map { it.toString() },
             type = command.type,

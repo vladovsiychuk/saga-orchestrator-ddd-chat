@@ -3,8 +3,8 @@ package com.rest_service.service
 import com.rest_service.command.ListCommand
 import com.rest_service.command.UserCommand
 import com.rest_service.dto.UserDTO
-import com.rest_service.util.RoomUtil
-import com.rest_service.util.UserUtil
+import com.rest_service.manager.RoomManager
+import com.rest_service.manager.UserManager
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Flux
@@ -12,39 +12,39 @@ import reactor.core.publisher.Mono
 
 @Singleton
 class UserService(
-    private val userUtil: UserUtil,
-    private val roomUtil: RoomUtil,
+    private val userManager: UserManager,
+    private val roomManager: RoomManager,
 ) {
     fun getCurrentUser(): Mono<UserDTO> {
-        return userUtil.getCurrentUser().map { it.toDto() }
+        return userManager.getCurrentUser().map { it.toDto() }
     }
 
     fun get(id: UUID): Mono<UserDTO> {
-        return userUtil.findByUserId(id).map { it.toDto() }
+        return userManager.findByUserId(id).map { it.toDto() }
     }
 
     fun create(command: UserCommand): Mono<UserDTO> {
         return command.validate()
-            .flatMap { userUtil.createUser(command) }
+            .flatMap { userManager.createUser(command) }
             .map { it.toDto() }
     }
 
     fun list(listCommand: ListCommand): Flux<UserDTO> {
-        return userUtil.list(listCommand)
+        return userManager.list(listCommand)
             .map { it.toDto() }
     }
 
     fun getMembersOfUserRooms(): Flux<UserDTO> {
-        return userUtil.getCurrentUser()
+        return userManager.getCurrentUser()
             .flux()
             .flatMap { currentUser ->
-                roomUtil.listByUser(currentUser)
+                roomManager.listByUser(currentUser)
                     .map { it.toDto() }
                     .flatMap { Flux.fromIterable(it.members) }
                     .distinct()
                     .filter { it != currentUser.toDto().id }
             }
-            .flatMap { userUtil.findByUserId(it) }
+            .flatMap { userManager.findByUserId(it) }
             .map { it.toDto() }
     }
 }
