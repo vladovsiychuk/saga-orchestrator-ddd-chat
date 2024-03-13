@@ -21,8 +21,4 @@
 -->
 
     <include file="init.xml" relativeToChangelogFile="true"/>
-    <include file="testScript/insert-room.xml" relativeToChangelogFile="true"/>
-    <include file="testScript/insert-member.xml" relativeToChangelogFile="true"/>
-    <include file="testScript/insert-user.xml" relativeToChangelogFile="true"/>
-    <include file="testScript/insert-message.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
