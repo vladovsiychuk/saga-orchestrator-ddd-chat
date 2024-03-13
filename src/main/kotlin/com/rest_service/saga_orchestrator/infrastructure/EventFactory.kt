@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-class EventFactory(private val securityManager: SecurityManager) {
+open class EventFactory(private val securityManager: SecurityManager) {
     fun createStartEvent(command: Command): Mono<DomainEvent> {
         val type: SagaType = when (command) {
             is RoomCommand -> SagaType.ROOM_CREATE_START

@@ -1,5 +1,6 @@
-package com.rest_service.integration_test
+package com.rest_service.saga_orchestrator.integration_test
 
+import com.rest_service.UserConstant
 import com.rest_service.commons.enums.LanguageEnum
 import com.rest_service.commons.enums.SagaType
 import com.rest_service.commons.enums.ServiceEnum

@@ -1,4 +1,4 @@
-package com.rest_service.integration_test
+package com.rest_service
 
 class UserConstant {
     static final USER_1_ID = "e83e9450-e60a-46bc-aa26-74a3152312d1"
