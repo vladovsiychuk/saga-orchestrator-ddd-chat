@@ -32,8 +32,8 @@ class SagaEventHandlerSpec extends Specification {
         UUID operationId = UUID.randomUUID()
         UUID userId = UUID.randomUUID()
         RoomCommand command = new RoomCommand(userId)
-        DomainEvent event = new DomainEvent(SagaType.ROOM_CREATE_START, operationId, ServiceEnum.SAGA_SERVICE, "user@example.com", command)
-        SagaEvent sagaEvent = new SagaEvent(UUID.randomUUID(), operationId, ["userId": userId.toString()], ServiceEnum.SAGA_SERVICE, "test-user", SagaType.USER_CREATE_START, 123123)
+        DomainEvent event = anyCorrectDomainEvent(operationId, command)
+        SagaEvent sagaEvent = anyCorrectSagaEvent(operationId, userId)
         DomainEvent expectedDomainEvent = new DomainEvent(SagaType.ROOM_CREATE_INITIATE, operationId, ServiceEnum.SAGA_SERVICE, "test-user", command)
 
         1 * repository.save(_) >> Mono.just(sagaEvent)
@@ -51,8 +51,8 @@ class SagaEventHandlerSpec extends Specification {
         UUID operationId = UUID.randomUUID()
         UUID userId = UUID.randomUUID()
         RoomCommand command = new RoomCommand(userId)
-        DomainEvent event = new DomainEvent(SagaType.ROOM_CREATE_START, operationId, ServiceEnum.SAGA_SERVICE, "user@example.com", command)
-        SagaEvent sagaEvent = new SagaEvent(UUID.randomUUID(), operationId, ["userId": userId.toString()], ServiceEnum.SAGA_SERVICE, "test-user", SagaType.USER_CREATE_START, 123123)
+        DomainEvent event = anyCorrectDomainEvent(operationId, command)
+        SagaEvent sagaEvent = anyCorrectSagaEvent(operationId, userId)
         DomainEvent expectedErrorEvent = new DomainEvent(SagaType.ROOM_CREATE_REJECT, operationId, ServiceEnum.SAGA_SERVICE, "test-user", ["message": "exception message"])
 
         1 * repository.save(_) >> Mono.error(new Exception("exception message"))
@@ -71,8 +71,8 @@ class SagaEventHandlerSpec extends Specification {
         UUID operationId = UUID.randomUUID()
         UUID userId = UUID.randomUUID()
         RoomCommand command = new RoomCommand(userId)
-        DomainEvent event = new DomainEvent(SagaType.ROOM_CREATE_START, operationId, ServiceEnum.SAGA_SERVICE, "user@example.com", command)
-        SagaEvent sagaEvent = new SagaEvent(UUID.randomUUID(), operationId, ["userId": userId.toString()], ServiceEnum.SAGA_SERVICE, "test-user", SagaType.USER_CREATE_START, 123123)
+        DomainEvent event = anyCorrectDomainEvent(operationId, command)
+        SagaEvent sagaEvent = anyCorrectSagaEvent(operationId, userId)
 
         1 * repository.save(_) >> Mono.error(new Exception("exception message"))
         1 * repository.findByOperationIdOrderByDateCreated(_) >> Flux.just(sagaEvent)
@@ -83,5 +83,13 @@ class SagaEventHandlerSpec extends Specification {
 
         then: 'No new events are published'
         0 * applicationEventPublisher.publishEventAsync(_)
+    }
+
+    private SagaEvent anyCorrectSagaEvent(UUID operationId, UUID userId) {
+        new SagaEvent(UUID.randomUUID(), operationId, ["userId": userId.toString()], ServiceEnum.SAGA_SERVICE, "test-user", SagaType.USER_CREATE_START, 123123)
+    }
+
+    private DomainEvent anyCorrectDomainEvent(UUID operationId, RoomCommand command) {
+        new DomainEvent(SagaType.ROOM_CREATE_START, operationId, ServiceEnum.SAGA_SERVICE, "user@example.com", command)
     }
 }
