@@ -41,9 +41,7 @@ abstract class AbstractSagaEventHandler(
             .flatMap { sagaState -> sagaState.createNextEvent() }
             .doOnNext { nextEvent -> applicationEventPublisher.publishEventAsync(nextEvent) }
             .then()
-            .onErrorResume {
-                handleError(event, it)
-            }
+            .onErrorResume { handleError(event, it) }
             .subscribe()
     }
 
