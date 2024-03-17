@@ -20,7 +20,6 @@ class RoomCreateSagaStateTest extends Specification {
     def 'should change the status from #initialStatus to #expectedNewStatus on #eventType event'() {
         given:
         the state withStatus initialStatus
-
         and:
         def event = anEvent() from responsibleService withPayload payload ofType eventType
 
@@ -29,7 +28,6 @@ class RoomCreateSagaStateTest extends Specification {
 
         then:
         the state hasStatus expectedNewStatus
-
         and:
         (the state nextEvent() type) == expectedNextEventType
 
