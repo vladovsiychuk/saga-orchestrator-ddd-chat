@@ -20,8 +20,6 @@ class RoomCreateSagaStateDSL {
     }
 
     RoomCreateSagaStateDSL withStatus(SagaStatus status) {
-        validateStatusTransition(status)
-
         switch (status) {
             case SagaStatus.READY:
                 // No additional actions required.
@@ -35,14 +33,6 @@ class RoomCreateSagaStateDSL {
         }
 
         return this
-    }
-
-    private void validateStatusTransition(SagaStatus wantedStatus) {
-        if ((wantedStatus == SagaStatus.READY && state.status != SagaStatus.READY) ||
-            (wantedStatus == SagaStatus.INITIATED && state.status != SagaStatus.READY) ||
-            (wantedStatus == SagaStatus.COMPLETED && state.status != SagaStatus.INITIATED)) {
-            throw new UnsupportedOperationException()
-        }
     }
 
     RoomCreateSagaStateDSL reactsTo(SagaEvent event) {

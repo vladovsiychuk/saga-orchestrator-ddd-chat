@@ -45,7 +45,18 @@ abstract class AbstractSagaState : SagaState {
     }
 
     fun transitionTo(nextStatus: SagaStatus) {
+        validateStatusTransition(nextStatus)
         status = nextStatus
+    }
+
+    private fun validateStatusTransition(wantedStatus: SagaStatus) {
+        val validPreviousStates = mapOf(
+            SagaStatus.INITIATED to setOf(SagaStatus.READY),
+            SagaStatus.COMPLETED to setOf(SagaStatus.INITIATED, SagaStatus.IN_APPROVING)
+        )
+
+        if (status !in validPreviousStates[wantedStatus].orEmpty())
+            throw RuntimeException("Status cannot be changed from $status to $wantedStatus")
     }
 
     protected fun <V> convertEventData(payload: Any, clazz: Class<V>): V =
