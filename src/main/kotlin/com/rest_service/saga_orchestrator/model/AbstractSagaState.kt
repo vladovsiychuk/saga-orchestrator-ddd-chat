@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono
 abstract class AbstractSagaState : SagaState {
     lateinit var currentUserEmail: String
     val approvedServices: MutableList<ServiceEnum> = mutableListOf()
-    private var status: SagaStatus = SagaStatus.READY
+    var status: SagaStatus = SagaStatus.READY
     lateinit var data: DTO
     lateinit var command: Command
     var errorDto: ErrorDTO? = null

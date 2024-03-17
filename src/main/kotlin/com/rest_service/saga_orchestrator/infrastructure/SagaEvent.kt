@@ -17,10 +17,10 @@ data class SagaEvent(
     val id: UUID? = null,
     val operationId: UUID,
     @MappedProperty(type = DataType.JSON)
-    val payload: Map<String, Any>,
-    val responsibleService: ServiceEnum,
+    var payload: Map<String, Any>,
+    var responsibleService: ServiceEnum,
     val responsibleUserEmail: String,
-    val type: SagaType,
+    var type: SagaType,
     val dateCreated: Long = Instant.now()
         .toEpochMilli(),
 )
