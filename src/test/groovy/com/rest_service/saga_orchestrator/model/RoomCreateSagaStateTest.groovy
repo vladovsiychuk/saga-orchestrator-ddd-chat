@@ -36,8 +36,18 @@ class RoomCreateSagaStateTest extends Specification {
         SagaStatus.READY     | SagaType.ROOM_CREATE_START   | SagaStatus.INITIATED | SagaType.ROOM_CREATE_INITIATE | ServiceEnum.SAGA_SERVICE | ["userId": UUID.randomUUID()]
         SagaStatus.INITIATED | SagaType.ROOM_CREATE_APPROVE | SagaStatus.COMPLETED | SagaType.ROOM_CREATE_COMPLETE | ServiceEnum.ROOM_SERVICE | ["id": UUID.randomUUID(), "createdBy": UUID.randomUUID(), "members": [], "dateCreated": 123, "dateUpdated": 123]
     }
-//
-//    def 'should throw an error when ' () {
-//
-//    }
+
+    def 'should throw an error when an incorrect status change occurs'() {
+        given:
+        the state withStatus SagaStatus.READY
+        and:
+        def event = anEvent() withAnyValidRoomDTO() ofType SagaType.ROOM_CREATE_APPROVE
+
+        when:
+        the state reactsTo event.event
+
+        then:
+        def e = thrown(RuntimeException)
+        e.message == "Status cannot be changed from READY to IN_APPROVING"
+    }
 }
