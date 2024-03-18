@@ -1,24 +1,22 @@
-package com.rest_service.saga_orchestrator.application
+package com.rest_service.commons
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.enums.SagaType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
-import com.rest_service.saga_orchestrator.infrastructure.SagaEventRepository
 import com.rest_service.saga_orchestrator.infrastructure.SecurityManager
 import com.rest_service.saga_orchestrator.model.SagaState
 import io.micronaut.context.event.ApplicationEventPublisher
 import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.scheduling.annotation.Async
 import java.util.UUID
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 abstract class AbstractSagaEventHandler(
-    private val repository: SagaEventRepository,
     private val applicationEventPublisher: ApplicationEventPublisher<DomainEvent>,
     securityManager: SecurityManager
 ) {
@@ -28,6 +26,10 @@ abstract class AbstractSagaEventHandler(
     protected abstract fun shouldHandle(sagaType: SagaType): Boolean
     protected abstract fun createNewState(operationId: UUID): SagaState
     protected abstract fun getRejectSagaType(): SagaType
+    protected abstract fun saveEvent(newEvent: SagaEvent): Mono<SagaEvent>
+    protected abstract fun findSagaEventsByOperationId(operationId: UUID): Flux<SagaEvent>
+    protected abstract fun findRejectedEvent(operationId: UUID): Mono<SagaEvent>
+    protected abstract fun getServiceName(): ServiceEnum
 
     @EventListener
     @Async
@@ -42,7 +44,7 @@ abstract class AbstractSagaEventHandler(
                 rebuildSagaState(event.operationId)
                     .flatMap { sagaState ->
                         sagaState.apply(newEvent)
-                            .flatMap { repository.save(newEvent) }
+                            .flatMap { saveEvent(newEvent) }
                             .map { sagaState }
                     }
             }
@@ -54,7 +56,7 @@ abstract class AbstractSagaEventHandler(
     }
 
     private fun rebuildSagaState(operationId: UUID): Mono<SagaState> {
-        return repository.findByOperationIdOrderByDateCreated(operationId)
+        return findSagaEventsByOperationId(operationId)
             .collectList()
             .flatMap { events ->
                 val sagaState = createNewState(operationId)
@@ -71,12 +73,12 @@ abstract class AbstractSagaEventHandler(
     }
 
     private fun handleError(event: DomainEvent, error: Throwable): Mono<Void> {
-        return repository.findByOperationIdAndType(event.operationId, getRejectSagaType())
+        return findRejectedEvent(event.operationId)
             .switchIfEmpty {
                 val errorEvent = DomainEvent(
                     getRejectSagaType(),
                     event.operationId,
-                    ServiceEnum.SAGA_SERVICE,
+                    getServiceName(),
                     currentUser,
                     mapOf("message" to error.message)
                 )
