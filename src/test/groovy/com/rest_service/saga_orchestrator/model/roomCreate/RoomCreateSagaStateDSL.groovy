@@ -1,10 +1,12 @@
-package com.rest_service.saga_orchestrator.model
+package com.rest_service.saga_orchestrator.model.roomCreate
 
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.enums.SagaType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.saga_orchestrator.infrastructure.EventFactory
 import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
+import com.rest_service.saga_orchestrator.model.RoomCreateSagaState
+import com.rest_service.saga_orchestrator.model.SagaStatus
 
 import static com.rest_service.saga_orchestrator.model.SagaEventDSL.anEvent
 

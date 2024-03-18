@@ -1,11 +1,12 @@
-package com.rest_service.saga_orchestrator.model
+package com.rest_service.saga_orchestrator.model.roomCreate
 
 import com.rest_service.commons.enums.SagaType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.saga_orchestrator.infrastructure.EventFactory
+import com.rest_service.saga_orchestrator.model.SagaStatus
 import spock.lang.Specification
 
-import static com.rest_service.saga_orchestrator.model.RoomCreateSagaStateDSL.the
+import static RoomCreateSagaStateDSL.the
 import static com.rest_service.saga_orchestrator.model.SagaEventDSL.anEvent
 
 class RoomCreateSagaStateTest extends Specification {
@@ -33,7 +34,7 @@ class RoomCreateSagaStateTest extends Specification {
 
         where:
         initialStatus        | eventType                    | expectedNewStatus    | expectedNextEventType         | responsibleService       | payload
-        SagaStatus.READY     | SagaType.ROOM_CREATE_START   | SagaStatus.INITIATED | SagaType.ROOM_CREATE_INITIATE | ServiceEnum.SAGA_SERVICE | ["userId": UUID.randomUUID()]
+        SagaStatus.READY | SagaType.ROOM_CREATE_START | SagaStatus.INITIATED | SagaType.ROOM_CREATE_INITIATE | ServiceEnum.SAGA_SERVICE | ["userId": UUID.randomUUID()]
         SagaStatus.INITIATED | SagaType.ROOM_CREATE_APPROVE | SagaStatus.COMPLETED | SagaType.ROOM_CREATE_COMPLETE | ServiceEnum.ROOM_SERVICE | ["id": UUID.randomUUID(), "createdBy": UUID.randomUUID(), "members": [], "dateCreated": 123, "dateUpdated": 123]
     }
 
