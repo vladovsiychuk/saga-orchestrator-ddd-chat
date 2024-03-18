@@ -5,6 +5,6 @@ import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
 import reactor.core.publisher.Mono
 
 interface SagaState {
-    fun apply(event: SagaEvent)
+    fun apply(event: SagaEvent): Mono<Boolean>
     fun createNextEvent(): Mono<DomainEvent>
 }

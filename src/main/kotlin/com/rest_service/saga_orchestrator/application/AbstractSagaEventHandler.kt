@@ -14,6 +14,8 @@ import io.micronaut.scheduling.annotation.Async
 import java.util.UUID
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
+import reactor.kotlin.core.publisher.toFlux
+import reactor.kotlin.core.publisher.toMono
 
 abstract class AbstractSagaEventHandler(
     private val repository: SagaEventRepository,
@@ -36,9 +38,15 @@ abstract class AbstractSagaEventHandler(
 
     private fun handleSagaEvent(event: DomainEvent) {
         mapper.convertValue(event, SagaEvent::class.java)
-            .let { repository.save(it) }
-            .then(rebuildSagaState(event.operationId))
-            .flatMap { sagaState -> sagaState.createNextEvent() }
+            .let { newEvent ->
+                rebuildSagaState(event.operationId)
+                    .flatMap { sagaState ->
+                        sagaState.apply(newEvent)
+                            .flatMap { repository.save(newEvent) }
+                            .map { sagaState }
+                    }
+            }
+            .flatMap { it.createNextEvent() }
             .doOnNext { nextEvent -> applicationEventPublisher.publishEventAsync(nextEvent) }
             .then()
             .onErrorResume { handleError(event, it) }
@@ -47,9 +55,18 @@ abstract class AbstractSagaEventHandler(
 
     private fun rebuildSagaState(operationId: UUID): Mono<SagaState> {
         return repository.findByOperationIdOrderByDateCreated(operationId)
-            .reduce(createNewState(operationId)) { state, event ->
-                state.apply(event)
-                state
+            .collectList()
+            .flatMap { events ->
+                val sagaState = createNewState(operationId)
+
+                if (events.isEmpty())
+                    return@flatMap sagaState.toMono()
+
+                events.toFlux()
+                    .concatMap { event ->
+                        sagaState.apply(event).thenReturn(sagaState)
+                    }
+                    .last()
             }
     }
 

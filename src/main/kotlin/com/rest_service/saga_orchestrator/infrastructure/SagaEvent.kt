@@ -15,7 +15,7 @@ data class SagaEvent(
     @field:Id
     @AutoPopulated
     val id: UUID? = null,
-    val operationId: UUID,
+    var operationId: UUID,
     @MappedProperty(type = DataType.JSON)
     var payload: Map<String, Any>,
     var responsibleService: ServiceEnum,

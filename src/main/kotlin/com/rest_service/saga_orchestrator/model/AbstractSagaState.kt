@@ -8,6 +8,7 @@ import com.rest_service.commons.dto.ErrorDTO
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 
 abstract class AbstractSagaState : SagaState {
     lateinit var currentUserEmail: String
@@ -19,20 +20,22 @@ abstract class AbstractSagaState : SagaState {
 
     private val mapper = jacksonObjectMapper()
 
-    abstract fun initiateSaga(event: SagaEvent)
-    abstract fun approveSaga(event: SagaEvent)
-    abstract fun rejectSaga(event: SagaEvent)
+    abstract fun initiateSaga(event: SagaEvent): Mono<Boolean>
+    abstract fun approveSaga(event: SagaEvent): Mono<Boolean>
+    abstract fun rejectSaga(event: SagaEvent): Mono<Boolean>
     abstract fun isComplete(): Boolean
     abstract fun createInitiateEvent(): Mono<DomainEvent>
     abstract fun createCompleteEvent(): Mono<DomainEvent>
     abstract fun createErrorEvent(): Mono<DomainEvent>
 
-    override fun apply(event: SagaEvent) {
-        when {
+    override fun apply(event: SagaEvent): Mono<Boolean> {
+        return when {
             event.type.name.endsWith("_START")   -> initiateSaga(event)
             event.type.name.endsWith("_APPROVE") -> approveSaga(event)
             event.type.name.endsWith("_REJECT")  -> rejectSaga(event)
-            else                                 -> {}
+            else                                 -> {
+                true.toMono()
+            }
         }
     }
 
@@ -44,9 +47,10 @@ abstract class AbstractSagaState : SagaState {
         else                    -> Mono.error(UnsupportedOperationException())
     }
 
-    fun transitionTo(nextStatus: SagaStatus) {
+    fun transitionTo(nextStatus: SagaStatus): Mono<Boolean> {
         validateStatusTransition(nextStatus)
         status = nextStatus
+        return true.toMono()
     }
 
     private fun validateStatusTransition(wantedStatus: SagaStatus) {
