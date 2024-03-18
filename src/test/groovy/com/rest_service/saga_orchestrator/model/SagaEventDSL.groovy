@@ -53,6 +53,11 @@ class SagaEventDSL {
         return this
     }
 
+    SagaEventDSL withOperationId(UUID operationId) {
+        event.operationId = operationId
+        return this
+    }
+
     SagaEventDSL from(ServiceEnum service) {
         event.responsibleService = service
         return this

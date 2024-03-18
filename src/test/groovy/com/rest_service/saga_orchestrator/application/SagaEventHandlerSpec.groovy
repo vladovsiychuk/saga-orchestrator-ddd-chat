@@ -34,10 +34,10 @@ class SagaEventHandlerSpec extends Specification {
         RoomCommand command = new RoomCommand(userId)
         DomainEvent event = anyCorrectDomainEvent(operationId, command)
         SagaEvent sagaEvent = anyCorrectSagaEvent(operationId, userId)
-        DomainEvent expectedDomainEvent = new DomainEvent(SagaType.ROOM_CREATE_INITIATE, operationId, ServiceEnum.SAGA_SERVICE, "test-user", command)
+        DomainEvent expectedDomainEvent = new DomainEvent(SagaType.ROOM_CREATE_INITIATE, operationId, ServiceEnum.SAGA_SERVICE, "user@example.com", command)
 
         1 * repository.save(_) >> Mono.just(sagaEvent)
-        1 * repository.findByOperationIdOrderByDateCreated(_) >> Flux.just(sagaEvent)
+        1 * repository.findByOperationIdOrderByDateCreated(_) >> Flux.empty()
 
         when: 'The event handler processes the event'
         handler.messageActionListener(event)
@@ -52,11 +52,10 @@ class SagaEventHandlerSpec extends Specification {
         UUID userId = UUID.randomUUID()
         RoomCommand command = new RoomCommand(userId)
         DomainEvent event = anyCorrectDomainEvent(operationId, command)
-        SagaEvent sagaEvent = anyCorrectSagaEvent(operationId, userId)
         DomainEvent expectedErrorEvent = new DomainEvent(SagaType.ROOM_CREATE_REJECT, operationId, ServiceEnum.SAGA_SERVICE, "test-user", ["message": "exception message"])
 
         1 * repository.save(_) >> Mono.error(new Exception("exception message"))
-        1 * repository.findByOperationIdOrderByDateCreated(_) >> Flux.just(sagaEvent)
+        1 * repository.findByOperationIdOrderByDateCreated(_) >> Flux.empty()
         1 * repository.findByOperationIdAndType(_, _) >> Mono.empty()
 
         when: 'The event handler processes the event and encounters an error'
@@ -75,7 +74,7 @@ class SagaEventHandlerSpec extends Specification {
         SagaEvent sagaEvent = anyCorrectSagaEvent(operationId, userId)
 
         1 * repository.save(_) >> Mono.error(new Exception("exception message"))
-        1 * repository.findByOperationIdOrderByDateCreated(_) >> Flux.just(sagaEvent)
+        1 * repository.findByOperationIdOrderByDateCreated(_) >> Flux.empty()
         1 * repository.findByOperationIdAndType(_, _) >> Mono.just(sagaEvent)
 
         when: 'The event handler processes the event and encounters an error'

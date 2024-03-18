@@ -36,4 +36,8 @@ class RoomCreateSagaStateTest extends Specification {
         SagaStatus.READY     | SagaType.ROOM_CREATE_START   | SagaStatus.INITIATED | SagaType.ROOM_CREATE_INITIATE | ServiceEnum.SAGA_SERVICE | ["userId": UUID.randomUUID()]
         SagaStatus.INITIATED | SagaType.ROOM_CREATE_APPROVE | SagaStatus.COMPLETED | SagaType.ROOM_CREATE_COMPLETE | ServiceEnum.ROOM_SERVICE | ["id": UUID.randomUUID(), "createdBy": UUID.randomUUID(), "members": [], "dateCreated": 123, "dateUpdated": 123]
     }
+//
+//    def 'should throw an error when ' () {
+//
+//    }
 }
