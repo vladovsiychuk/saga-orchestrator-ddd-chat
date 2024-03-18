@@ -1,6 +1,6 @@
 package com.rest_service.saga_orchestrator.model.roomCreate
 
-import com.rest_service.commons.enums.SagaType
+import com.rest_service.commons.enums.EventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.saga_orchestrator.infrastructure.EventFactory
 import com.rest_service.saga_orchestrator.model.SagaStatus
@@ -34,15 +34,15 @@ class RoomCreateSagaStateTest extends Specification {
 
         where:
         initialStatus        | eventType                    | expectedNewStatus    | expectedNextEventType         | responsibleService       | payload
-        SagaStatus.READY | SagaType.ROOM_CREATE_START | SagaStatus.INITIATED | SagaType.ROOM_CREATE_INITIATE | ServiceEnum.SAGA_SERVICE | ["userId": UUID.randomUUID()]
-        SagaStatus.INITIATED | SagaType.ROOM_CREATE_APPROVE | SagaStatus.COMPLETED | SagaType.ROOM_CREATE_COMPLETE | ServiceEnum.ROOM_SERVICE | ["id": UUID.randomUUID(), "createdBy": UUID.randomUUID(), "members": [], "dateCreated": 123, "dateUpdated": 123]
+        SagaStatus.READY | EventType.ROOM_CREATE_START       | SagaStatus.INITIATED | EventType.ROOM_CREATE_INITIATE | ServiceEnum.SAGA_SERVICE | ["userId": UUID.randomUUID()]
+        SagaStatus.INITIATED | EventType.ROOM_CREATE_APPROVE | SagaStatus.COMPLETED | EventType.ROOM_CREATE_COMPLETE | ServiceEnum.ROOM_SERVICE | ["id": UUID.randomUUID(), "createdBy": UUID.randomUUID(), "members": [], "dateCreated": 123, "dateUpdated": 123]
     }
 
     def 'should throw an error when an incorrect status change occurs'() {
         given:
         the state withStatus SagaStatus.READY
         and:
-        def event = anEvent() withAnyValidRoomDTO() ofType SagaType.ROOM_CREATE_APPROVE
+        def event = anEvent() withAnyValidRoomDTO() ofType EventType.ROOM_CREATE_APPROVE
 
         when:
         the state reactsTo event.event

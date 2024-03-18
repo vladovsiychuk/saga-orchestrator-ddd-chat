@@ -4,7 +4,7 @@ import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.command.Command
 import com.rest_service.commons.command.RoomCommand
 import com.rest_service.commons.command.UserCommand
-import com.rest_service.commons.enums.SagaType
+import com.rest_service.commons.enums.EventType
 import com.rest_service.commons.enums.ServiceEnum
 import jakarta.inject.Singleton
 import java.util.UUID
@@ -14,9 +14,9 @@ import reactor.kotlin.core.publisher.toMono
 @Singleton
 open class EventFactory(private val securityManager: SecurityManager) {
     fun createStartEvent(command: Command): Mono<DomainEvent> {
-        val type: SagaType = when (command) {
-            is RoomCommand -> SagaType.ROOM_CREATE_START
-            is UserCommand -> SagaType.USER_CREATE_START
+        val type: EventType = when (command) {
+            is RoomCommand -> EventType.ROOM_CREATE_START
+            is UserCommand -> EventType.USER_CREATE_START
             else           -> throw UnsupportedOperationException()
         }
 
@@ -29,7 +29,7 @@ open class EventFactory(private val securityManager: SecurityManager) {
         ).toMono()
     }
 
-    fun createEvent(type: SagaType, operationId: UUID, responsibleUserEmail: String, payload: Any): Mono<DomainEvent> =
+    fun createEvent(type: EventType, operationId: UUID, responsibleUserEmail: String, payload: Any): Mono<DomainEvent> =
         DomainEvent(
             type,
             operationId,

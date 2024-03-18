@@ -3,7 +3,7 @@ package com.rest_service.saga_orchestrator.model
 import com.rest_service.commons.command.UserCommand
 import com.rest_service.commons.dto.ErrorDTO
 import com.rest_service.commons.dto.UserDTO
-import com.rest_service.commons.enums.SagaType
+import com.rest_service.commons.enums.EventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.saga_orchestrator.infrastructure.EventFactory
 import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
@@ -36,11 +36,11 @@ class UserCreateSagaState(
     }
 
     override fun createInitiateEvent() =
-        eventFactory.createEvent(SagaType.USER_CREATE_INITIATE, operationId, currentUserEmail, command)
+        eventFactory.createEvent(EventType.USER_CREATE_INITIATE, operationId, currentUserEmail, command)
 
     override fun createCompleteEvent() =
-        eventFactory.createEvent(SagaType.USER_CREATE_COMPLETE, operationId, currentUserEmail, data)
+        eventFactory.createEvent(EventType.USER_CREATE_COMPLETE, operationId, currentUserEmail, data)
 
     override fun createErrorEvent() =
-        eventFactory.createEvent(SagaType.USER_CREATE_ERROR, operationId, currentUserEmail, errorDto!!)
+        eventFactory.createEvent(EventType.USER_CREATE_ERROR, operationId, currentUserEmail, errorDto!!)
 }

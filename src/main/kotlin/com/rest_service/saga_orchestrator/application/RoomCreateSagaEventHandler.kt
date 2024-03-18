@@ -2,7 +2,7 @@ package com.rest_service.saga_orchestrator.application
 
 import com.rest_service.commons.AbstractEventHandler
 import com.rest_service.commons.DomainEvent
-import com.rest_service.commons.enums.SagaType
+import com.rest_service.commons.enums.EventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.saga_orchestrator.infrastructure.EventFactory
 import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
@@ -12,27 +12,41 @@ import com.rest_service.saga_orchestrator.model.RoomCreateSagaState
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import java.util.UUID
+import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.switchIfEmpty
 
 @Singleton
 open class RoomCreateSagaEventHandler(
     private val repository: SagaEventRepository,
-    applicationEventPublisher: ApplicationEventPublisher<DomainEvent>,
-    securityManager: SecurityManager,
+    private val applicationEventPublisher: ApplicationEventPublisher<DomainEvent>,
+    private val securityManager: SecurityManager,
     private val eventFactory: EventFactory,
-) : AbstractEventHandler(applicationEventPublisher, securityManager) {
-    override fun shouldHandle(sagaType: SagaType): Boolean {
-        return sagaType in listOf(SagaType.ROOM_CREATE_START, SagaType.ROOM_CREATE_APPROVE, SagaType.ROOM_CREATE_REJECT)
+) : AbstractEventHandler(applicationEventPublisher) {
+
+    private val currentUser = securityManager.getUserEmail()
+    override fun shouldHandle(eventType: EventType): Boolean {
+        return eventType in listOf(EventType.ROOM_CREATE_START, EventType.ROOM_CREATE_APPROVE, EventType.ROOM_CREATE_REJECT)
     }
 
     override fun createNewState(operationId: UUID) = RoomCreateSagaState(operationId, eventFactory)
-    override fun getRejectSagaType() = SagaType.ROOM_CREATE_REJECT
     override fun saveEvent(newEvent: SagaEvent) = repository.save(newEvent)
     override fun findSagaEventsByOperationId(operationId: UUID) =
         repository.findByOperationIdOrderByDateCreated(operationId)
 
-    override fun findRejectedEvent(operationId: UUID) =
-        repository.findByOperationIdAndType(operationId, getRejectSagaType())
+    override fun handleError(event: DomainEvent, error: Throwable): Mono<Void> {
+        return repository.findByOperationIdAndType(event.operationId, EventType.ROOM_CREATE_REJECT)
+            .switchIfEmpty {
+                val errorEvent = DomainEvent(
+                    EventType.ROOM_CREATE_REJECT,
+                    event.operationId,
+                    ServiceEnum.SAGA_SERVICE,
+                    currentUser,
+                    mapOf("message" to error.message)
+                )
 
-    override fun getServiceName() = ServiceEnum.SAGA_SERVICE
-
+                applicationEventPublisher.publishEventAsync(errorEvent)
+                Mono.error(error)
+            }
+            .then()
+    }
 }

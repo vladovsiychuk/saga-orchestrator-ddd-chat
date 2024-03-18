@@ -1,7 +1,7 @@
 package com.rest_service.saga_orchestrator.model
 
+import com.rest_service.commons.enums.EventType
 import com.rest_service.commons.enums.LanguageEnum
-import com.rest_service.commons.enums.SagaType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.commons.enums.UserType
 import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
@@ -13,7 +13,7 @@ class SagaEventDSL {
         [:],
         ServiceEnum.SAGA_SERVICE,
         "test-user",
-        SagaType.ROOM_CREATE_START,
+        EventType.ROOM_CREATE_START,
         123123,
     )
 
@@ -29,7 +29,7 @@ class SagaEventDSL {
         return this
     }
 
-    SagaEventDSL ofType(SagaType type) {
+    SagaEventDSL ofType(EventType type) {
         event.type = type
         return this
     }

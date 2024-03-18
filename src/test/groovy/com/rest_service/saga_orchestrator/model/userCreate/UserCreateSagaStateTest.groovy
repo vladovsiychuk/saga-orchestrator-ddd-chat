@@ -1,7 +1,7 @@
 package com.rest_service.saga_orchestrator.model.userCreate
 
+import com.rest_service.commons.enums.EventType
 import com.rest_service.commons.enums.LanguageEnum
-import com.rest_service.commons.enums.SagaType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.commons.enums.UserType
 import com.rest_service.saga_orchestrator.infrastructure.EventFactory
@@ -36,15 +36,15 @@ class UserCreateSagaStateTest extends Specification {
 
         where:
         initialStatus        | eventType                    | expectedNewStatus    | expectedNextEventType         | responsibleService       | payload
-        SagaStatus.READY     | SagaType.USER_CREATE_START   | SagaStatus.INITIATED | SagaType.USER_CREATE_INITIATE | ServiceEnum.SAGA_SERVICE | ["type": UserType.REGULAR_USER, "primaryLanguage": LanguageEnum.ENGLISH]
-        SagaStatus.INITIATED | SagaType.USER_CREATE_APPROVE | SagaStatus.COMPLETED | SagaType.USER_CREATE_COMPLETE | ServiceEnum.USER_SERVICE | ["id": UUID.randomUUID(), "email": "user@test.com", "primaryLanguage": LanguageEnum.ENGLISH, "type": UserType.REGULAR_USER, "dateCreated": 123, "dateUpdated": 123]
+        SagaStatus.READY     | EventType.USER_CREATE_START   | SagaStatus.INITIATED | EventType.USER_CREATE_INITIATE | ServiceEnum.SAGA_SERVICE | ["type": UserType.REGULAR_USER, "primaryLanguage": LanguageEnum.ENGLISH]
+        SagaStatus.INITIATED | EventType.USER_CREATE_APPROVE | SagaStatus.COMPLETED | EventType.USER_CREATE_COMPLETE | ServiceEnum.USER_SERVICE | ["id": UUID.randomUUID(), "email": "user@test.com", "primaryLanguage": LanguageEnum.ENGLISH, "type": UserType.REGULAR_USER, "dateCreated": 123, "dateUpdated": 123]
     }
 
     def 'should throw an error when an incorrect status change occurs'() {
         given:
         the state withStatus SagaStatus.READY
         and:
-        def event = anEvent() withAnyValidUserDTO() ofType SagaType.USER_CREATE_APPROVE
+        def event = anEvent() withAnyValidUserDTO() ofType EventType.USER_CREATE_APPROVE
 
         when:
         the state reactsTo event.event

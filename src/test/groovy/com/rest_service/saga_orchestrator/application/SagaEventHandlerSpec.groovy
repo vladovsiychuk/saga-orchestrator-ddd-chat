@@ -2,7 +2,7 @@ package com.rest_service.saga_orchestrator.application
 
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.command.RoomCommand
-import com.rest_service.commons.enums.SagaType
+import com.rest_service.commons.enums.EventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.saga_orchestrator.infrastructure.EventFactory
 import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
@@ -34,7 +34,7 @@ class SagaEventHandlerSpec extends Specification {
         RoomCommand command = new RoomCommand(userId)
         DomainEvent event = anyCorrectDomainEvent(operationId, command)
         SagaEvent sagaEvent = anyCorrectSagaEvent(operationId, userId)
-        DomainEvent expectedDomainEvent = new DomainEvent(SagaType.ROOM_CREATE_INITIATE, operationId, ServiceEnum.SAGA_SERVICE, "user@example.com", command)
+        DomainEvent expectedDomainEvent = new DomainEvent(EventType.ROOM_CREATE_INITIATE, operationId, ServiceEnum.SAGA_SERVICE, "user@example.com", command)
 
         1 * repository.save(_) >> Mono.just(sagaEvent)
         1 * repository.findByOperationIdOrderByDateCreated(_) >> Flux.empty()
@@ -52,7 +52,7 @@ class SagaEventHandlerSpec extends Specification {
         UUID userId = UUID.randomUUID()
         RoomCommand command = new RoomCommand(userId)
         DomainEvent event = anyCorrectDomainEvent(operationId, command)
-        DomainEvent expectedErrorEvent = new DomainEvent(SagaType.ROOM_CREATE_REJECT, operationId, ServiceEnum.SAGA_SERVICE, "test-user", ["message": "exception message"])
+        DomainEvent expectedErrorEvent = new DomainEvent(EventType.ROOM_CREATE_REJECT, operationId, ServiceEnum.SAGA_SERVICE, "test-user", ["message": "exception message"])
 
         1 * repository.save(_) >> Mono.error(new Exception("exception message"))
         1 * repository.findByOperationIdOrderByDateCreated(_) >> Flux.empty()
@@ -85,10 +85,10 @@ class SagaEventHandlerSpec extends Specification {
     }
 
     private SagaEvent anyCorrectSagaEvent(UUID operationId, UUID userId) {
-        new SagaEvent(UUID.randomUUID(), operationId, ["userId": userId.toString()], ServiceEnum.SAGA_SERVICE, "test-user", SagaType.USER_CREATE_START, 123123)
+        new SagaEvent(UUID.randomUUID(), operationId, ["userId": userId.toString()], ServiceEnum.SAGA_SERVICE, "test-user", EventType.USER_CREATE_START, 123123)
     }
 
     private DomainEvent anyCorrectDomainEvent(UUID operationId, RoomCommand command) {
-        new DomainEvent(SagaType.ROOM_CREATE_START, operationId, ServiceEnum.SAGA_SERVICE, "user@example.com", command)
+        new DomainEvent(EventType.ROOM_CREATE_START, operationId, ServiceEnum.SAGA_SERVICE, "user@example.com", command)
     }
 }

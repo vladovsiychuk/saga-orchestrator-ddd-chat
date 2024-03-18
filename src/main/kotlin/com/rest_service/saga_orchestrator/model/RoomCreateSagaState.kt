@@ -3,7 +3,7 @@ package com.rest_service.saga_orchestrator.model
 import com.rest_service.commons.command.RoomCommand
 import com.rest_service.commons.dto.ErrorDTO
 import com.rest_service.commons.dto.RoomDTO
-import com.rest_service.commons.enums.SagaType
+import com.rest_service.commons.enums.EventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.saga_orchestrator.infrastructure.EventFactory
 import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
@@ -37,11 +37,11 @@ class RoomCreateSagaState(
 
 
     override fun createInitiateEvent() =
-        eventFactory.createEvent(SagaType.ROOM_CREATE_INITIATE, operationId, currentUserEmail, command)
+        eventFactory.createEvent(EventType.ROOM_CREATE_INITIATE, operationId, currentUserEmail, command)
 
     override fun createCompleteEvent() =
-        eventFactory.createEvent(SagaType.ROOM_CREATE_COMPLETE, operationId, currentUserEmail, data)
+        eventFactory.createEvent(EventType.ROOM_CREATE_COMPLETE, operationId, currentUserEmail, data)
 
     override fun createErrorEvent() =
-        eventFactory.createEvent(SagaType.ROOM_CREATE_ERROR, operationId, currentUserEmail, errorDto!!)
+        eventFactory.createEvent(EventType.ROOM_CREATE_ERROR, operationId, currentUserEmail, errorDto!!)
 }

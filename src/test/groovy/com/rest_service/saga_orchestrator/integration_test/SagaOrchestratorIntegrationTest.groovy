@@ -1,8 +1,8 @@
 package com.rest_service.saga_orchestrator.integration_test
 
 import com.rest_service.UserConstant
+import com.rest_service.commons.enums.EventType
 import com.rest_service.commons.enums.LanguageEnum
-import com.rest_service.commons.enums.SagaType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.commons.enums.UserType
 import com.rest_service.saga_orchestrator.infrastructure.SagaEventRepository
@@ -47,7 +47,7 @@ class SagaOrchestratorIntegrationTest extends Specification {
 
         and: 'the expected event is created'
         conditions.eventually {
-            def event = sagaEventRepository.findByOperationIdAndType(UUID.fromString(operationId), SagaType.USER_CREATE_START).block()
+            def event = sagaEventRepository.findByOperationIdAndType(UUID.fromString(operationId), EventType.USER_CREATE_START).block()
             assert event.responsibleService == ServiceEnum.SAGA_SERVICE
             assert event.responsibleUserEmail == "user-1@gmail.com"
             assert event.payload == command

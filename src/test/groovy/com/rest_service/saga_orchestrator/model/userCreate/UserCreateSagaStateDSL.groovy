@@ -1,7 +1,7 @@
 package com.rest_service.saga_orchestrator.model.userCreate
 
 import com.rest_service.commons.DomainEvent
-import com.rest_service.commons.enums.SagaType
+import com.rest_service.commons.enums.EventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.saga_orchestrator.infrastructure.EventFactory
 import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
@@ -27,10 +27,10 @@ class UserCreateSagaStateDSL {
                 // No additional actions required.
                 break
             case SagaStatus.INITIATED:
-                state.apply(anEvent() withAnyValidUserCommand() and() ofType SagaType.USER_CREATE_START event)
+                state.apply(anEvent() withAnyValidUserCommand() and() ofType EventType.USER_CREATE_START event)
                 break
             case SagaStatus.COMPLETED:
-                state.apply(anEvent() from ServiceEnum.USER_SERVICE withAnyValidUserDTO() and() ofType SagaType.USER_CREATE_APPROVE event)
+                state.apply(anEvent() from ServiceEnum.USER_SERVICE withAnyValidUserDTO() and() ofType EventType.USER_CREATE_APPROVE event)
                 break
         }
 

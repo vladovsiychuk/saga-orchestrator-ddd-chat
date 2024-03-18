@@ -1,6 +1,6 @@
 package com.rest_service.saga_orchestrator.infrastructure
 
-import com.rest_service.commons.enums.SagaType
+import com.rest_service.commons.enums.EventType
 import com.rest_service.commons.enums.ServiceEnum
 import io.micronaut.data.annotation.AutoPopulated
 import io.micronaut.data.annotation.Id
@@ -20,7 +20,7 @@ data class SagaEvent(
     var payload: Map<String, Any>,
     var responsibleService: ServiceEnum,
     val responsibleUserEmail: String,
-    var type: SagaType,
+    var type: EventType,
     val dateCreated: Long = Instant.now()
         .toEpochMilli(),
 )
