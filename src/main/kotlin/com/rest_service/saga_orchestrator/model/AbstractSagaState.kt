@@ -56,7 +56,9 @@ abstract class AbstractSagaState : SagaState {
     private fun validateStatusTransition(wantedStatus: SagaStatus) {
         val validPreviousStates = mapOf(
             SagaStatus.INITIATED to setOf(SagaStatus.READY),
-            SagaStatus.COMPLETED to setOf(SagaStatus.INITIATED, SagaStatus.IN_APPROVING)
+            SagaStatus.IN_APPROVING to setOf(SagaStatus.INITIATED),
+            SagaStatus.COMPLETED to setOf(SagaStatus.INITIATED, SagaStatus.IN_APPROVING),
+            SagaStatus.REJECTED to setOf(SagaStatus.INITIATED),
         )
 
         if (status !in validPreviousStates[wantedStatus].orEmpty())
