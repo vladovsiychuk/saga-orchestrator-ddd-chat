@@ -16,7 +16,7 @@ import reactor.kotlin.core.publisher.switchIfEmpty
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
-abstract class AbstractSagaEventHandler(
+abstract class AbstractEventHandler(
     private val applicationEventPublisher: ApplicationEventPublisher<DomainEvent>,
     securityManager: SecurityManager
 ) {

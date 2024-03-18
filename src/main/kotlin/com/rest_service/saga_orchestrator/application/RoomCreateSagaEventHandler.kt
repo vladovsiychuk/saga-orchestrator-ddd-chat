@@ -1,6 +1,6 @@
 package com.rest_service.saga_orchestrator.application
 
-import com.rest_service.commons.AbstractSagaEventHandler
+import com.rest_service.commons.AbstractEventHandler
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.enums.SagaType
 import com.rest_service.commons.enums.ServiceEnum
@@ -19,7 +19,7 @@ open class RoomCreateSagaEventHandler(
     applicationEventPublisher: ApplicationEventPublisher<DomainEvent>,
     securityManager: SecurityManager,
     private val eventFactory: EventFactory,
-) : AbstractSagaEventHandler(applicationEventPublisher, securityManager) {
+) : AbstractEventHandler(applicationEventPublisher, securityManager) {
     override fun shouldHandle(sagaType: SagaType): Boolean {
         return sagaType in listOf(SagaType.ROOM_CREATE_START, SagaType.ROOM_CREATE_APPROVE, SagaType.ROOM_CREATE_REJECT)
     }
