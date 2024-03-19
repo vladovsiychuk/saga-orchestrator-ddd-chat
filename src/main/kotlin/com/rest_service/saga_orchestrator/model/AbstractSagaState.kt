@@ -29,12 +29,17 @@ abstract class AbstractSagaState : State {
     abstract fun createCompleteEvent(): Mono<DomainEvent>
     abstract fun createErrorEvent(): Mono<DomainEvent>
 
-    override fun apply(event: SagaEvent): Mono<Boolean> {
+    override fun apply(event: DomainEvent): Mono<Boolean> {
+        val sagaEvent = convertEventData(event, SagaEvent::class.java)
+        return apply(sagaEvent)
+    }
+
+    fun apply(sagaEvent: SagaEvent): Mono<Boolean> {
         return when {
-            event.type.name.endsWith("_START")   -> initiateSaga(event)
-            event.type.name.endsWith("_APPROVE") -> approveSaga(event)
-            event.type.name.endsWith("_REJECT")  -> rejectSaga(event)
-            else                                 -> {
+            sagaEvent.type.name.endsWith("_START")   -> initiateSaga(sagaEvent)
+            sagaEvent.type.name.endsWith("_APPROVE") -> approveSaga(sagaEvent)
+            sagaEvent.type.name.endsWith("_REJECT")  -> rejectSaga(sagaEvent)
+            else                                     -> {
                 true.toMono()
             }
         }
