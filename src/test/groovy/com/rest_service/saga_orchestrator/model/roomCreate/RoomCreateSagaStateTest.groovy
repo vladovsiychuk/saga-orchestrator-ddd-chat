@@ -33,8 +33,8 @@ class RoomCreateSagaStateTest extends Specification {
         (the state nextEvent() type) == expectedNextEventType
 
         where:
-        initialStatus        | eventType                    | expectedNewStatus    | expectedNextEventType         | responsibleService       | payload
-        SagaStatus.READY | EventType.ROOM_CREATE_START       | SagaStatus.INITIATED | EventType.ROOM_CREATE_INITIATE | ServiceEnum.SAGA_SERVICE | ["userId": UUID.randomUUID()]
+        initialStatus        | eventType                     | expectedNewStatus    | expectedNextEventType          | responsibleService       | payload
+        SagaStatus.READY     | EventType.ROOM_CREATE_START   | SagaStatus.INITIATED | EventType.ROOM_CREATE_INITIATE | ServiceEnum.SAGA_SERVICE | ["userId": UUID.randomUUID()]
         SagaStatus.INITIATED | EventType.ROOM_CREATE_APPROVE | SagaStatus.COMPLETED | EventType.ROOM_CREATE_COMPLETE | ServiceEnum.ROOM_SERVICE | ["id": UUID.randomUUID(), "createdBy": UUID.randomUUID(), "members": [], "dateCreated": 123, "dateUpdated": 123]
     }
 

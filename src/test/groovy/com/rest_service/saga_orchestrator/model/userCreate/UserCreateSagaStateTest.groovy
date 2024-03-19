@@ -35,7 +35,7 @@ class UserCreateSagaStateTest extends Specification {
         (the state nextEvent() type) == expectedNextEventType
 
         where:
-        initialStatus        | eventType                    | expectedNewStatus    | expectedNextEventType         | responsibleService       | payload
+        initialStatus        | eventType                     | expectedNewStatus    | expectedNextEventType          | responsibleService       | payload
         SagaStatus.READY     | EventType.USER_CREATE_START   | SagaStatus.INITIATED | EventType.USER_CREATE_INITIATE | ServiceEnum.SAGA_SERVICE | ["type": UserType.REGULAR_USER, "primaryLanguage": LanguageEnum.ENGLISH]
         SagaStatus.INITIATED | EventType.USER_CREATE_APPROVE | SagaStatus.COMPLETED | EventType.USER_CREATE_COMPLETE | ServiceEnum.USER_SERVICE | ["id": UUID.randomUUID(), "email": "user@test.com", "primaryLanguage": LanguageEnum.ENGLISH, "type": UserType.REGULAR_USER, "dateCreated": 123, "dateUpdated": 123]
     }
