@@ -1,6 +1,5 @@
-package com.rest_service.saga_orchestrator.model
+package com.rest_service.commons
 
-import com.rest_service.commons.DomainEvent
 import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
 import reactor.core.publisher.Mono
 

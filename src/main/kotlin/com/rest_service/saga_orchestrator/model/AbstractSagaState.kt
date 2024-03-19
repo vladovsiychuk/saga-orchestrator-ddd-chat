@@ -2,6 +2,7 @@ package com.rest_service.saga_orchestrator.model
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.commons.DomainEvent
+import com.rest_service.commons.State
 import com.rest_service.commons.command.Command
 import com.rest_service.commons.dto.DTO
 import com.rest_service.commons.dto.ErrorDTO

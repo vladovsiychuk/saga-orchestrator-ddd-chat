@@ -3,7 +3,6 @@ package com.rest_service.commons
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.commons.enums.EventType
 import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
-import com.rest_service.saga_orchestrator.model.State
 import io.micronaut.context.event.ApplicationEventPublisher
 import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.scheduling.annotation.Async

@@ -1,9 +1,9 @@
 package com.rest_service.messaging.user.model
 
 import com.rest_service.commons.DomainEvent
+import com.rest_service.commons.State
 import com.rest_service.saga_orchestrator.infrastructure.EventFactory
 import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
-import com.rest_service.saga_orchestrator.model.State
 import java.util.UUID
 import reactor.core.publisher.Mono
 
