@@ -16,10 +16,10 @@ abstract class AbstractEventHandler(private val applicationEventPublisher: Appli
     @Async
     open fun messageActionListener(event: DomainEvent) {
         if (shouldHandle(event.type))
-            handleSagaEvent(event)
+            handleEvent(event)
     }
 
-    private fun handleSagaEvent(event: DomainEvent) {
+    private fun handleEvent(event: DomainEvent) {
         rebuildState(event)
             .flatMap { state -> state.apply(event).thenReturn(state) }
             .flatMap { state -> saveEvent(event).thenReturn(state) }
