@@ -21,11 +21,8 @@ abstract class AbstractEventHandler(private val applicationEventPublisher: Appli
 
     private fun handleSagaEvent(event: DomainEvent) {
         rebuildState(event)
-            .flatMap { state ->
-                state.apply(event)
-                    .flatMap { saveEvent(event) }
-                    .map { state }
-            }
+            .flatMap { state -> state.apply(event).thenReturn(state) }
+            .flatMap { state -> saveEvent(event).thenReturn(state) }
             .flatMap { it.createNextEvent() }
             .doOnNext { nextEvent -> applicationEventPublisher.publishEventAsync(nextEvent) }
             .then()
