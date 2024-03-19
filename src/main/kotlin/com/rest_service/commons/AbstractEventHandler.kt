@@ -3,7 +3,7 @@ package com.rest_service.commons
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.commons.enums.EventType
 import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
-import com.rest_service.saga_orchestrator.model.SagaState
+import com.rest_service.saga_orchestrator.model.State
 import io.micronaut.context.event.ApplicationEventPublisher
 import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.scheduling.annotation.Async
@@ -17,7 +17,7 @@ abstract class AbstractEventHandler(private val applicationEventPublisher: Appli
     private val mapper = jacksonObjectMapper()
 
     protected abstract fun shouldHandle(eventType: EventType): Boolean
-    protected abstract fun createNewState(operationId: UUID): SagaState
+    protected abstract fun createNewState(operationId: UUID): State
     protected abstract fun saveEvent(newEvent: SagaEvent): Mono<SagaEvent>
     protected abstract fun findSagaEventsByOperationId(operationId: UUID): Flux<SagaEvent>
     protected abstract fun handleError(event: DomainEvent, error: Throwable): Mono<Void>
@@ -46,7 +46,7 @@ abstract class AbstractEventHandler(private val applicationEventPublisher: Appli
             .subscribe()
     }
 
-    private fun rebuildSagaState(operationId: UUID): Mono<SagaState> {
+    private fun rebuildSagaState(operationId: UUID): Mono<State> {
         return findSagaEventsByOperationId(operationId)
             .collectList()
             .flatMap { events ->

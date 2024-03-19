@@ -10,7 +10,7 @@ import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
-abstract class AbstractSagaState : SagaState {
+abstract class AbstractSagaState : State {
     lateinit var currentUserEmail: String
     val approvedServices: MutableList<ServiceEnum> = mutableListOf()
     var status: SagaStatus = SagaStatus.READY
