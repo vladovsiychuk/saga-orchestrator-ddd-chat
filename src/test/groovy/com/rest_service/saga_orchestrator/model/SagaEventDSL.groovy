@@ -40,7 +40,7 @@ class SagaEventDSL {
     }
 
     SagaEventDSL withAnyValidUserCommand() {
-        event.payload = ["type": UserType.REGULAR_USER, "primaryLanguage": LanguageEnum.ENGLISH]
+        event.payload = ["type": UserType.REGULAR_USER, "email": "test@email.com", "primaryLanguage": LanguageEnum.ENGLISH]
         return this
     }
 

@@ -33,6 +33,7 @@ class SagaOrchestratorIntegrationTest extends Specification {
         given: 'a user command'
         def command = [
             type           : UserType.REGULAR_USER.toString(),
+            email          : "test@email.com",
             primaryLanguage: LanguageEnum.ENGLISH.toString(),
             temporaryId    : UUID.randomUUID().toString()
         ]
@@ -50,7 +51,11 @@ class SagaOrchestratorIntegrationTest extends Specification {
             def event = sagaEventRepository.findByOperationIdAndType(UUID.fromString(operationId), EventType.USER_CREATE_START).block()
             assert event.responsibleService == ServiceEnum.SAGA_SERVICE
             assert event.responsibleUserEmail == "user-1@gmail.com"
-            assert event.payload == command
+            assert event.payload.type == command.type
+            assert event.payload.email == command.email
+            assert event.payload.primaryLanguage == command.primaryLanguage
+            assert event.payload.temporaryId == command.temporaryId
+            assert UUID.fromString(event.payload.id.toString())
         }
     }
 }
