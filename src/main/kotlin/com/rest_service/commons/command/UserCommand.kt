@@ -10,8 +10,10 @@ import reactor.kotlin.core.publisher.toMono
 
 @Introspected
 data class UserCommand(
+    var id: UUID?,
     val type: UserType,
     val username: String?,
+    val email: String,
     val primaryLanguage: LanguageEnum,
     var translationLanguages: MutableSet<LanguageEnum>?,
     val temporaryId: UUID?,

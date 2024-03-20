@@ -1,5 +1,6 @@
 package com.rest_service.commons.dto
 
+import com.rest_service.commons.command.UserCommand
 import com.rest_service.commons.enums.LanguageEnum
 import com.rest_service.commons.enums.UserType
 import io.micronaut.core.annotation.Introspected
@@ -13,8 +14,21 @@ data class UserDTO(
     val email: String,
     val avatar: String?,
     val primaryLanguage: LanguageEnum,
-    val translationLanguages: List<String>?,
+    val translationLanguages: List<LanguageEnum>?,
     val type: UserType,
     val dateCreated: Long,
     val dateUpdated: Long,
-) : DTO
+) : DTO {
+    constructor(command: UserCommand, dateCreated: Long) : this(
+        command.id!!,
+        command.temporaryId,
+        command.username,
+        command.email,
+        null,
+        command.primaryLanguage,
+        command.translationLanguages?.toList(),
+        command.type,
+        dateCreated,
+        dateCreated,
+    )
+}

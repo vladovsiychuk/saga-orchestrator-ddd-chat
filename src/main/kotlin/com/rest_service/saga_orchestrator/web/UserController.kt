@@ -9,6 +9,7 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
+import java.util.UUID
 import reactor.core.publisher.Mono
 
 @Controller("/v1/users")
@@ -23,6 +24,8 @@ class UserController(
             command.translationLanguages = command.translationLanguages ?: mutableSetOf()
             command.translationLanguages!!.add(command.primaryLanguage)
         }
+
+        command.id = UUID.randomUUID()
 
         return command.validate()
             .flatMap { eventFactory.createStartEvent(command) }
