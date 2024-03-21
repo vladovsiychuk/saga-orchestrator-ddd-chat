@@ -7,7 +7,9 @@ import com.rest_service.commons.enums.EventType
 import com.rest_service.read_service.service.UserService
 import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.scheduling.annotation.Async
+import jakarta.inject.Singleton
 
+@Singleton
 open class SagaEventHandler(private val userService: UserService) {
 
     val mapper = jacksonObjectMapper()
