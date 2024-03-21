@@ -7,6 +7,8 @@ import com.rest_service.saga_orchestrator.model.SagaStatus
 import spock.lang.Specification
 
 import static RoomCreateSagaStateDSL.the
+import static com.rest_service.Fixture.anyValidRoomCommand
+import static com.rest_service.Fixture.anyValidRoomDTO
 import static com.rest_service.saga_orchestrator.model.SagaEventDSL.anEvent
 
 class RoomCreateSagaStateTest extends Specification {
@@ -34,15 +36,15 @@ class RoomCreateSagaStateTest extends Specification {
 
         where:
         initialStatus        | eventType                     | expectedNewStatus    | expectedNextEventType          | responsibleService       | payload
-        SagaStatus.READY     | EventType.ROOM_CREATE_START   | SagaStatus.INITIATED | EventType.ROOM_CREATE_INITIATE | ServiceEnum.SAGA_SERVICE | ["userId": UUID.randomUUID()]
-        SagaStatus.INITIATED | EventType.ROOM_CREATE_APPROVE | SagaStatus.COMPLETED | EventType.ROOM_CREATE_COMPLETE | ServiceEnum.ROOM_SERVICE | ["id": UUID.randomUUID(), "createdBy": UUID.randomUUID(), "members": [], "dateCreated": 123, "dateUpdated": 123]
+        SagaStatus.READY     | EventType.ROOM_CREATE_START   | SagaStatus.INITIATED | EventType.ROOM_CREATE_INITIATE | ServiceEnum.SAGA_SERVICE | anyValidRoomCommand()
+        SagaStatus.INITIATED | EventType.ROOM_CREATE_APPROVE | SagaStatus.COMPLETED | EventType.ROOM_CREATE_COMPLETE | ServiceEnum.ROOM_SERVICE | anyValidRoomDTO()
     }
 
     def 'should throw an error when an incorrect status change occurs'() {
         given:
         the state withStatus SagaStatus.READY
         and:
-        def event = anEvent() withAnyValidRoomDTO() ofType EventType.ROOM_CREATE_APPROVE
+        def event = anEvent() with anyValidRoomDTO() ofType EventType.ROOM_CREATE_APPROVE
 
         when:
         the state reactsTo event.event

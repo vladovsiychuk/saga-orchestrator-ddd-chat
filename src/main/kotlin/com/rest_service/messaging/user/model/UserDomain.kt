@@ -13,7 +13,7 @@ import java.util.UUID
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
-class UserDomain(val currentUserEmail: String, val operationId: UUID) : State {
+class UserDomain(val currentUserEmail: String, var operationId: UUID) : State {
     private var status = DomainStatus.IN_CREATION
     lateinit var responsibleUserEmail: String
     var responsibleUser: UserDTO? = null
@@ -36,9 +36,9 @@ class UserDomain(val currentUserEmail: String, val operationId: UUID) : State {
 
     private fun createUser(event: UserDomainEvent): Mono<Boolean> {
         return when {
-            status != DomainStatus.IN_CREATION       -> RuntimeException("User $currentUserEmail is already created.").toMono()
-            status == DomainStatus.REJECTED          -> RuntimeException("User $currentUserEmail is in error state.").toMono()
-            responsibleUserEmail != currentUserEmail -> RuntimeException("Responsible user doesn't have permissions to create the user").toMono()
+            status == DomainStatus.REJECTED          -> throw RuntimeException("User $currentUserEmail is in error state.")
+            status != DomainStatus.IN_CREATION       -> throw RuntimeException("User $currentUserEmail is already created.")
+            responsibleUserEmail != currentUserEmail -> throw RuntimeException("Responsible user doesn't have permissions to create the user")
             else                                     -> {
                 val command = mapper.convertValue(event.payload, UserCommand::class.java)
                 currentUser = UserDTO(command, event.dateCreated)
@@ -57,8 +57,8 @@ class UserDomain(val currentUserEmail: String, val operationId: UUID) : State {
     override fun createNextEvent(): Mono<DomainEvent> {
         return when (status) {
             DomainStatus.CREATED  -> createApproveEvent()
-            DomainStatus.REJECTED -> RuntimeException("User $currentUserEmail is in error state.").toMono()
-            else                  -> UnsupportedOperationException().toMono()
+            DomainStatus.REJECTED -> throw RuntimeException("User $currentUserEmail is in error state.")
+            else                  -> throw UnsupportedOperationException()
         }
     }
 

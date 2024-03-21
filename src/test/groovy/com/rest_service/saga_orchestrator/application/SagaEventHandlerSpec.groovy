@@ -1,5 +1,6 @@
 package com.rest_service.saga_orchestrator.application
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.command.RoomCommand
 import com.rest_service.commons.enums.EventType
@@ -14,6 +15,8 @@ import reactor.core.publisher.Mono
 import spock.lang.Specification
 
 class SagaEventHandlerSpec extends Specification {
+
+    ObjectMapper mapper = new ObjectMapper()
 
     SagaEventRepository repository = Mock()
     ApplicationEventPublisher<DomainEvent> applicationEventPublisher = Mock()

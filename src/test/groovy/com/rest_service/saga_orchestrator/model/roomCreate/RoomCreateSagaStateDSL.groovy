@@ -8,6 +8,8 @@ import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
 import com.rest_service.saga_orchestrator.model.RoomCreateSagaState
 import com.rest_service.saga_orchestrator.model.SagaStatus
 
+import static com.rest_service.Fixture.anyValidRoomCommand
+import static com.rest_service.Fixture.anyValidRoomDTO
 import static com.rest_service.saga_orchestrator.model.SagaEventDSL.anEvent
 
 class RoomCreateSagaStateDSL {
@@ -27,10 +29,10 @@ class RoomCreateSagaStateDSL {
                 // No additional actions required.
                 break
             case SagaStatus.INITIATED:
-                state.apply(anEvent() withAnyValidRoomCommand() and() ofType EventType.ROOM_CREATE_START event)
+                state.apply(anEvent() with anyValidRoomCommand() and() ofType EventType.ROOM_CREATE_START event)
                 break
             case SagaStatus.COMPLETED:
-                state.apply(anEvent() from ServiceEnum.ROOM_SERVICE withAnyValidRoomDTO() and() ofType EventType.ROOM_CREATE_APPROVE event)
+                state.apply(anEvent() from ServiceEnum.ROOM_SERVICE with anyValidRoomDTO() and() ofType EventType.ROOM_CREATE_APPROVE event)
                 break
         }
 

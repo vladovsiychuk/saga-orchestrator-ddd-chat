@@ -1,9 +1,7 @@
 package com.rest_service.saga_orchestrator.model
 
 import com.rest_service.commons.enums.EventType
-import com.rest_service.commons.enums.LanguageEnum
 import com.rest_service.commons.enums.ServiceEnum
-import com.rest_service.commons.enums.UserType
 import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
 
 class SagaEventDSL {
@@ -34,36 +32,8 @@ class SagaEventDSL {
         return this
     }
 
-    SagaEventDSL withAnyValidRoomCommand() {
-        event.payload = ["userId": UUID.randomUUID()]
-        return this
-    }
-
-    SagaEventDSL withAnyValidUserCommand() {
-        event.payload = ["type": UserType.REGULAR_USER, "email": "test@email.com", "primaryLanguage": LanguageEnum.ENGLISH]
-        return this
-    }
-
-    SagaEventDSL withAnyValidRoomDTO() {
-        event.payload = [
-            "id"         : UUID.randomUUID(),
-            "createdBy"  : UUID.randomUUID(),
-            "members"    : [],
-            "dateCreated": 123,
-            "dateUpdated": 123
-        ]
-        return this
-    }
-
-    SagaEventDSL withAnyValidUserDTO() {
-        event.payload = [
-            "id"             : UUID.randomUUID(),
-            "email"          : "user@test.com",
-            "primaryLanguage": LanguageEnum.ENGLISH,
-            "type"           : UserType.REGULAR_USER,
-            "dateCreated"    : 123,
-            "dateUpdated"    : 123
-        ]
+    SagaEventDSL with(Map payload) {
+        event.payload = payload
         return this
     }
 

@@ -50,7 +50,7 @@ abstract class AbstractSagaState : State {
         SagaStatus.COMPLETED    -> createCompleteEvent()
         SagaStatus.REJECTED     -> createErrorEvent()
         SagaStatus.IN_APPROVING -> Mono.empty()
-        else                    -> Mono.error(UnsupportedOperationException())
+        else                    -> throw UnsupportedOperationException()
     }
 
     fun transitionTo(nextStatus: SagaStatus): Mono<Boolean> {
