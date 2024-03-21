@@ -29,5 +29,39 @@
             </column>
         </createTable>
     </changeSet>
+    <changeSet id="1710354803669-1" author="Vlad">
+        <createTable tableName="user_view">
+            <column name="id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="temporary_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="username" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="email" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="avatar" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="primary_language" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="translation_languages" type="java.sql.Types.CLOB">
+                <constraints nullable="true"/>
+            </column>
+            <column name="type" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="java.sql.Types.BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_updated" type="java.sql.Types.BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
 
 </databaseChangeLog>
