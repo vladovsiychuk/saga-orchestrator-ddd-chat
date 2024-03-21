@@ -84,3 +84,9 @@ run {
 configurations.testRuntimeOnly {
     exclude("io.r2dbc", "r2dbc-pool")
 }
+
+tasks.test {
+    if (project.hasProperty("excludeIntegrationTests")) {
+        exclude("**/*Integration*.class")
+    }
+}
