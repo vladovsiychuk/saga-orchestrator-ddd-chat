@@ -29,7 +29,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet id="1710354803669-1" author="Vlad">
+    <changeSet id="1710354803669-2" author="Vlad">
         <createTable tableName="user_view">
             <column name="id" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="false" unique="true" primaryKey="true"/>

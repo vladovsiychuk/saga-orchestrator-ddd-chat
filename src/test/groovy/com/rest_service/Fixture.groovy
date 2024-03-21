@@ -3,16 +3,16 @@ package com.rest_service
 import com.rest_service.commons.enums.LanguageEnum
 import com.rest_service.commons.enums.UserType
 
-public class Fixture {
-    public static Map anyValidUserCommand() {
+class Fixture {
+    static Map anyValidUserCommand() {
         [id: UUID.randomUUID(), "type": UserType.REGULAR_USER, "email": "test@email.com", "primaryLanguage": LanguageEnum.ENGLISH]
     }
 
-    public static Map anyValidRoomCommand() {
+    static Map anyValidRoomCommand() {
         ["userId": UUID.randomUUID()]
     }
 
-    public static Map anyValidRoomDTO() {
+    static Map anyValidRoomDTO() {
         [
             "id"         : UUID.randomUUID(),
             "createdBy"  : UUID.randomUUID(),
@@ -22,7 +22,7 @@ public class Fixture {
         ]
     }
 
-    public static Map anyValidUserDTO() {
+    static Map anyValidUserDTO() {
         [
             "id"             : UUID.randomUUID(),
             "email"          : "user@test.com",
