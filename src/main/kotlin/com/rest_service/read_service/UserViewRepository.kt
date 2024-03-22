@@ -9,6 +9,5 @@ import reactor.core.publisher.Mono
 
 @R2dbcRepository(dialect = Dialect.MYSQL)
 interface UserViewRepository : ReactorCrudRepository<UserView, UUID> {
-//    fun findById(id: UUID): Mono<UserView>
     fun update(user: UserView): Mono<UserView>
 }

@@ -8,6 +8,7 @@ import com.rest_service.read_service.exception.NotFoundException
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.switchIfEmpty
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
@@ -16,7 +17,11 @@ class UserService(private val repository: UserViewRepository) {
     val mapper = jacksonObjectMapper()
 
     fun updateUser(user: UserDTO) {
-        repository.update(mapper.convertValue(user, UserView::class.java))
+        val userEntity = mapper.convertValue(user, UserView::class.java)
+
+        repository.findById(userEntity.id)
+            .flatMap { repository.update(userEntity) }
+            .switchIfEmpty { repository.save(userEntity) }
             .subscribe()
     }
 

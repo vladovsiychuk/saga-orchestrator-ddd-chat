@@ -12,7 +12,7 @@ import java.util.UUID
 data class UserView(
     @field:Id
     val id: UUID,
-    val temporaryId: UUID,
+    val temporaryId: UUID?,
     val username: String?,
     val email: String,
     val avatar: String?,
