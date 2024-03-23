@@ -12,6 +12,7 @@ import com.rest_service.saga_orchestrator.infrastructure.SagaEventRepository
 import com.rest_service.saga_orchestrator.infrastructure.SecurityManager
 import com.rest_service.saga_orchestrator.model.RoomCreateSagaState
 import io.micronaut.context.event.ApplicationEventPublisher
+import jakarta.inject.Named
 import jakarta.inject.Singleton
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
@@ -19,6 +20,7 @@ import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
+@Named("roomCreateSagaEventHandler")
 open class RoomCreateSagaEventHandler(
     private val repository: SagaEventRepository,
     private val applicationEventPublisher: ApplicationEventPublisher<DomainEvent>,

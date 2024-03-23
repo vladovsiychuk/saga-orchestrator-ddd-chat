@@ -10,6 +10,7 @@ import com.rest_service.messaging.user.infrastructure.UserDomainEventRepository
 import com.rest_service.messaging.user.model.UserDomain
 import com.rest_service.messaging.user.model.convertEvent
 import io.micronaut.context.event.ApplicationEventPublisher
+import jakarta.inject.Named
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Mono
@@ -18,6 +19,7 @@ import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
+@Named("sagaEventHandler")
 open class SagaEventHandler(
     private val repository: UserDomainEventRepository,
     private val applicationEventPublisher: ApplicationEventPublisher<DomainEvent>,
