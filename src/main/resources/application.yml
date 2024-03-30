@@ -10,23 +10,14 @@ micronaut:
           allowedOrigins:
             - "${FRONTEND_URL:}"
   security:
-    authentication: idtoken
-    oauth2:
-      clients:
-        google:
-          client-id: '${OAUTH_CLIENT_ID:xxx}'
-          client-secret: '${OAUTH_CLIENT_SECRET:yyy}'
-          openid:
-            issuer: 'https://accounts.google.com'
-    endpoints:
-      logout:
-        get-allowed: true
-    redirect:
-      login-success: 'http://localhost:3000'
+    enabled: true
+    authentication: bearer
     token:
       jwt:
-        cookie:
-          cookie-http-only: false
+        signatures:
+          secret:
+            generator:
+              secret: pleaseChangeThisSecretForANewOne
 
 datasources:
   default:

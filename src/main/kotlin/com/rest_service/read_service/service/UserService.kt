@@ -30,4 +30,8 @@ class UserService(private val repository: UserViewRepository) {
             .map { mapper.convertValue(it, UserDTO::class.java) }
             .switchIfEmpty(NotFoundException("User with id $userId does not exist.").toMono())
     }
+
+    fun getCurrentUser(): Mono<UserDTO> {
+        TODO("Not yet implemented")
+    }
 }

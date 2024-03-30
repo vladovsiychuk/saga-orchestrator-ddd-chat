@@ -1,6 +1,7 @@
 package com.rest_service.saga_orchestrator.infrastructure
 
-import com.rest_service.commons.enums.EventType
+import com.rest_service.commons.DomainEvent
+import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
 import io.micronaut.data.annotation.AutoPopulated
 import io.micronaut.data.annotation.Id
@@ -11,7 +12,7 @@ import java.time.Instant
 import java.util.UUID
 
 @MappedEntity
-data class SagaEvent(
+data class SagaDomainEvent(
     @field:Id
     @AutoPopulated
     val id: UUID? = null,
@@ -20,7 +21,8 @@ data class SagaEvent(
     var payload: Map<String, Any>,
     var responsibleService: ServiceEnum,
     val responsibleUserEmail: String,
-    var type: EventType,
+    val responsibleUserId: UUID?,
+    var type: SagaEventType,
     val dateCreated: Long = Instant.now()
         .toEpochMilli(),
-)
+) : DomainEvent

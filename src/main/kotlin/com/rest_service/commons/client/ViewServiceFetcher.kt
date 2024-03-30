@@ -7,5 +7,6 @@ import reactor.core.publisher.Mono
 
 interface ViewServiceFetcher {
     fun getUser(id: UUID): Mono<UserDTO>
+    fun getCurrentUser(): Mono<UserDTO>
     fun getRoom(id: UUID): Mono<RoomDTO>
 }

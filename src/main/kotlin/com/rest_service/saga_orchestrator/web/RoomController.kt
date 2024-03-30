@@ -1,9 +1,7 @@
 package com.rest_service.saga_orchestrator.web
 
-import com.rest_service.commons.DomainEvent
-import com.rest_service.commons.command.RoomCommand
-import com.rest_service.saga_orchestrator.infrastructure.EventFactory
-import io.micronaut.context.event.ApplicationEventPublisher
+import com.rest_service.saga_orchestrator.web.request.RoomCreateRequest
+import com.rest_service.saga_orchestrator.web.service.RoomService
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
 import io.micronaut.security.annotation.Secured
@@ -12,14 +10,9 @@ import reactor.core.publisher.Mono
 
 @Controller("/v1/rooms")
 @Secured(SecurityRule.IS_AUTHENTICATED)
-class RoomController(
-    private val applicationEventPublisher: ApplicationEventPublisher<DomainEvent>,
-    private val eventFactory: EventFactory,
-) {
+class RoomController(private val roomService: RoomService) {
     @Post("/")
-    fun create(command: RoomCommand): Mono<ResponseDTO> {
-        return eventFactory.createStartEvent(command)
-            .doOnNext { applicationEventPublisher.publishEventAsync(it) }
-            .map { ResponseDTO(it.operationId) }
+    fun create(request: RoomCreateRequest): Mono<ResponseDTO> {
+        return roomService.startCreateRoom(request)
     }
 }

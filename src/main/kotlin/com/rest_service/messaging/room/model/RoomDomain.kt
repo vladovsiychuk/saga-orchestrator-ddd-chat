@@ -1,30 +1,30 @@
-package com.rest_service.messaging.user.model
+package com.rest_service.messaging.room.model
 
 import com.rest_service.commons.Domain
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
-import com.rest_service.commons.dto.UserDTO
-import com.rest_service.messaging.user.infrastructure.UserDomainEvent
+import com.rest_service.commons.dto.RoomDTO
+import com.rest_service.messaging.room.infrastructure.RoomDomainEvent
 import java.util.UUID
 import reactor.core.publisher.Mono
 
-class UserDomain(
+class RoomDomain(
+    var operationId: UUID,
     val responsibleUserEmail: String,
-    val responsibleUserId: UUID?,
-    var operationId: UUID
+    val responsibleUserId: UUID,
 ) : Domain {
-    private var state: UserState = UserInCreationState(this)
-    var currentUser: UserDTO? = null
+    private var state: RoomState = RoomInCreationState(this)
+    var room: RoomDTO? = null
 
     override fun apply(event: DomainEvent): DomainEvent {
-        return state.apply(event as UserDomainEvent)
+        return state.apply(event as RoomDomainEvent)
     }
 
     override fun createResponseSagaEvent(): Mono<SagaEvent> {
         return state.createResponseEvent()
     }
 
-    fun changeState(newState: UserState) {
+    fun changeState(newState: RoomState) {
         state = newState
     }
 }

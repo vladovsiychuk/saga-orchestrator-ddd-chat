@@ -1,6 +1,6 @@
 package com.rest_service.commons.enums
 
-enum class EventType {
+enum class SagaEventType {
     USER_CREATE_START,
     USER_CREATE_INITIATE,
     USER_CREATE_APPROVE,

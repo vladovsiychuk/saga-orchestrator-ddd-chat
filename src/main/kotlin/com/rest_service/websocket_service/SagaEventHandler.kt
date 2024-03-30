@@ -1,10 +1,10 @@
 package com.rest_service.websocket_service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.rest_service.commons.DomainEvent
+import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.dto.MessageDTO
 import com.rest_service.commons.dto.UserDTO
-import com.rest_service.commons.enums.EventType
+import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.websocket.WebSocketService
 import com.rest_service.websocket_service.client.ViewServiceFetcher
 import io.micronaut.runtime.event.annotation.EventListener
@@ -23,15 +23,15 @@ open class SagaEventHandler(
 
     @EventListener
     @Async
-    open fun messageActionListener(event: DomainEvent) {
+    open fun messageActionListener(event: SagaEvent) {
         when (event.type) {
-            EventType.USER_CREATE_COMPLETE    -> handleUserCreate(event)
-            EventType.MESSAGE_CREATE_COMPLETE -> handleMessageUpdate(event)
-            else                              -> {}
+            SagaEventType.USER_CREATE_COMPLETE    -> handleUserCreate(event)
+            SagaEventType.MESSAGE_CREATE_COMPLETE -> handleMessageUpdate(event)
+            else                                  -> {}
         }
     }
 
-    private fun handleUserCreate(event: DomainEvent) {
+    private fun handleUserCreate(event: SagaEvent) {
         mapper.convertValue(event.payload, UserDTO::class.java)
             .let { user ->
                 WebSocketEvent(user, WebSocketType.USER_CREATE)
@@ -40,7 +40,7 @@ open class SagaEventHandler(
             }
     }
 
-    private fun handleMessageUpdate(event: DomainEvent) {
+    private fun handleMessageUpdate(event: SagaEvent) {
         mapper.convertValue(event.payload, MessageDTO::class.java)
             .let { message ->
                 Mono.zip(
