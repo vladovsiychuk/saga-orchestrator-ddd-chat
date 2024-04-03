@@ -1,4 +1,4 @@
-package com.rest_service.websocket
+package com.rest_service.websocket_service.configuration
 
 import io.micronaut.http.HttpRequest
 import io.micronaut.security.token.reader.TokenReader

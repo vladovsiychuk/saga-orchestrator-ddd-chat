@@ -1,6 +1,6 @@
 package com.rest_service.messaging.user.infrastructure
 
 enum class UserDomainEventType {
-    USER_CREATE, UNDO,
+    USER_CREATED, UNDO,
     ROOM_CREATE_APPROVED,
 }

@@ -16,7 +16,7 @@ interface UserDomainEventRepository : ReactorCrudRepository<UserDomainEvent, UUI
         """
             SELECT * FROM user_domain_event
             WHERE email = :email
-            AND opration_id NOT IN (
+            AND operation_id NOT IN (
                 SELECT operation_id FROM user_domain_event
                 WHERE type = 'UNDO'
             )
@@ -29,7 +29,7 @@ interface UserDomainEventRepository : ReactorCrudRepository<UserDomainEvent, UUI
         """
             SELECT * FROM user_domain_event
             WHERE userId = :userId
-            AND opration_id NOT IN (
+            AND operation_id NOT IN (
                 SELECT operation_id FROM user_domain_event
                 WHERE type = 'UNDO'
             )

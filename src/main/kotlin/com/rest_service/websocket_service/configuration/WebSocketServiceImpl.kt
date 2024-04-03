@@ -1,4 +1,4 @@
-package com.rest_service.websocket
+package com.rest_service.websocket_service.configuration
 
 import io.micronaut.websocket.WebSocketBroadcaster
 import io.micronaut.websocket.WebSocketSession

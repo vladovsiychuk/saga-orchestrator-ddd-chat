@@ -18,9 +18,9 @@ open class SagaEventHandler(private val userService: UserService) {
     @Async
     open fun messageActionListener(event: SagaEvent) {
         when (event.type) {
-            SagaEventType.USER_CREATE_APPROVE -> handleUserCreate(event)
-            SagaEventType.ROOM_CREATE_APPROVE -> TODO()
-            else                              -> {}
+            SagaEventType.USER_CREATE_APPROVED -> handleUserCreate(event)
+            SagaEventType.ROOM_CREATE_APPROVED -> TODO()
+            else                               -> {}
         }
     }
 

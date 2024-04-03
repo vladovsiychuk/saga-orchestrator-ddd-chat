@@ -12,27 +12,20 @@ import com.rest_service.saga_orchestrator.infrastructure.SagaEventRepository
 import com.rest_service.saga_orchestrator.infrastructure.SecurityManager
 import com.rest_service.saga_orchestrator.model.RoomCreateSaga
 import io.micronaut.context.event.ApplicationEventPublisher
-import jakarta.inject.Named
 import jakarta.inject.Singleton
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-@Named("roomCreateSagaEventHandler")
-open class RoomCreateSagaEventHandler(
+class RoomCreateSagaEventHandler(
     private val repository: SagaEventRepository,
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val securityManager: SecurityManager,
 ) : AbstractEventHandler(applicationEventPublisher) {
 
     private val mapper = jacksonObjectMapper()
-
     private val currentUser = securityManager.getCurrentUserEmail()
-    override fun shouldHandle(sagaEventType: SagaEventType): Boolean {
-        return sagaEventType in listOf(SagaEventType.ROOM_CREATE_START, SagaEventType.ROOM_CREATE_APPROVE, SagaEventType.ROOM_CREATE_REJECT)
-    }
-
     override fun rebuildDomain(event: SagaEvent): Mono<Domain> {
         val operationId = event.operationId
 
@@ -61,17 +54,17 @@ open class RoomCreateSagaEventHandler(
     }
 
     override fun handleError(event: SagaEvent, error: Throwable): Mono<Void> {
-        return repository.existsByOperationIdAndType(event.operationId, SagaEventType.ROOM_CREATE_REJECT)
+        return repository.existsByOperationIdAndType(event.operationId, SagaEventType.ROOM_CREATE_REJECTED)
             .flatMap { exists ->
                 if (exists)
                     return@flatMap Mono.empty<Void>()
 
                 val errorEvent = SagaEvent(
-                    SagaEventType.ROOM_CREATE_REJECT,
+                    SagaEventType.ROOM_CREATE_REJECTED,
                     event.operationId,
                     ServiceEnum.SAGA_SERVICE,
                     currentUser,
-                    null,
+                    event.responsibleUserId!!,
                     mapOf("message" to error.message)
                 )
                 applicationEventPublisher.publishEventAsync(errorEvent)

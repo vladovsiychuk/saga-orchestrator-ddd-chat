@@ -8,12 +8,12 @@ import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.command.UserCreateCommand
 import com.rest_service.commons.enums.SagaEventType
+import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.messaging.user.infrastructure.UserDomainEvent
 import com.rest_service.messaging.user.infrastructure.UserDomainEventRepository
 import com.rest_service.messaging.user.infrastructure.UserDomainEventType
 import com.rest_service.messaging.user.model.UserDomain
 import io.micronaut.context.event.ApplicationEventPublisher
-import jakarta.inject.Named
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Mono
@@ -21,13 +21,11 @@ import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-@Named("userCreateEventHandler")
-open class UserCreateEventHandler(
+class UserCreateInitiatedEventHandler(
     private val repository: UserDomainEventRepository,
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
 ) : AbstractEventHandler(applicationEventPublisher) {
     private val mapper = jacksonObjectMapper()
-    override fun shouldHandle(sagaEventType: SagaEventType) = sagaEventType == SagaEventType.USER_CREATE_INITIATE
 
     override fun rebuildDomain(event: SagaEvent): Mono<Domain> {
         val command = mapper.convertValue(event.payload, UserCreateCommand::class.java)
@@ -50,7 +48,7 @@ open class UserCreateEventHandler(
             userId = UUID.randomUUID(),
             email = command.email,
             payload = mapper.convertValue(event.payload),
-            type = UserDomainEventType.USER_CREATE,
+            type = UserDomainEventType.USER_CREATED,
             operationId = event.operationId
         )
     }
@@ -84,9 +82,9 @@ open class UserCreateEventHandler(
                     return@flatMap Mono.empty<Void>()
 
                 val errorEvent = SagaEvent(
-                    SagaEventType.USER_CREATE_REJECT,
+                    SagaEventType.USER_CREATE_REJECTED,
                     event.operationId,
-                    event.responsibleService,
+                    ServiceEnum.USER_SERVICE,
                     event.responsibleUserEmail,
                     null,
                     mapOf("message" to error.message)

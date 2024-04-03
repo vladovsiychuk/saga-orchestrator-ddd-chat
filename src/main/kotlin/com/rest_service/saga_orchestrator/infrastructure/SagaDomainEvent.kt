@@ -21,7 +21,7 @@ data class SagaDomainEvent(
     var payload: Map<String, Any>,
     var responsibleService: ServiceEnum,
     val responsibleUserEmail: String,
-    val responsibleUserId: UUID?,
+    val responsibleUserId: UUID? = null,
     var type: SagaEventType,
     val dateCreated: Long = Instant.now()
         .toEpochMilli(),

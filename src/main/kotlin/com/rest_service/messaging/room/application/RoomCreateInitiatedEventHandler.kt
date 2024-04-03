@@ -7,23 +7,25 @@ import com.rest_service.commons.Domain
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.enums.SagaEventType
+import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.messaging.room.infrastructure.RoomDomainEvent
 import com.rest_service.messaging.room.infrastructure.RoomDomainEventRepository
 import com.rest_service.messaging.room.infrastructure.RoomDomainEventType
 import com.rest_service.messaging.room.model.RoomDomain
 import io.micronaut.context.event.ApplicationEventPublisher
+import jakarta.inject.Named
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-open class RoomCreateEventHandler(
+@Named("RoomCreateInitiatedEventHandler_roomDomain")
+class RoomCreateInitiatedEventHandler(
     private val repository: RoomDomainEventRepository,
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
 ) : AbstractEventHandler(applicationEventPublisher) {
     private val mapper = jacksonObjectMapper()
-    override fun shouldHandle(sagaEventType: SagaEventType) = sagaEventType == SagaEventType.ROOM_CREATE_INITIATE
     override fun rebuildDomain(event: SagaEvent): Mono<Domain> {
         val operationId = event.operationId
 
@@ -58,9 +60,9 @@ open class RoomCreateEventHandler(
                     return@flatMap Mono.empty<Void>()
 
                 val errorEvent = SagaEvent(
-                    SagaEventType.ROOM_CREATE_REJECT,
+                    SagaEventType.ROOM_CREATE_REJECTED,
                     event.operationId,
-                    event.responsibleService,
+                    ServiceEnum.ROOM_SERVICE,
                     event.responsibleUserEmail,
                     event.responsibleUserId!!,
                     mapOf("message" to error.message)

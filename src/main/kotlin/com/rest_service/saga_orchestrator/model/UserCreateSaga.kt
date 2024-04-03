@@ -16,7 +16,7 @@ class UserCreateSaga(
 ) : AbstractSagaStateManager<UserCreateCommand, UserDTO>() {
     private val mapper = jacksonObjectMapper()
     override fun startEvent() = SagaEventType.USER_CREATE_START
-    override fun approveEvent() = SagaEventType.USER_CREATE_APPROVE
+    override fun approveEvent() = SagaEventType.USER_CREATE_APPROVED
 
     override fun transformCommand(payload: Map<String, Any>): UserCreateCommand =
         mapper.convertValue(payload, UserCreateCommand::class.java)
@@ -28,10 +28,10 @@ class UserCreateSaga(
     override fun mainDomainService() = ServiceEnum.USER_SERVICE
 
     override fun createInitiatedResponseEvent() =
-        SagaEvent(SagaEventType.USER_CREATE_INITIATE, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, null, command)
+        SagaEvent(SagaEventType.USER_CREATE_INITIATED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, null, command)
 
     override fun createCompletedResponseEvent() =
-        SagaEvent(SagaEventType.USER_CREATE_COMPLETE, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, null, dto)
+        SagaEvent(SagaEventType.USER_CREATE_COMPLETED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, null, dto)
 
     override fun apply(event: DomainEvent) = state.apply(event as SagaDomainEvent)
     override fun createResponseSagaEvent() = state.createSagaResponseEvent()

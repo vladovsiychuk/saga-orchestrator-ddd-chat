@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
     <changeSet id="1710354803669-1" author="Vlad">
-        <createTable tableName="saga_event">
+        <createTable tableName="saga_domain_event">
             <column name="id" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="false" unique="true" primaryKey="true"/>
             </column>
@@ -20,6 +20,9 @@
             </column>
             <column name="responsible_user_email" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="false"/>
+            </column>
+            <column name="responsible_user_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="true"/>
             </column>
             <column name="type" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -69,10 +72,10 @@
                 <constraints nullable="false" unique="true" primaryKey="true"/>
             </column>
             <column name="user_id" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="email" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="payload" type="java.sql.Types.CLOB">
                 <constraints nullable="false"/>

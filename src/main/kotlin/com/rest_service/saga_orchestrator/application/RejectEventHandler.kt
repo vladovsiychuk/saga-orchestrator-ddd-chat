@@ -1,21 +1,20 @@
-package com.rest_service.messaging.user.application
+package com.rest_service.saga_orchestrator.application
 
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.commons.SagaEvent
-import com.rest_service.messaging.user.infrastructure.UserDomainEvent
-import com.rest_service.messaging.user.infrastructure.UserDomainEventRepository
-import com.rest_service.messaging.user.infrastructure.UserDomainEventType
+import com.rest_service.saga_orchestrator.infrastructure.SagaDomainEvent
+import com.rest_service.saga_orchestrator.infrastructure.SagaEventRepository
 import jakarta.inject.Singleton
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-class RejectEventHandler(private val repository: UserDomainEventRepository) {
+class RejectEventHandler(private val repository: SagaEventRepository) {
     private val mapper = jacksonObjectMapper()
 
     fun handleEvent(sagaEvent: SagaEvent) {
-        repository.existsByOperationIdAndType(sagaEvent.operationId, UserDomainEventType.UNDO)
+        repository.existsByOperationIdAndType(sagaEvent.operationId, sagaEvent.type)
             .flatMap { exists ->
                 if (exists)
                     return@flatMap Mono.empty()
@@ -26,11 +25,13 @@ class RejectEventHandler(private val repository: UserDomainEventRepository) {
             .subscribe()
     }
 
-    private fun createDomainEvent(sagaEvent: SagaEvent): Mono<UserDomainEvent> {
-        return UserDomainEvent(
+    private fun createDomainEvent(sagaEvent: SagaEvent): Mono<SagaDomainEvent> {
+        return SagaDomainEvent(
+            operationId = sagaEvent.operationId,
             payload = mapper.convertValue(sagaEvent.payload),
-            type = UserDomainEventType.UNDO,
-            operationId = sagaEvent.operationId
+            responsibleService = sagaEvent.responsibleService,
+            responsibleUserEmail = sagaEvent.responsibleUserEmail,
+            type = sagaEvent.type,
         ).toMono()
     }
 }

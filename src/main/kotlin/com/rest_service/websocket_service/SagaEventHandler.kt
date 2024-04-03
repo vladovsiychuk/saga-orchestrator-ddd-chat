@@ -5,8 +5,8 @@ import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.dto.MessageDTO
 import com.rest_service.commons.dto.UserDTO
 import com.rest_service.commons.enums.SagaEventType
-import com.rest_service.websocket.WebSocketService
 import com.rest_service.websocket_service.client.ViewServiceFetcher
+import com.rest_service.websocket_service.configuration.WebSocketService
 import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.scheduling.annotation.Async
 import jakarta.inject.Singleton
@@ -25,9 +25,9 @@ open class SagaEventHandler(
     @Async
     open fun messageActionListener(event: SagaEvent) {
         when (event.type) {
-            SagaEventType.USER_CREATE_COMPLETE    -> handleUserCreate(event)
-            SagaEventType.MESSAGE_CREATE_COMPLETE -> handleMessageUpdate(event)
-            else                                  -> {}
+            SagaEventType.USER_CREATE_COMPLETED    -> handleUserCreate(event)
+            SagaEventType.MESSAGE_CREATE_COMPLETED -> handleMessageUpdate(event)
+            else                                   -> {}
         }
     }
 

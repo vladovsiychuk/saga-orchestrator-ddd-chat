@@ -21,5 +21,5 @@ class UserCreatedState(private val domain: UserDomain) : UserState {
         return event
     }
 
-    override fun createResponseEvent() = SagaEvent(SagaEventType.USER_CREATE_APPROVE, domain.operationId, ServiceEnum.USER_SERVICE, domain.responsibleUserEmail, domain.currentUser!!.id, domain.currentUser!!).toMono()
+    override fun createResponseEvent() = SagaEvent(SagaEventType.USER_CREATE_APPROVED, domain.operationId, ServiceEnum.USER_SERVICE, domain.responsibleUserEmail, domain.currentUser!!.id, domain.currentUser!!).toMono()
 }

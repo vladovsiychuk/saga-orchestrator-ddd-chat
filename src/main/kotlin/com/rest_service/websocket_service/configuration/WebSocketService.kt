@@ -1,4 +1,4 @@
-package com.rest_service.websocket
+package com.rest_service.websocket_service.configuration
 
 import java.util.UUID
 
