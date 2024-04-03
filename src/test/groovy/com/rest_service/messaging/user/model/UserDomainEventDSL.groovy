@@ -1,7 +1,8 @@
 package com.rest_service.messaging.user.model
 
-import com.rest_service.commons.enums.EventType
+
 import com.rest_service.messaging.user.infrastructure.UserDomainEvent
+import com.rest_service.messaging.user.infrastructure.UserDomainEventType
 
 class UserDomainEventDSL {
     UserDomainEvent event = new UserDomainEvent(
@@ -9,7 +10,7 @@ class UserDomainEventDSL {
         UUID.randomUUID(),
         "example@test.com",
         [:],
-        EventType.USER_CREATE_INITIATE,
+        UserDomainEventType.USER_CREATED,
         UUID.randomUUID(),
         123123
     )
@@ -26,23 +27,18 @@ class UserDomainEventDSL {
         return this
     }
 
-    UserDomainEventDSL ofType(EventType type) {
+    UserDomainEventDSL ofType(UserDomainEventType type) {
         event.type = type
         return this
     }
 
-//    UserDomainEventDSL withUserId(UUID userId) {
-//        event.userId = userId
-//        return this
-//    }
-//
-//    UserDomainEventDSL withEmail(String email) {
-//        event.email = email
-//        return this
-//    }
-
     UserDomainEventDSL withPayload(Map payload) {
         event.payload = payload
+        return this
+    }
+
+    UserDomainEventDSL from(String userEmail) {
+        event.email = userEmail
         return this
     }
 
@@ -50,10 +46,5 @@ class UserDomainEventDSL {
         event.operationId = operationId
         return this
     }
-
-//    UserDomainEventDSL happenedAt(Long dateCreated) {
-//        event.dateCreated = dateCreated
-//        return this
-//    }
 }
 

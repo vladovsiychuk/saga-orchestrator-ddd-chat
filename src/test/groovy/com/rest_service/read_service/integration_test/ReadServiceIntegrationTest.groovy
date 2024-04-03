@@ -1,8 +1,8 @@
 package com.rest_service.read_service.integration_test
 
 import com.rest_service.UserConstant
-import com.rest_service.commons.DomainEvent
-import com.rest_service.commons.enums.EventType
+import com.rest_service.commons.SagaEvent
+import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.read_service.SagaEventHandler
 import com.rest_service.saga_orchestrator.infrastructure.SagaEventRepository
@@ -39,7 +39,7 @@ class ReadServiceIntegrationTest extends Specification {
         def userId = UUID.randomUUID()
         def userDto = anyValidUserDTO()
         userDto.id = userId
-        def event = new DomainEvent(EventType.USER_CREATE_APPROVE, UUID.randomUUID(), ServiceEnum.SAGA_SERVICE, "example@test.com", userDto)
+        def event = new SagaEvent(SagaEventType.USER_CREATE_APPROVED, UUID.randomUUID(), ServiceEnum.SAGA_SERVICE, "example@test.com", userDto)
 
         when:
         eventHandler.messageActionListener(event)

@@ -1,14 +1,12 @@
 package com.rest_service.messaging.user.model
 
-import com.rest_service.commons.DomainEvent
+import com.rest_service.commons.SagaEvent
 
 class UserDomainDSL {
-    UserDomain domain = new UserDomain("example@test.com", UUID.randomUUID())
+    UserDomain domain = new UserDomain("example@test.com", UUID.randomUUID(), UUID.randomUUID())
 
     static UserDomainDSL aUser() {
-        def dsl = new UserDomainDSL()
-        dsl.from("example@test.com")
-        return dsl
+        return new UserDomainDSL()
     }
 
     static UserDomainDSL the(UserDomainDSL dsl) {
@@ -24,18 +22,18 @@ class UserDomainDSL {
         return this
     }
 
-    UserDomainDSL from(String userEmail) {
-        domain.responsibleUserEmail = userEmail
-        return this
-    }
-
     UserDomainDSL withOperationId(UUID operationId) {
         domain.operationId = operationId
         return this
     }
 
-    DomainEvent nextEvent() {
-        return domain.createNextEvent().block()
+    UserDomainDSL withResponsibleUserEmail(String responsibleUserEmail) {
+        domain.responsibleUserEmail = responsibleUserEmail
+        return this
+    }
+
+    SagaEvent responseEvent() {
+        return domain.createResponseSagaEvent().block()
     }
 }
 

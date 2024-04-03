@@ -1,17 +1,18 @@
 package com.rest_service.saga_orchestrator.model
 
-import com.rest_service.commons.enums.EventType
+import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
-import com.rest_service.saga_orchestrator.infrastructure.SagaEvent
+import com.rest_service.saga_orchestrator.infrastructure.SagaDomainEvent
 
 class SagaEventDSL {
-    SagaEvent event = new SagaEvent(
+    SagaDomainEvent event = new SagaDomainEvent(
         UUID.randomUUID(),
         UUID.randomUUID(),
         [:],
         ServiceEnum.SAGA_SERVICE,
         "test-user",
-        EventType.ROOM_CREATE_START,
+        UUID.randomUUID(),
+        SagaEventType.ROOM_CREATE_START,
         123123,
     )
 
@@ -27,7 +28,7 @@ class SagaEventDSL {
         return this
     }
 
-    SagaEventDSL ofType(EventType type) {
+    SagaEventDSL ofType(SagaEventType type) {
         event.type = type
         return this
     }

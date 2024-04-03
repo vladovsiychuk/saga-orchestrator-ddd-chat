@@ -14,7 +14,7 @@ data class UserDomainEvent(
     @AutoPopulated
     val eventId: UUID? = null,
     val userId: UUID? = null,
-    val email: String? = null,
+    var email: String? = null,
     @MappedProperty(type = DataType.JSON)
     var payload: Map<String, Any>,
     var type: UserDomainEventType,

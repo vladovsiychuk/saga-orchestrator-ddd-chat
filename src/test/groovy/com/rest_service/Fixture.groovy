@@ -4,12 +4,12 @@ import com.rest_service.commons.enums.LanguageEnum
 import com.rest_service.commons.enums.UserType
 
 class Fixture {
-    static Map anyValidUserCommand() {
-        [id: UUID.randomUUID(), "type": UserType.REGULAR_USER, "email": "test@email.com", "primaryLanguage": LanguageEnum.ENGLISH]
+    static Map anyValidUserCreateCommand() {
+        ["type": UserType.REGULAR_USER, "email": "example@test.com", "primaryLanguage": LanguageEnum.ENGLISH, "temporaryId": UUID.randomUUID()]
     }
 
-    static Map anyValidRoomCommand() {
-        ["userId": UUID.randomUUID()]
+    static Map anyValidRoomCreateCommand() {
+        ["companionId": UUID.randomUUID()]
     }
 
     static Map anyValidRoomDTO() {

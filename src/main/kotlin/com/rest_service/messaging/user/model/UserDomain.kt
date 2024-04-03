@@ -9,9 +9,9 @@ import java.util.UUID
 import reactor.core.publisher.Mono
 
 class UserDomain(
-    val responsibleUserEmail: String,
+    var responsibleUserEmail: String,
     val responsibleUserId: UUID?,
-    var operationId: UUID
+    val operationId: UUID
 ) : Domain {
     private var state: UserState = UserInCreationState(this)
     var currentUser: UserDTO? = null
