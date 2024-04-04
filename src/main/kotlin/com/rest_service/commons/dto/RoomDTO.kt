@@ -10,7 +10,7 @@ data class RoomDTO(
     val id: UUID,
     val name: String?,
     val createdBy: UUID,
-    val members: Set<UUID>,
+    val members: MutableSet<UUID>,
     val dateCreated: Long,
     val dateUpdated: Long,
 ) : DTO {
@@ -18,7 +18,7 @@ data class RoomDTO(
         event.roomId,
         null,
         event.responsibleUserId,
-        setOf(command.companionId, event.responsibleUserId),
+        mutableSetOf(command.companionId, event.responsibleUserId),
         event.dateCreated,
         event.dateCreated,
     )

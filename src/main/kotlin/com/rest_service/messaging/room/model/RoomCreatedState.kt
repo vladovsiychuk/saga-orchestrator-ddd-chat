@@ -21,7 +21,7 @@ class RoomCreatedState(private val domain: RoomDomain) : RoomState {
 
     private fun addMember(event: RoomDomainEvent): RoomDomainEvent {
         val command = mapper.convertValue(event.payload, RoomAddMemberCommand::class.java)
-        domain.room!!.members + command.memberId
+        domain.room!!.members.add(command.memberId)
         domain.changeState(RoomMemberAddedState(domain))
         return event
 
