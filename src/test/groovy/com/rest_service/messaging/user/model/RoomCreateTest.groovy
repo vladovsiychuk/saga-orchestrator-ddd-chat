@@ -14,7 +14,7 @@ import static com.rest_service.messaging.user.model.UserDomainEventDSL.anEvent
 class RoomCreateTest extends Specification {
 
     def 'should approve room creation when responsible user just exists'() {
-        given: 'a regular existing user'
+        given: 'an existing regular user'
         def user = aUser() withResponsibleUserEmail "example@test.com"
         def createdEvent = anEvent() ofType USER_CREATED withPayload anyValidUserCreateCommand()
         the user reactsTo createdEvent

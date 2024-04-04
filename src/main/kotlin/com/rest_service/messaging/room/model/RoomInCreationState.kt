@@ -24,5 +24,5 @@ class RoomInCreationState(private val domain: RoomDomain) : RoomState {
         return event
     }
 
-    override fun createResponseEvent() = throw UnsupportedOperationException("No next event for user in creation state.")
+    override fun createResponseEvent() = throw UnsupportedOperationException("No next event for room in creation state.")
 }
