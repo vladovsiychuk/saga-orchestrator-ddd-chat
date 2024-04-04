@@ -7,6 +7,7 @@ import com.rest_service.commons.Domain
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.command.UserCreateCommand
+import com.rest_service.commons.dto.ErrorDTO
 import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.messaging.user.infrastructure.UserDomainEvent
@@ -87,7 +88,7 @@ class UserCreateInitiatedEventHandler(
                     ServiceEnum.USER_SERVICE,
                     event.responsibleUserEmail,
                     null,
-                    mapOf("message" to error.message)
+                    ErrorDTO(error.message),
                 )
                 applicationEventPublisher.publishEventAsync(errorEvent)
                 Mono.error(error)

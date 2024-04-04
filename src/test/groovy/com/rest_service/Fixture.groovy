@@ -37,4 +37,7 @@ class Fixture {
         ]
     }
 
+    static Map anyValidErrorDto() {
+        ["message": 'test text']
+    }
 }

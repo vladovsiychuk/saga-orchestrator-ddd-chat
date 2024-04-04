@@ -18,6 +18,7 @@ class RoomCreateSaga(
     private val mapper = jacksonObjectMapper()
     override fun startEvent() = SagaEventType.ROOM_CREATE_START
     override fun approveEvent() = SagaEventType.ROOM_CREATE_APPROVED
+    override fun rejectEvent() = SagaEventType.ROOM_CREATE_REJECTED
 
     override fun transformCommand(payload: Map<String, Any>): RoomCreateCommand =
         mapper.convertValue(payload, RoomCreateCommand::class.java)
@@ -38,6 +39,9 @@ class RoomCreateSaga(
 
     override fun createCompletedResponseEvent() =
         SagaEvent(SagaEventType.ROOM_CREATE_COMPLETED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, responsibleUserId, dto)
+
+    override fun createErrorResponseEvent() =
+        SagaEvent(SagaEventType.ROOM_CREATE_ERROR, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, responsibleUserId, errorDto!!)
 
     override fun apply(event: DomainEvent) = state.apply(event as SagaDomainEvent)
     override fun createResponseSagaEvent() = state.createSagaResponseEvent()

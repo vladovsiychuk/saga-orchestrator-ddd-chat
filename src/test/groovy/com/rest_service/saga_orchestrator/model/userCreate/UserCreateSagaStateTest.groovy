@@ -2,8 +2,7 @@ package com.rest_service.saga_orchestrator.model.userCreate
 
 import spock.lang.Specification
 
-import static com.rest_service.Fixture.anyValidUserCreateCommand
-import static com.rest_service.Fixture.anyValidUserDTO
+import static com.rest_service.Fixture.*
 import static com.rest_service.commons.enums.SagaEventType.*
 import static com.rest_service.commons.enums.ServiceEnum.SAGA_SERVICE
 import static com.rest_service.commons.enums.ServiceEnum.USER_SERVICE
@@ -40,6 +39,19 @@ class UserCreateSagaStateTest extends Specification {
 
         then:
         (the userSaga responseEvent() type) == USER_CREATE_COMPLETED
+    }
+
+    def 'should change the status to ERROR when processing the REJECTED event'() {
+        given: 'a user saga in READY state'
+        def userSaga = aUserSaga()
+        and:
+        def event = anEvent() from SAGA_SERVICE withPayload anyValidErrorDto() ofType USER_CREATE_REJECTED
+
+        when:
+        the userSaga reactsTo event.event
+
+        then:
+        (the userSaga responseEvent() type) == USER_CREATE_ERROR
     }
 
 

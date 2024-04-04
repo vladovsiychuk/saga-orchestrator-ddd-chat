@@ -17,6 +17,7 @@ class UserCreateSaga(
     private val mapper = jacksonObjectMapper()
     override fun startEvent() = SagaEventType.USER_CREATE_START
     override fun approveEvent() = SagaEventType.USER_CREATE_APPROVED
+    override fun rejectEvent() = SagaEventType.USER_CREATE_REJECTED
 
     override fun transformCommand(payload: Map<String, Any>): UserCreateCommand =
         mapper.convertValue(payload, UserCreateCommand::class.java)
@@ -32,6 +33,9 @@ class UserCreateSaga(
 
     override fun createCompletedResponseEvent() =
         SagaEvent(SagaEventType.USER_CREATE_COMPLETED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, null, dto)
+
+    override fun createErrorResponseEvent() =
+        SagaEvent(SagaEventType.USER_CREATE_ERROR, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, null, errorDto!!)
 
     override fun apply(event: DomainEvent) = state.apply(event as SagaDomainEvent)
     override fun createResponseSagaEvent() = state.createSagaResponseEvent()

@@ -6,6 +6,7 @@ import com.rest_service.commons.AbstractEventHandler
 import com.rest_service.commons.Domain
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
+import com.rest_service.commons.dto.ErrorDTO
 import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.messaging.room.infrastructure.RoomDomainEvent
@@ -65,7 +66,7 @@ class RoomAddMemberInitiatedEventHandler(
                     ServiceEnum.ROOM_SERVICE,
                     event.responsibleUserEmail,
                     event.responsibleUserId!!,
-                    mapOf("message" to error.message)
+                    ErrorDTO(error.message),
                 )
                 applicationEventPublisher.publishEventAsync(errorEvent)
                 Mono.error(error)

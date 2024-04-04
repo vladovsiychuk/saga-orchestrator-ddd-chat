@@ -58,6 +58,19 @@ class RoomCreateSagaStateTest extends Specification {
         (the roomSaga responseEvent() type) == ROOM_CREATE_INITIATED
     }
 
+    def 'should change the status to ERROR when processing the REJECTED event'() {
+        given: 'a room saga in READY state'
+        def roomSaga = aRoomSaga()
+        and:
+        def event = anEvent() from SAGA_SERVICE withPayload anyValidErrorDto() ofType ROOM_CREATE_REJECTED
+
+        when:
+        the roomSaga reactsTo event.event
+
+        then:
+        (the roomSaga responseEvent() type) == ROOM_CREATE_ERROR
+    }
+
     def 'should throw an exception when a not expected event is received in READY state'() {
         given: 'a room saga in READY state'
         def roomSaga = aRoomSaga()

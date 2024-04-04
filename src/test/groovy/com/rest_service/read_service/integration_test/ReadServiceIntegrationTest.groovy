@@ -39,7 +39,7 @@ class ReadServiceIntegrationTest extends Specification {
         def userId = UUID.randomUUID()
         def userDto = anyValidUserDTO()
         userDto.id = userId
-        def event = new SagaEvent(SagaEventType.USER_CREATE_APPROVED, UUID.randomUUID(), ServiceEnum.SAGA_SERVICE, "example@test.com", userDto)
+        def event = new SagaEvent(SagaEventType.USER_CREATE_APPROVED, UUID.randomUUID(), ServiceEnum.SAGA_SERVICE, "example@test.com", userId, userDto)
 
         when:
         eventHandler.messageActionListener(event)
