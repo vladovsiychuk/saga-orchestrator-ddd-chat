@@ -5,5 +5,6 @@ import java.util.UUID
 
 @Introspected
 data class RoomAddMemberCommand(
+    val roomId: UUID,
     val memberId: UUID
 ) : Command

@@ -13,7 +13,7 @@ class Fixture {
     }
 
     static Map anyValidRoomAddMemberCommand() {
-        ["memberId": UUID.randomUUID()]
+        ["roomId": UUID.randomUUID(), "memberId": UUID.randomUUID()]
     }
 
     static Map anyValidRoomDTO() {

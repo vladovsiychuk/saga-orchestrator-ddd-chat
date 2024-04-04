@@ -17,12 +17,13 @@ interface RoomDomainEventRepository : ReactorCrudRepository<RoomDomainEvent, UUI
     @Query(
         """
             SELECT * FROM room_domain_event
-            WHERE opration_id NOT IN (
-                SELECT operation_id FROM user_domain_event
+            WHERE room_id = :roomId
+            AND opration_id NOT IN (
+                SELECT operation_id FROM room_domain_event
                 WHERE type = 'UNDO'
             )
             ORDER BY date_created
         """
     )
-    fun findDomainEvents(email: String): Flux<RoomDomainEvent>
+    fun findDomainEvents(roomId: UUID): Flux<RoomDomainEvent>
 }

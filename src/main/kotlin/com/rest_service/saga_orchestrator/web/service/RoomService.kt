@@ -42,7 +42,7 @@ class RoomService(
     fun startAddMember(roomId: UUID, command: RoomAddMemberRequest): Mono<ResponseDTO> {
         return securityManager.getCurrentUser()
             .map { (currentUserId, currentUserEmail) ->
-                val addMemberCommand = RoomAddMemberCommand(command.memberId)
+                val addMemberCommand = RoomAddMemberCommand(roomId, command.memberId)
 
                 SagaEvent(
                     SagaEventType.ROOM_ADD_MEMBER_START,

@@ -6,6 +6,7 @@ import com.rest_service.commons.AbstractEventHandler
 import com.rest_service.commons.Domain
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
+import com.rest_service.commons.command.RoomAddMemberCommand
 import com.rest_service.commons.dto.ErrorDTO
 import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
@@ -18,6 +19,7 @@ import jakarta.inject.Named
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
@@ -28,6 +30,7 @@ class RoomAddMemberInitiatedEventHandler(
 ) : AbstractEventHandler(applicationEventPublisher) {
     private val mapper = jacksonObjectMapper()
     override fun rebuildDomain(event: SagaEvent): Mono<Domain> {
+        val command = mapper.convertValue(event, RoomAddMemberCommand::class.java)
         val operationId = event.operationId
 
         return repository.existsByOperationIdAndType(operationId, RoomDomainEventType.UNDO)
@@ -35,7 +38,29 @@ class RoomAddMemberInitiatedEventHandler(
                 if (operationFailed)
                     return@flatMap Mono.empty()
 
-                RoomDomain(operationId, event.responsibleUserEmail, event.responsibleUserId!!).toMono()
+                rebuildRoomById(command.roomId, operationId, event.responsibleUserEmail, event.responsibleUserId!!)
+            }
+    }
+
+    private fun rebuildRoomById(
+        roomId: UUID,
+        operationId: UUID,
+        responsibleUserEmail: String,
+        responsibleUserId: UUID
+    ): Mono<Domain> {
+        return repository.findDomainEvents(roomId)
+            .collectList()
+            .flatMap { events ->
+                val roomDomain = RoomDomain(operationId, responsibleUserEmail, responsibleUserId)
+
+                if (events.isEmpty())
+                    return@flatMap roomDomain.toMono()
+
+                events.toFlux()
+                    .concatMap { event ->
+                        roomDomain.apply(event).toMono().thenReturn(roomDomain)
+                    }
+                    .last()
             }
     }
 
