@@ -1,13 +1,11 @@
 package com.rest_service.saga_orchestrator.model
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.command.MessageCreateCommand
 import com.rest_service.commons.dto.MessageDTO
 import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
-import com.rest_service.saga_orchestrator.infrastructure.SagaDomainEvent
 import java.util.UUID
 
 class MessageCreateSaga(
@@ -42,7 +40,4 @@ class MessageCreateSaga(
 
     override fun createErrorResponseEvent() =
         SagaEvent(SagaEventType.MESSAGE_CREATE_ERROR, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, responsibleUserId, errorDto!!)
-
-    override fun apply(event: DomainEvent) = state.apply(event as SagaDomainEvent)
-    override fun createResponseSagaEvent() = state.createSagaResponseEvent()
 }

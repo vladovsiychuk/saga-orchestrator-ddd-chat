@@ -2,6 +2,7 @@ package com.rest_service.saga_orchestrator.model
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.commons.Domain
+import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.command.Command
 import com.rest_service.commons.dto.DTO
@@ -31,6 +32,9 @@ abstract class AbstractSagaStateManager<C : Command, D : DTO> : Domain {
     abstract fun createErrorResponseEvent(): SagaEvent
 
     private val mapper = jacksonObjectMapper()
+
+    override fun apply(event: DomainEvent) = state.apply(event as SagaDomainEvent)
+    override fun createResponseSagaEvent() = state.createSagaResponseEvent()
 
     inner class ReadyState : SagaState {
         override fun apply(event: SagaDomainEvent): SagaDomainEvent {
