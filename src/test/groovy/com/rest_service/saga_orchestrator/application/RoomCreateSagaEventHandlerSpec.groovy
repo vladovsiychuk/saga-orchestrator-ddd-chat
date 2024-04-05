@@ -3,6 +3,7 @@ package com.rest_service.saga_orchestrator.application
 
 import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.command.RoomCreateCommand
+import com.rest_service.commons.dto.ErrorDTO
 import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.saga_orchestrator.infrastructure.SagaDomainEvent
@@ -57,7 +58,7 @@ class RoomCreateSagaEventHandlerSpec extends Specification {
 
         RoomCreateCommand command = new RoomCreateCommand(companionId)
         SagaEvent event = new SagaEvent(SagaEventType.ROOM_CREATE_START, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, responsibleUserId, command)
-        SagaEvent expectedErrorEvent = new SagaEvent(SagaEventType.ROOM_CREATE_REJECTED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, responsibleUserId, ["message": "exception message"])
+        SagaEvent expectedErrorEvent = new SagaEvent(SagaEventType.ROOM_CREATE_REJECTED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, responsibleUserId, new ErrorDTO("exception message"))
 
         1 * repository.save(_) >> Mono.error(new Exception("exception message"))
         1 * repository.findByOperationIdOrderByDateCreated(_) >> Flux.empty()
