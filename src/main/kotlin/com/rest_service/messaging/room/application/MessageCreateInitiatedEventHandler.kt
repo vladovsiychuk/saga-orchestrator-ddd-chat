@@ -6,7 +6,7 @@ import com.rest_service.commons.AbstractEventHandler
 import com.rest_service.commons.Domain
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
-import com.rest_service.commons.command.RoomAddMemberCommand
+import com.rest_service.commons.command.MessageCreateCommand
 import com.rest_service.commons.dto.ErrorDTO
 import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
@@ -23,14 +23,14 @@ import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-@Named("RoomAddMemberInitiatedEventHandler_roomDomain")
-class RoomAddMemberInitiatedEventHandler(
+@Named("MessageCreateInitiatedEventHandler_roomDomain")
+class MessageCreateInitiatedEventHandler(
     private val repository: RoomDomainEventRepository,
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
 ) : AbstractEventHandler(applicationEventPublisher) {
     private val mapper = jacksonObjectMapper()
     override fun rebuildDomain(event: SagaEvent): Mono<Domain> {
-        val command = mapper.convertValue(event, RoomAddMemberCommand::class.java)
+        val command = mapper.convertValue(event, MessageCreateCommand::class.java)
         val operationId = event.operationId
 
         return repository.existsByOperationIdAndType(operationId, RoomDomainEventType.UNDO)
@@ -68,7 +68,7 @@ class RoomAddMemberInitiatedEventHandler(
         return RoomDomainEvent(
             roomId = UUID.randomUUID(),
             payload = mapper.convertValue(event.payload),
-            type = RoomDomainEventType.ROOM_MEMBER_ADDED,
+            type = RoomDomainEventType.MESSAGE_CREATE_APPROVED,
             operationId = event.operationId,
             responsibleUserId = event.responsibleUserId!!
         )
@@ -86,7 +86,7 @@ class RoomAddMemberInitiatedEventHandler(
                     return@flatMap Mono.empty<Void>()
 
                 val errorEvent = SagaEvent(
-                    SagaEventType.ROOM_ADD_MEMBER_REJECTED,
+                    SagaEventType.MESSAGE_CREATE_REJECTED,
                     event.operationId,
                     ServiceEnum.ROOM_SERVICE,
                     event.responsibleUserEmail,

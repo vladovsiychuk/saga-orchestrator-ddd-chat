@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-@Named("RoomCreateInitiatedEventHandler_roomDomain")
+@Named("MessageCreateInitiatedEventHandler_messageDomain")
 class MessageCreateInitiatedEventHandler(
     private val repository: MessageDomainEventRepository,
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,

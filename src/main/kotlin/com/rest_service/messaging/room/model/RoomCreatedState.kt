@@ -14,9 +14,15 @@ class RoomCreatedState(private val domain: RoomDomain) : RoomState {
 
     override fun apply(event: RoomDomainEvent): RoomDomainEvent {
         return when (event.type) {
-            RoomDomainEventType.ROOM_MEMBER_ADDED -> addMember(event)
-            else                                  -> throw UnsupportedOperationException()
+            RoomDomainEventType.ROOM_MEMBER_ADDED       -> addMember(event)
+            RoomDomainEventType.MESSAGE_CREATE_APPROVED -> approveMessageCreate(event)
+            else                                        -> throw UnsupportedOperationException()
         }
+    }
+
+    private fun approveMessageCreate(event: RoomDomainEvent): RoomDomainEvent {
+        domain.changeState(MessageCreateApprovedState(domain))
+        return event
     }
 
     private fun addMember(event: RoomDomainEvent): RoomDomainEvent {

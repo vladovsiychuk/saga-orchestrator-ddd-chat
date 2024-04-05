@@ -10,6 +10,7 @@ import jakarta.inject.Singleton
 open class RoomActionListener(
     private val roomCreateInitiatedEventHandler: RoomCreateInitiatedEventHandler,
     private val roomAddMemberInitiatedEventHandler: RoomAddMemberInitiatedEventHandler,
+    private val messageCreateInitiatedEventHandler: MessageCreateInitiatedEventHandler,
 ) {
     @EventListener
     @Async
@@ -17,6 +18,7 @@ open class RoomActionListener(
         when (event.type) {
             SagaEventType.ROOM_CREATE_INITIATED     -> roomCreateInitiatedEventHandler.handleEvent(event)
             SagaEventType.ROOM_ADD_MEMBER_INITIATED -> roomAddMemberInitiatedEventHandler.handleEvent(event)
+            SagaEventType.MESSAGE_CREATE_INITIATED  -> messageCreateInitiatedEventHandler.handleEvent(event)
             else                                    -> {}
         }
     }

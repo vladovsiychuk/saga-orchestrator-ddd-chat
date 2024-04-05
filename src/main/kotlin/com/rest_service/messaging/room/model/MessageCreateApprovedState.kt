@@ -6,7 +6,7 @@ import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.messaging.room.infrastructure.RoomDomainEvent
 import reactor.kotlin.core.publisher.toMono
 
-class RoomMemberAddedState(private val domain: RoomDomain) : RoomState {
-    override fun createResponseEvent() = SagaEvent(SagaEventType.ROOM_ADD_MEMBER_APPROVED, domain.operationId, ServiceEnum.ROOM_SERVICE, domain.responsibleUserEmail, domain.responsibleUserId, domain.room!!).toMono()
+class MessageCreateApprovedState(private val domain: RoomDomain) : RoomState {
+    override fun createResponseEvent() = SagaEvent(SagaEventType.MESSAGE_CREATE_APPROVED, domain.operationId, ServiceEnum.ROOM_SERVICE, domain.responsibleUserEmail, domain.responsibleUserId, domain.room!!).toMono()
     override fun apply(event: RoomDomainEvent) = throw UnsupportedOperationException()
 }

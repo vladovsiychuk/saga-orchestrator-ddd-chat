@@ -23,7 +23,7 @@ import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-@Named("roomCreateInitiatedEventHandler_userDomain")
+@Named("RoomAddMemberInitiatedEventHandler_userDomain")
 class RoomAddMemberInitiatedEventHandler(
     private val repository: UserDomainEventRepository,
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
