@@ -20,7 +20,7 @@ class RoomService(
     private val securityManager: SecurityManager,
 ) {
     fun startCreateRoom(request: RoomCreateRequest): Mono<ResponseDTO> {
-        return securityManager.getCurrentUser()
+        return securityManager.getCurrentUserIdAndEmail()
             .map { (currentUserId, currentUserEmail) ->
                 val command = RoomCreateCommand(
                     request.companionUserId
@@ -40,7 +40,7 @@ class RoomService(
     }
 
     fun startAddMember(roomId: UUID, command: RoomAddMemberRequest): Mono<ResponseDTO> {
-        return securityManager.getCurrentUser()
+        return securityManager.getCurrentUserIdAndEmail()
             .map { (currentUserId, currentUserEmail) ->
                 val addMemberCommand = RoomAddMemberCommand(roomId, command.memberId)
 

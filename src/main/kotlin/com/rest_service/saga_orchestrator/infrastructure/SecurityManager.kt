@@ -1,5 +1,6 @@
 package com.rest_service.saga_orchestrator.infrastructure
 
+import com.rest_service.commons.dto.UserDTO
 import com.rest_service.read_service.exception.UnauthorizedException
 import com.rest_service.websocket_service.client.ViewServiceFetcher
 import io.micronaut.context.annotation.Primary
@@ -23,9 +24,14 @@ open class SecurityManager(
         return securityService.authentication.get().attributes["email"].toString()
     }
 
-    open fun getCurrentUser(): Mono<Pair<UUID, String>> {
+    open fun getCurrentUserIdAndEmail(): Mono<Pair<UUID, String>> {
         return viewFetcher.getCurrentUser()
             .switchIfEmpty { UnauthorizedException().toMono() }
             .map { it.id to it.email }
+    }
+
+    open fun getCurrentUser(): Mono<UserDTO> {
+        return viewFetcher.getCurrentUser()
+            .switchIfEmpty { UnauthorizedException().toMono() }
     }
 }
