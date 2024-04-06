@@ -1,8 +1,8 @@
 package com.rest_service.mock
 
+import com.rest_service.commons.client.ViewServiceFetcher
 import com.rest_service.commons.dto.RoomDTO
 import com.rest_service.commons.dto.UserDTO
-import com.rest_service.websocket_service.client.ViewServiceFetcher
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.env.Environment
 import io.micronaut.retry.annotation.Fallback

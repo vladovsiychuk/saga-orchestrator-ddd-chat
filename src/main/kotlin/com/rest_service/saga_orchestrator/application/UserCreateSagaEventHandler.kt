@@ -14,7 +14,7 @@ import reactor.kotlin.core.publisher.toMono
 
 @Singleton
 class UserCreateSagaEventHandler(
-    private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
+    applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val sagaStateManager: SagaStateManager,
 ) : AbstractEventHandler(applicationEventPublisher) {
     override fun rebuildDomain(event: SagaEvent): Mono<Domain> {

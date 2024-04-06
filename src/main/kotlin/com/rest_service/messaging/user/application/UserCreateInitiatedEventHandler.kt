@@ -17,7 +17,7 @@ import reactor.kotlin.core.publisher.toMono
 
 @Singleton
 class UserCreateInitiatedEventHandler(
-    private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
+    applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val userStateManager: UserStateManager,
 ) : AbstractEventHandler(applicationEventPublisher) {
     private val mapper = jacksonObjectMapper()

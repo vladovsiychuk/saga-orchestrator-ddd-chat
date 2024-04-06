@@ -1,8 +1,8 @@
 package com.rest_service.saga_orchestrator.infrastructure
 
+import com.rest_service.commons.client.ViewServiceFetcher
 import com.rest_service.commons.dto.UserDTO
 import com.rest_service.read_service.exception.UnauthorizedException
-import com.rest_service.websocket_service.client.ViewServiceFetcher
 import io.micronaut.context.annotation.Primary
 import io.micronaut.security.utils.SecurityService
 import jakarta.inject.Singleton

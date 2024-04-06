@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono
 
 @Controller("/v1/users")
 @Secured(SecurityRule.IS_AUTHENTICATED)
-class UserController(private val userService: UserService, ) {
+class UserController(private val userService: UserService) {
     @Post("/currentUser")
     fun create(request: UserCreateRequest): Mono<ResponseDTO> {
         return userService.startCreateCurrentUser(request)

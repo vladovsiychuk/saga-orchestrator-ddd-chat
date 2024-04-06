@@ -1,4 +1,4 @@
-package com.rest_service.websocket_service.client
+package com.rest_service.commons.client
 
 import com.rest_service.commons.dto.RoomDTO
 import com.rest_service.commons.dto.UserDTO

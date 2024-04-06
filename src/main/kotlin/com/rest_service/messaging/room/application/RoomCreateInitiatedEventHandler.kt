@@ -17,7 +17,7 @@ import reactor.kotlin.core.publisher.toMono
 @Singleton
 @Named("RoomCreateInitiatedEventHandler_roomDomain")
 class RoomCreateInitiatedEventHandler(
-    private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
+    applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val roomStateManager: RoomStateManager,
 ) : AbstractEventHandler(applicationEventPublisher) {
     override fun checkOperationFailed(operationId: UUID) = roomStateManager.checkOperationFailed(operationId)

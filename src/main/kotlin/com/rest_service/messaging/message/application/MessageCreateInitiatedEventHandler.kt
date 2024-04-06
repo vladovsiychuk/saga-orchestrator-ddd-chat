@@ -17,7 +17,7 @@ import reactor.kotlin.core.publisher.toMono
 @Singleton
 @Named("MessageCreateInitiatedEventHandler_messageDomain")
 class MessageCreateInitiatedEventHandler(
-    private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
+    applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val messageStateManager: MessageStateManager,
 ) : AbstractEventHandler(applicationEventPublisher) {
     override fun checkOperationFailed(operationId: UUID) = messageStateManager.checkOperationFailed(operationId)

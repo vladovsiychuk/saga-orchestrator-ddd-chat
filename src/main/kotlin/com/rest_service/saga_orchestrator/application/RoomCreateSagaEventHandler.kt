@@ -14,7 +14,7 @@ import reactor.kotlin.core.publisher.toMono
 
 @Singleton
 class RoomCreateSagaEventHandler(
-    private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
+    applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val sagaStateManager: SagaStateManager,
 ) : AbstractEventHandler(applicationEventPublisher) {
 

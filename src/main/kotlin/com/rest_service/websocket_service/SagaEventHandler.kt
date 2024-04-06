@@ -2,10 +2,10 @@ package com.rest_service.websocket_service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.commons.SagaEvent
+import com.rest_service.commons.client.ViewServiceFetcher
 import com.rest_service.commons.dto.MessageDTO
 import com.rest_service.commons.dto.UserDTO
 import com.rest_service.commons.enums.SagaEventType
-import com.rest_service.websocket_service.client.ViewServiceFetcher
 import com.rest_service.websocket_service.configuration.WebSocketService
 import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.scheduling.annotation.Async

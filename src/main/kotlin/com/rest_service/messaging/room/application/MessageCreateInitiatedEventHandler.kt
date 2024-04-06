@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono
 @Singleton
 @Named("MessageCreateInitiatedEventHandler_roomDomain")
 class MessageCreateInitiatedEventHandler(
-    private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
+    applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val roomStateManager: RoomStateManager,
 ) : AbstractEventHandler(applicationEventPublisher) {
     private val mapper = jacksonObjectMapper()
