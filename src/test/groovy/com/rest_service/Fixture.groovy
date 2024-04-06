@@ -20,6 +20,10 @@ class Fixture {
         ["roomId": UUID.randomUUID(), "content": "test content", "language": "ENGLISH"]
     }
 
+    static Map anyValidMessageUpdateCommand() {
+        ["messageId": UUID.randomUUID(), "content": "test content"]
+    }
+
     static Map anyValidRoomDTO() {
         [
             "id"         : UUID.randomUUID(),

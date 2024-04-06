@@ -12,6 +12,7 @@ open class SagaEventListener(
     private val roomCreateSagaEventHandler: RoomCreateSagaEventHandler,
     private val roomAddMemberSagaEventHandler: RoomAddMemberSagaEventHandler,
     private val messageCreateSagaEventHandler: MessageCreateSagaEventHandler,
+    private val messageUpdateSagaEventHandler: MessageUpdateSagaEventHandler,
 ) {
     @EventListener
     @Async
@@ -32,6 +33,10 @@ open class SagaEventListener(
             SagaEventType.MESSAGE_CREATE_START,
             SagaEventType.MESSAGE_CREATE_APPROVED,
             SagaEventType.MESSAGE_CREATE_REJECTED  -> messageCreateSagaEventHandler.handleEvent(event)
+
+            SagaEventType.MESSAGE_UPDATE_START,
+            SagaEventType.MESSAGE_UPDATE_APPROVED,
+            SagaEventType.MESSAGE_UPDATE_REJECTED  -> messageUpdateSagaEventHandler.handleEvent(event)
 
             else                                   -> {}
         }
