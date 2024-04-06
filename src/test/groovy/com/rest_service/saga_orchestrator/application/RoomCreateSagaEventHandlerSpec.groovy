@@ -24,7 +24,8 @@ class RoomCreateSagaEventHandlerSpec extends Specification {
 
     def setup() {
         securityManager.getCurrentUserEmail() >> "example@test.com"
-        handler = new RoomCreateSagaEventHandler(repository, applicationEventPublisher, securityManager)
+        def stateManager = new SagaStateManager(repository, applicationEventPublisher)
+        handler = new RoomCreateSagaEventHandler(applicationEventPublisher, stateManager)
     }
 
     def "messageActionListener publishes event on successful handling"() {
