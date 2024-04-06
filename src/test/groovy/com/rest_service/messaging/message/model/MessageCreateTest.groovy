@@ -13,15 +13,15 @@ class MessageCreateTest extends Specification {
 
     def 'should approve message creation on successful initiate event'() {
         given:
-        def room = aMessage()
+        def message = aMessage()
 
         and: 'a user create event'
-        def roomCreatedEvent = anEvent() ofType MESSAGE_CREATED withPayload anyValidMessageCreateCommand()
+        def messageCreatedEvent = anEvent() ofType MESSAGE_CREATED withPayload anyValidMessageCreateCommand()
 
         when:
-        the room reactsTo roomCreatedEvent
+        the message reactsTo messageCreatedEvent
 
         then:
-        (the room responseEvent() type) == SagaEventType.MESSAGE_CREATE_APPROVED
+        (the message responseEvent() type) == SagaEventType.MESSAGE_CREATE_APPROVED
     }
 }

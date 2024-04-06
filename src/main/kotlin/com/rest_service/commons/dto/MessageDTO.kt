@@ -12,7 +12,7 @@ data class MessageDTO(
     val id: UUID,
     val roomId: UUID,
     val senderId: UUID,
-    val content: String,
+    var content: String,
     val read: List<UUID>,
     val originalLanguage: LanguageEnum,
     val translations: List<TranslationDTO>,
