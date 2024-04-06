@@ -41,6 +41,20 @@ class Fixture {
         ]
     }
 
+    static Map anyValidMessageDTO() {
+        [
+            "id"              : UUID.randomUUID(),
+            "roomId"          : UUID.randomUUID(),
+            "senderId"        : UUID.randomUUID(),
+            "content"         : "test content",
+            "read"            : [],
+            "originalLanguage": "ENGLISH",
+            "translations"    : [],
+            "isModified"      : false,
+            "dateCreated"     : 123,
+        ]
+    }
+
     static Map anyValidErrorDto() {
         ["message": 'test text']
     }
