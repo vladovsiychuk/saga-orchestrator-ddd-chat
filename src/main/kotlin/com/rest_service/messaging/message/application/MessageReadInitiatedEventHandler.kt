@@ -5,7 +5,7 @@ import com.rest_service.commons.AbstractEventHandler
 import com.rest_service.commons.Domain
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
-import com.rest_service.commons.command.MessageUpdateCommand
+import com.rest_service.commons.command.MessageReadCommand
 import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.messaging.message.infrastructure.MessageDomainEventType
 import io.micronaut.context.event.ApplicationEventPublisher
@@ -15,8 +15,8 @@ import java.util.UUID
 import reactor.core.publisher.Mono
 
 @Singleton
-@Named("MessageUpdateInitiatedEventHandler_messageDomain")
-class MessageUpdateInitiatedEventHandler(
+@Named("MessageReadInitiatedEventHandler_messageDomain")
+class MessageReadInitiatedEventHandler(
     applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val messageStateManager: MessageStateManager,
 ) : AbstractEventHandler(applicationEventPublisher) {
@@ -24,13 +24,13 @@ class MessageUpdateInitiatedEventHandler(
     override fun checkOperationFailed(operationId: UUID) = messageStateManager.checkOperationFailed(operationId)
 
     override fun rebuildDomain(event: SagaEvent): Mono<Domain> {
-        val command = mapper.convertValue(event.payload, MessageUpdateCommand::class.java)
+        val command = mapper.convertValue(event.payload, MessageReadCommand::class.java)
         return messageStateManager.rebuildMessage(command.messageId, event)
     }
 
     override fun mapDomainEvent(event: SagaEvent): DomainEvent {
-        val command = mapper.convertValue(event.payload, MessageUpdateCommand::class.java)
-        return messageStateManager.mapDomainEvent(command.messageId, MessageDomainEventType.MESSAGE_UPDATED, event)
+        val command = mapper.convertValue(event.payload, MessageReadCommand::class.java)
+        return messageStateManager.mapDomainEvent(command.messageId, MessageDomainEventType.MESSAGE_READ, event)
     }
 
     override fun saveEvent(event: DomainEvent): Mono<Boolean> {
@@ -39,6 +39,6 @@ class MessageUpdateInitiatedEventHandler(
     }
 
     override fun handleError(event: SagaEvent, error: Throwable): Mono<Void> {
-        return messageStateManager.handleError(event, error, SagaEventType.MESSAGE_UPDATE_REJECTED)
+        return messageStateManager.handleError(event, error, SagaEventType.MESSAGE_READ_REJECTED)
     }
 }

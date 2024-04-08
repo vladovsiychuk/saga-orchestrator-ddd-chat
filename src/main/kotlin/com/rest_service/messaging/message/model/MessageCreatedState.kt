@@ -15,8 +15,15 @@ class MessageCreatedState(private val domain: MessageDomain) : MessageState {
     override fun apply(event: MessageDomainEvent): MessageDomainEvent {
         return when (event.type) {
             MessageDomainEventType.MESSAGE_UPDATED -> updateMessage(event)
+            MessageDomainEventType.MESSAGE_READ    -> readMessage(event)
             else                                   -> throw UnsupportedOperationException()
         }
+    }
+
+    private fun readMessage(event: MessageDomainEvent): MessageDomainEvent {
+        domain.message!!.read.add(event.responsibleUserId)
+        domain.changeState(MessageReadState(domain))
+        return event
     }
 
     private fun updateMessage(event: MessageDomainEvent): MessageDomainEvent {

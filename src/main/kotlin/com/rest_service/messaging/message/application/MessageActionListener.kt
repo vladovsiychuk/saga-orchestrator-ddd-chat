@@ -10,6 +10,7 @@ import jakarta.inject.Singleton
 open class MessageActionListener(
     private val messageCreateInitiatedEventHandler: MessageCreateInitiatedEventHandler,
     private val messageUpdateInitiatedEventHandler: MessageUpdateInitiatedEventHandler,
+    private val messageReadInitiatedEventHandler: MessageReadInitiatedEventHandler,
 ) {
     @EventListener
     @Async
@@ -17,6 +18,7 @@ open class MessageActionListener(
         when (event.type) {
             SagaEventType.MESSAGE_CREATE_INITIATED -> messageCreateInitiatedEventHandler.handleEvent(event)
             SagaEventType.MESSAGE_UPDATE_INITIATED -> messageUpdateInitiatedEventHandler.handleEvent(event)
+            SagaEventType.MESSAGE_READ_INITIATED   -> messageReadInitiatedEventHandler.handleEvent(event)
             else                                   -> {}
         }
     }

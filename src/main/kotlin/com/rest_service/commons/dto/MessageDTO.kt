@@ -13,7 +13,7 @@ data class MessageDTO(
     val roomId: UUID,
     val senderId: UUID,
     var content: String,
-    val read: List<UUID>,
+    val read: MutableList<UUID>,
     val originalLanguage: LanguageEnum,
     val translations: List<TranslationDTO>,
     @JsonProperty("isModified")
@@ -25,7 +25,7 @@ data class MessageDTO(
         command.roomId,
         event.responsibleUserId,
         command.content,
-        listOf(),
+        mutableListOf(),
         command.language,
         listOf(),
         false,

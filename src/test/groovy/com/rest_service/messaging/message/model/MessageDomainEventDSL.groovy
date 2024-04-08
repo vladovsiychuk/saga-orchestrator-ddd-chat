@@ -40,5 +40,10 @@ class MessageDomainEventDSL {
         event.operationId = operationId
         return this
     }
+
+    MessageDomainEventDSL from(UUID userId) {
+        event.responsibleUserId = userId
+        return this
+    }
 }
 
