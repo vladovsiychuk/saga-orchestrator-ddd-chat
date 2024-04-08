@@ -24,6 +24,10 @@ class Fixture {
         ["messageId": UUID.randomUUID(), "content": "test content"]
     }
 
+    static Map anyValidMessageReadCommand() {
+        ["messageId": UUID.randomUUID()]
+    }
+
     static Map anyValidRoomDTO() {
         [
             "id"         : UUID.randomUUID(),
