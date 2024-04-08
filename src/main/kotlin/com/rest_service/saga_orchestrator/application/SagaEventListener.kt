@@ -14,6 +14,7 @@ open class SagaEventListener(
     private val messageCreateSagaEventHandler: MessageCreateSagaEventHandler,
     private val messageUpdateSagaEventHandler: MessageUpdateSagaEventHandler,
     private val messageReadSagaEventHandler: MessageReadSagaEventHandler,
+    private val messageTranslateSagaEventHandler: MessageTranslateSagaEventHandler,
 ) {
     @EventListener
     @Async
@@ -21,29 +22,33 @@ open class SagaEventListener(
         when (event.type) {
             SagaEventType.USER_CREATE_START,
             SagaEventType.USER_CREATE_APPROVED,
-            SagaEventType.USER_CREATE_REJECTED     -> userCreateSagaEventHandler.handleEvent(event)
+            SagaEventType.USER_CREATE_REJECTED       -> userCreateSagaEventHandler.handleEvent(event)
 
             SagaEventType.ROOM_CREATE_START,
             SagaEventType.ROOM_CREATE_APPROVED,
-            SagaEventType.ROOM_CREATE_REJECTED     -> roomCreateSagaEventHandler.handleEvent(event)
+            SagaEventType.ROOM_CREATE_REJECTED       -> roomCreateSagaEventHandler.handleEvent(event)
 
             SagaEventType.ROOM_ADD_MEMBER_START,
             SagaEventType.ROOM_ADD_MEMBER_APPROVED,
-            SagaEventType.ROOM_ADD_MEMBER_REJECTED -> roomAddMemberSagaEventHandler.handleEvent(event)
+            SagaEventType.ROOM_ADD_MEMBER_REJECTED   -> roomAddMemberSagaEventHandler.handleEvent(event)
 
             SagaEventType.MESSAGE_CREATE_START,
             SagaEventType.MESSAGE_CREATE_APPROVED,
-            SagaEventType.MESSAGE_CREATE_REJECTED  -> messageCreateSagaEventHandler.handleEvent(event)
+            SagaEventType.MESSAGE_CREATE_REJECTED    -> messageCreateSagaEventHandler.handleEvent(event)
 
             SagaEventType.MESSAGE_UPDATE_START,
             SagaEventType.MESSAGE_UPDATE_APPROVED,
-            SagaEventType.MESSAGE_UPDATE_REJECTED  -> messageUpdateSagaEventHandler.handleEvent(event)
+            SagaEventType.MESSAGE_UPDATE_REJECTED    -> messageUpdateSagaEventHandler.handleEvent(event)
 
             SagaEventType.MESSAGE_READ_START,
             SagaEventType.MESSAGE_READ_APPROVED,
-            SagaEventType.MESSAGE_READ_REJECTED    -> messageReadSagaEventHandler.handleEvent(event)
+            SagaEventType.MESSAGE_READ_REJECTED      -> messageReadSagaEventHandler.handleEvent(event)
 
-            else                                   -> {}
+            SagaEventType.MESSAGE_TRANSLATE_START,
+            SagaEventType.MESSAGE_TRANSLATE_APPROVED,
+            SagaEventType.MESSAGE_TRANSLATE_REJECTED -> messageTranslateSagaEventHandler.handleEvent(event)
+
+            else                                     -> {}
         }
     }
 }

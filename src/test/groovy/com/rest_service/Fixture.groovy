@@ -28,6 +28,10 @@ class Fixture {
         ["messageId": UUID.randomUUID()]
     }
 
+    static Map anyValidMessageTranslateCommand() {
+        ["messageId": UUID.randomUUID(), "translation": "translation text", "language": "ENGLISH"]
+    }
+
     static Map anyValidRoomDTO() {
         [
             "id"         : UUID.randomUUID(),
