@@ -11,7 +11,7 @@ class MessageUpdateSagaDSL {
         return dsl
     }
 
-    static MessageUpdateSagaDSL aMessageSaga() {
+    static MessageUpdateSagaDSL aMessageUpdateSaga() {
         return new MessageUpdateSagaDSL()
     }
 

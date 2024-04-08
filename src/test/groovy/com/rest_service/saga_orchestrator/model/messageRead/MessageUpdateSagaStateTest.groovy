@@ -1,4 +1,4 @@
-package com.rest_service.saga_orchestrator.model.messageUpdate
+package com.rest_service.saga_orchestrator.model.messageRead
 
 import spock.lang.Specification
 
