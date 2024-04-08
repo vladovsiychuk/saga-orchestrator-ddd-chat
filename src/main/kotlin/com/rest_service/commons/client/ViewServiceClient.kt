@@ -1,5 +1,6 @@
 package com.rest_service.commons.client
 
+import com.rest_service.commons.dto.MessageDTO
 import com.rest_service.commons.dto.RoomDTO
 import com.rest_service.commons.dto.UserDTO
 import io.micronaut.context.annotation.Requires
@@ -25,4 +26,7 @@ interface ViewServiceClient : ViewServiceFetcher {
 
     @Get("/internal/users/{id}")
     override fun getRoom(id: UUID): Mono<RoomDTO>
+
+    @Get("/internal/messages/{id}")
+    override fun getMessage(id: UUID): Mono<MessageDTO>
 }

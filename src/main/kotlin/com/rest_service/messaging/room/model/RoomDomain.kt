@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono
 class RoomDomain(
     var operationId: UUID,
     var responsibleUserEmail: String,
-    val responsibleUserId: UUID,
+    var responsibleUserId: UUID,
 ) : Domain {
     private var state: RoomState = RoomInCreationState(this)
     var room: RoomDTO? = null

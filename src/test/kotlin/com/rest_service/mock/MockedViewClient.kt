@@ -1,6 +1,7 @@
 package com.rest_service.mock
 
 import com.rest_service.commons.client.ViewServiceFetcher
+import com.rest_service.commons.dto.MessageDTO
 import com.rest_service.commons.dto.RoomDTO
 import com.rest_service.commons.dto.UserDTO
 import io.micronaut.context.annotation.Requires
@@ -21,6 +22,10 @@ class MockedViewClient : ViewServiceFetcher {
     }
 
     override fun getRoom(id: UUID): Mono<RoomDTO> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getMessage(id: UUID): Mono<MessageDTO> {
         TODO("Not yet implemented")
     }
 }

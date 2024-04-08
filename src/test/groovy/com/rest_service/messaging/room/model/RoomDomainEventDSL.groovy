@@ -36,8 +36,8 @@ class RoomDomainEventDSL {
         return this
     }
 
-    RoomDomainEventDSL withOperationId(UUID operationId) {
-        event.operationId = operationId
+    RoomDomainEventDSL from(UUID userId) {
+        event.responsibleUserId = userId
         return this
     }
 }

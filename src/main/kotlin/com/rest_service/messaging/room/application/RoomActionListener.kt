@@ -11,6 +11,7 @@ open class RoomActionListener(
     private val roomCreateInitiatedEventHandler: RoomCreateInitiatedEventHandler,
     private val roomAddMemberInitiatedEventHandler: RoomAddMemberInitiatedEventHandler,
     private val messageCreateInitiatedEventHandler: MessageCreateInitiatedEventHandler,
+    private val messageReadInitiatedEventHandler: MessageReadInitiatedEventHandler,
 ) {
     @EventListener
     @Async
@@ -19,6 +20,7 @@ open class RoomActionListener(
             SagaEventType.ROOM_CREATE_INITIATED     -> roomCreateInitiatedEventHandler.handleEvent(event)
             SagaEventType.ROOM_ADD_MEMBER_INITIATED -> roomAddMemberInitiatedEventHandler.handleEvent(event)
             SagaEventType.MESSAGE_CREATE_INITIATED  -> messageCreateInitiatedEventHandler.handleEvent(event)
+            SagaEventType.MESSAGE_READ_INITIATED    -> messageReadInitiatedEventHandler.handleEvent(event)
             else                                    -> {}
         }
     }

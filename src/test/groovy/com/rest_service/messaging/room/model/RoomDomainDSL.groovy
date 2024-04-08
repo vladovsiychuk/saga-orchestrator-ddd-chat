@@ -32,6 +32,11 @@ class RoomDomainDSL {
         return this
     }
 
+    RoomDomainDSL withResponsibleUserId(UUID userId) {
+        domain.responsibleUserId = userId
+        return this
+    }
+
     SagaEvent responseEvent() {
         return domain.createResponseSagaEvent().block()
     }

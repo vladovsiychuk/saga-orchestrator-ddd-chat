@@ -18,7 +18,7 @@ data class RoomDomainEvent(
     @MappedProperty(type = DataType.JSON)
     var payload: Map<String, Any>,
     var type: RoomDomainEventType,
-    val responsibleUserId: UUID,
+    var responsibleUserId: UUID,
     var operationId: UUID,
     val dateCreated: Long = TimeUtils.now(),
 ) : DomainEvent

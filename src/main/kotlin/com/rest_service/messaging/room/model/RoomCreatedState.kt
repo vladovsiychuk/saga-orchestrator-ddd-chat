@@ -16,8 +16,17 @@ class RoomCreatedState(private val domain: RoomDomain) : RoomState {
         return when (event.type) {
             RoomDomainEventType.ROOM_MEMBER_ADDED       -> addMember(event)
             RoomDomainEventType.MESSAGE_CREATE_APPROVED -> approveMessageCreate(event)
+            RoomDomainEventType.MESSAGE_READ_APPROVED   -> approveMessageRead(event)
             else                                        -> throw UnsupportedOperationException()
         }
+    }
+
+    private fun approveMessageRead(event: RoomDomainEvent): RoomDomainEvent {
+        if (event.responsibleUserId !in domain.room!!.members)
+            throw RuntimeException("User with id ${event.responsibleUserId} is not a member of the room with id ${domain.room!!.id}")
+
+        domain.changeState(MessageReadApprovedState(domain))
+        return event
     }
 
     private fun approveMessageCreate(event: RoomDomainEvent): RoomDomainEvent {
