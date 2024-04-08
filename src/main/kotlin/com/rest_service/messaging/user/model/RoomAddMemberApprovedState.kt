@@ -8,5 +8,11 @@ import reactor.kotlin.core.publisher.toMono
 
 class RoomAddMemberApprovedState(private val domain: UserDomain) : UserState {
     override fun createResponseEvent() = SagaEvent(SagaEventType.ROOM_ADD_MEMBER_APPROVED, domain.operationId, ServiceEnum.USER_SERVICE, domain.responsibleUserEmail, domain.responsibleUserId!!, domain.currentUser!!).toMono()
-    override fun apply(event: UserDomainEvent) = throw UnsupportedOperationException()
+    override fun apply(event: UserDomainEvent) = run {
+        UserCreatedState(domain)
+            .let {
+                domain.changeState(it)
+                it.apply(event)
+            }
+    }
 }

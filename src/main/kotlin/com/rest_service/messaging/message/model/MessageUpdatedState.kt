@@ -7,7 +7,13 @@ import com.rest_service.messaging.message.infrastructure.MessageDomainEvent
 import reactor.kotlin.core.publisher.toMono
 
 class MessageUpdatedState(private val domain: MessageDomain) : MessageState {
-    override fun apply(event: MessageDomainEvent) = throw UnsupportedOperationException()
+    override fun apply(event: MessageDomainEvent) = run {
+        MessageCreatedState(domain)
+            .let {
+                domain.changeState(it)
+                it.apply(event)
+            }
+    }
 
     override fun createResponseEvent() = SagaEvent(SagaEventType.MESSAGE_UPDATE_APPROVED, domain.operationId, ServiceEnum.MESSAGE_SERVICE, domain.responsibleUserEmail, domain.responsibleUserId, domain.message!!).toMono()
 }
