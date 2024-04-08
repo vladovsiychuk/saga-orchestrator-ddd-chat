@@ -12,6 +12,7 @@ open class UserActionListener(
     private val roomCreateInitiatedEventHandler: RoomCreateInitiatedEventHandler,
     private val roomAddMemberInitiatedEventHandler: RoomAddMemberInitiatedEventHandler,
     private val messageUpdateInitiatedEventHandler: MessageUpdateInitiatedEventHandler,
+    private val messageReadInitiatedEventHandler: MessageReadInitiatedEventHandler,
     private val rejectEventHandler: RejectEventHandler,
 ) {
     @EventListener
@@ -22,10 +23,12 @@ open class UserActionListener(
             SagaEventType.ROOM_CREATE_INITIATED     -> roomCreateInitiatedEventHandler.handleEvent(event)
             SagaEventType.ROOM_ADD_MEMBER_INITIATED -> roomAddMemberInitiatedEventHandler.handleEvent(event)
             SagaEventType.MESSAGE_UPDATE_INITIATED  -> messageUpdateInitiatedEventHandler.handleEvent(event)
+            SagaEventType.MESSAGE_READ_INITIATED    -> messageReadInitiatedEventHandler.handleEvent(event)
             SagaEventType.USER_CREATE_REJECTED,
             SagaEventType.ROOM_CREATE_REJECTED,
             SagaEventType.ROOM_ADD_MEMBER_REJECTED,
-            SagaEventType.MESSAGE_UPDATE_REJECTED   -> rejectEventHandler.handleEvent(event)
+            SagaEventType.MESSAGE_UPDATE_REJECTED,
+            SagaEventType.MESSAGE_READ_REJECTED     -> rejectEventHandler.handleEvent(event)
 
             else                                    -> {}
         }

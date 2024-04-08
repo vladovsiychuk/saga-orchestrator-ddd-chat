@@ -14,8 +14,14 @@ class UserCreatedState(private val domain: UserDomain) : UserState {
             UserDomainEventType.ROOM_CREATE_APPROVED     -> approveRoomCreate(event)
             UserDomainEventType.ROOM_ADD_MEMBER_APPROVED -> approveRoomAddMember(event)
             UserDomainEventType.MESSAGE_UPDATE_APPROVED  -> approveMessageCreate(event)
+            UserDomainEventType.MESSAGE_READ_APPROVED    -> approveMessageRead(event)
             else                                         -> throw UnsupportedOperationException()
         }
+    }
+
+    private fun approveMessageRead(event: UserDomainEvent): UserDomainEvent {
+        domain.changeState(MessageReadApprovedState(domain))
+        return event
     }
 
     private fun approveMessageCreate(event: UserDomainEvent): UserDomainEvent {
