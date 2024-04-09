@@ -14,7 +14,7 @@ data class MessageDomainEvent(
     @field:Id
     @AutoPopulated
     val eventId: UUID? = null,
-    val messageId: UUID,
+    val messageId: UUID? = null,
     @MappedProperty(type = DataType.JSON)
     var payload: Map<String, Any>,
     var type: MessageDomainEventType,

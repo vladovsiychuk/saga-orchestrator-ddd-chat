@@ -15,19 +15,19 @@ data class MessageDTO(
     var content: String,
     val read: MutableList<UUID>,
     val originalLanguage: LanguageEnum,
-    val translations: List<TranslationDTO>,
+    val translations: MutableList<TranslationDTO>,
     @JsonProperty("isModified")
     val modified: Boolean,
     val dateCreated: Long,
 ) : DTO {
     constructor(command: MessageCreateCommand, event: MessageDomainEvent) : this(
-        event.messageId,
+        event.messageId!!,
         command.roomId,
         event.responsibleUserId,
         command.content,
         mutableListOf(),
         command.language,
-        listOf(),
+        mutableListOf(),
         false,
         event.dateCreated,
     )

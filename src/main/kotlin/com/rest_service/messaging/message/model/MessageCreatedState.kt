@@ -2,7 +2,9 @@ package com.rest_service.messaging.message.model
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.commons.SagaEvent
+import com.rest_service.commons.command.MessageTranslateCommand
 import com.rest_service.commons.command.MessageUpdateCommand
+import com.rest_service.commons.dto.TranslationDTO
 import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.messaging.message.infrastructure.MessageDomainEvent
@@ -14,10 +16,23 @@ class MessageCreatedState(private val domain: MessageDomain) : MessageState {
 
     override fun apply(event: MessageDomainEvent): MessageDomainEvent {
         return when (event.type) {
-            MessageDomainEventType.MESSAGE_UPDATED -> updateMessage(event)
-            MessageDomainEventType.MESSAGE_READ    -> readMessage(event)
-            else                                   -> throw UnsupportedOperationException()
+            MessageDomainEventType.MESSAGE_UPDATED    -> updateMessage(event)
+            MessageDomainEventType.MESSAGE_READ       -> readMessage(event)
+            MessageDomainEventType.MESSAGE_TRANSLATED -> translateMessage(event)
+            else                                      -> throw UnsupportedOperationException()
         }
+    }
+
+    private fun translateMessage(event: MessageDomainEvent): MessageDomainEvent {
+        val command = mapper.convertValue(event.payload, MessageTranslateCommand::class.java)
+
+        if (domain.message!!.translations.any { it.language == command.language })
+            throw RuntimeException("Message with id ${domain.message!!.id} is already translate to ${command.language}.")
+
+        val newTranslation = TranslationDTO(event.responsibleUserId, command.translation, command.language, false)
+        domain.message!!.translations.add(newTranslation)
+        domain.changeState(MessageTranslateState(domain))
+        return event
     }
 
     private fun readMessage(event: MessageDomainEvent): MessageDomainEvent {
