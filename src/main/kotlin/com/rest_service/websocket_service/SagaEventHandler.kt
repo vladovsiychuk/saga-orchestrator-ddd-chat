@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.client.ViewServiceFetcher
 import com.rest_service.commons.dto.MessageDTO
+import com.rest_service.commons.dto.RoomDTO
 import com.rest_service.commons.dto.UserDTO
 import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.websocket_service.configuration.WebSocketService
@@ -26,7 +27,15 @@ open class SagaEventHandler(
     open fun messageActionListener(event: SagaEvent) {
         when (event.type) {
             SagaEventType.USER_CREATE_COMPLETED    -> handleUserCreate(event)
-            SagaEventType.MESSAGE_CREATE_COMPLETED -> handleMessageUpdate(event)
+
+            SagaEventType.ROOM_ADD_MEMBER_COMPLETED,
+            SagaEventType.ROOM_CREATE_COMPLETED    -> handleRoomUpdate(event)
+
+            SagaEventType.MESSAGE_CREATE_COMPLETED,
+            SagaEventType.MESSAGE_READ_COMPLETED,
+            SagaEventType.MESSAGE_TRANSLATE_COMPLETED,
+            SagaEventType.MESSAGE_UPDATE_COMPLETED -> handleMessageUpdate(event)
+
             else                                   -> {}
         }
     }
@@ -34,7 +43,7 @@ open class SagaEventHandler(
     private fun handleUserCreate(event: SagaEvent) {
         mapper.convertValue(event.payload, UserDTO::class.java)
             .let { user ->
-                WebSocketEvent(user, WebSocketType.USER_CREATE)
+                WebSocketEvent(user, WebSocketType.USER_CREATED)
                     .let { event -> mapper.writeValueAsString(event) }
                     .let { eventString -> webSocketService.sendMessageToUser(eventString, user.temporaryId!!) }
             }
@@ -45,14 +54,28 @@ open class SagaEventHandler(
             .let { message ->
                 Mono.zip(
                     viewServiceFetcher.getRoom(message.roomId),
-                    WebSocketEvent(message, WebSocketType.MESSAGE_UPDATE).toMono()
+                    WebSocketEvent(message, WebSocketType.MESSAGE_UPDATED).toMono()
                 ) { room, event ->
-                    val eventString = mapper.writeValueAsString(event)
-
-                    room.members.forEach { roomMemberId ->
-                        webSocketService.sendMessageToUser(eventString, roomMemberId)
-                    }
+                    mapper.writeValueAsString(event)
+                        .let { eventJsonString ->
+                            room.members.forEach { roomMemberId ->
+                                webSocketService.sendMessageToUser(eventJsonString, roomMemberId)
+                            }
+                        }
                 }
+            }
+    }
+
+    private fun handleRoomUpdate(event: SagaEvent) {
+        mapper.convertValue(event.payload, RoomDTO::class.java)
+            .let { room ->
+                WebSocketEvent(room, WebSocketType.ROOM_UPDATED)
+                    .let { mapper.writeValueAsString(it) }
+                    .let { eventJsonString ->
+                        room.members.forEach { roomMemberId ->
+                            webSocketService.sendMessageToUser(eventJsonString, roomMemberId)
+                        }
+                    }
             }
     }
 }
