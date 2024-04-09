@@ -139,6 +139,52 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+        <createTable tableName="message_domain_event">
+            <column name="event_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="message_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="payload" type="java.sql.Types.CLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="responsible_user_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="java.sql.Types.BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="room_domain_event">
+            <column name="event_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="room_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="payload" type="java.sql.Types.CLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="responsible_user_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="java.sql.Types.BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
     </changeSet>
 
 </databaseChangeLog>
