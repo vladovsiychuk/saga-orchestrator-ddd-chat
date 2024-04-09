@@ -24,7 +24,7 @@ interface ViewServiceClient : ViewServiceFetcher {
     @Get("/internal/users/currentUser")
     override fun getCurrentUser(): Mono<UserDTO>
 
-    @Get("/internal/users/{id}")
+    @Get("/internal/rooms/{id}")
     override fun getRoom(id: UUID): Mono<RoomDTO>
 
     @Get("/internal/messages/{id}")
