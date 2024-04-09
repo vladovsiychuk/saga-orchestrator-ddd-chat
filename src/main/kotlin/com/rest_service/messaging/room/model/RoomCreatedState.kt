@@ -14,11 +14,20 @@ class RoomCreatedState(private val domain: RoomDomain) : RoomState {
 
     override fun apply(event: RoomDomainEvent): RoomDomainEvent {
         return when (event.type) {
-            RoomDomainEventType.ROOM_MEMBER_ADDED       -> addMember(event)
-            RoomDomainEventType.MESSAGE_CREATE_APPROVED -> approveMessageCreate(event)
-            RoomDomainEventType.MESSAGE_READ_APPROVED   -> approveMessageRead(event)
-            else                                        -> throw UnsupportedOperationException()
+            RoomDomainEventType.ROOM_MEMBER_ADDED          -> addMember(event)
+            RoomDomainEventType.MESSAGE_CREATE_APPROVED    -> approveMessageCreate(event)
+            RoomDomainEventType.MESSAGE_READ_APPROVED      -> approveMessageRead(event)
+            RoomDomainEventType.MESSAGE_TRANSLATE_APPROVED -> approveMessageTranslate(event)
+            else                                           -> throw UnsupportedOperationException()
         }
+    }
+
+    private fun approveMessageTranslate(event: RoomDomainEvent): RoomDomainEvent {
+        if (event.responsibleUserId !in domain.room!!.members)
+            throw RuntimeException("User with id ${event.responsibleUserId} is not a member of the room with id ${domain.room!!.id}")
+
+        domain.changeState(MessageTranslateApprovedState(domain))
+        return event
     }
 
     private fun approveMessageRead(event: RoomDomainEvent): RoomDomainEvent {

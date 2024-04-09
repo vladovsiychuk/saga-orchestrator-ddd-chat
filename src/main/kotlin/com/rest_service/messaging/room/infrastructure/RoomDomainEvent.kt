@@ -14,7 +14,7 @@ data class RoomDomainEvent(
     @field:Id
     @AutoPopulated
     val eventId: UUID? = null,
-    val roomId: UUID,
+    val roomId: UUID? = null,
     @MappedProperty(type = DataType.JSON)
     var payload: Map<String, Any>,
     var type: RoomDomainEventType,
