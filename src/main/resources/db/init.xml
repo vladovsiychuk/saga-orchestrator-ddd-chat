@@ -85,6 +85,35 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+        <createTable tableName="message_view">
+            <column name="id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="room_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sender_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content" type="java.sql.Types.CLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="read" type="java.sql.Types.CLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="original_language" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="translations" type="java.sql.Types.CLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified" type="java.sql.Types.BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="java.sql.Types.BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
     </changeSet>
     <changeSet id="1710354803669-3" author="Vlad">
         <createTable tableName="user_domain_event">

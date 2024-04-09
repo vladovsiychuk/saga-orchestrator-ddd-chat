@@ -1,6 +1,5 @@
 package com.rest_service.commons.dto
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.rest_service.commons.command.MessageCreateCommand
 import com.rest_service.commons.enums.LanguageEnum
 import com.rest_service.messaging.message.infrastructure.MessageDomainEvent
@@ -16,7 +15,6 @@ data class MessageDTO(
     val read: MutableList<UUID>,
     val originalLanguage: LanguageEnum,
     val translations: MutableList<TranslationDTO>,
-    @JsonProperty("isModified")
     val modified: Boolean,
     val dateCreated: Long,
 ) : DTO {

@@ -2,9 +2,9 @@ package com.rest_service.read_service.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.commons.dto.UserDTO
-import com.rest_service.read_service.UserViewRepository
 import com.rest_service.read_service.entity.UserView
 import com.rest_service.read_service.exception.NotFoundException
+import com.rest_service.read_service.repository.UserViewRepository
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Mono

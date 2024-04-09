@@ -1,4 +1,4 @@
-package com.rest_service.read_service
+package com.rest_service.read_service.repository
 
 import com.rest_service.read_service.entity.RoomView
 import io.micronaut.data.model.query.builder.sql.Dialect

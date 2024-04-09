@@ -2,9 +2,9 @@ package com.rest_service.read_service.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.commons.dto.RoomDTO
-import com.rest_service.read_service.RoomViewRepository
 import com.rest_service.read_service.entity.RoomView
 import com.rest_service.read_service.exception.NotFoundException
+import com.rest_service.read_service.repository.RoomViewRepository
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Mono

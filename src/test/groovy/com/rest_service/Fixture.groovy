@@ -62,7 +62,7 @@ class Fixture {
             "read"            : [],
             "originalLanguage": "ENGLISH",
             "translations"    : [],
-            "isModified"      : false,
+            "modified"        : false,
             "dateCreated"     : 123,
         ]
     }
