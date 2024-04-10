@@ -67,15 +67,22 @@ open class SagaEventHandler(
     }
 
     private fun handleRoomUpdate(event: SagaEvent) {
-        mapper.convertValue(event.payload, RoomDTO::class.java)
-            .let { room ->
+        val room = mapper.convertValue(event.payload, RoomDTO::class.java)
+
+        viewServiceFetcher.getMessagesByRoomId(room.id).collectList()
+            .map { roomMessages ->
                 WebSocketEvent(room, WebSocketType.ROOM_UPDATED)
                     .let { mapper.writeValueAsString(it) }
                     .let { eventJsonString ->
-                        room.members.forEach { roomMemberId ->
-                            webSocketService.sendMessageToUser(eventJsonString, roomMemberId)
+                        if (roomMessages.isEmpty())
+                            webSocketService.sendMessageToUser(eventJsonString, room.createdBy)
+                        else {
+                            room.members.forEach { roomMemberId ->
+                                webSocketService.sendMessageToUser(eventJsonString, roomMemberId)
+                            }
                         }
                     }
             }
+            .subscribe()
     }
 }

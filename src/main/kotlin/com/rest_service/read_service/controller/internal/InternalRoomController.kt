@@ -1,7 +1,7 @@
-package com.rest_service.read_service.controller
+package com.rest_service.read_service.controller.internal
 
 import com.rest_service.commons.dto.RoomDTO
-import com.rest_service.read_service.service.RoomService
+import com.rest_service.read_service.service.InternalRoomService
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import java.util.UUID
@@ -10,9 +10,9 @@ import reactor.core.publisher.Mono
 
 @Controller("/internal/rooms")
 @PermitAll
-class InternalRoomController(private val roomService: RoomService) {
+class InternalRoomController(private val internalRoomService: InternalRoomService) {
     @Get("/{id}")
     fun get(id: UUID): Mono<RoomDTO> {
-        return roomService.get(id)
+        return internalRoomService.get(id)
     }
 }

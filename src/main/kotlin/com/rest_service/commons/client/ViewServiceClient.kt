@@ -10,6 +10,7 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.retry.annotation.CircuitBreaker
 import io.micronaut.retry.annotation.Recoverable
 import java.util.UUID
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Client(id = "view_service")
@@ -29,4 +30,7 @@ interface ViewServiceClient : ViewServiceFetcher {
 
     @Get("/internal/messages/{id}")
     override fun getMessage(id: UUID): Mono<MessageDTO>
+
+    @Get("/internal/messages/rooms/{id}")
+    override fun getMessagesByRoomId(roomId: UUID): Flux<MessageDTO>
 }

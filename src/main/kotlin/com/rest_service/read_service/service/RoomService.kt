@@ -6,6 +6,7 @@ import com.rest_service.read_service.SecurityManager
 import com.rest_service.read_service.entity.RoomMember
 import com.rest_service.read_service.entity.RoomView
 import com.rest_service.read_service.exception.NotFoundException
+import com.rest_service.read_service.exception.UnauthorizedException
 import com.rest_service.read_service.repository.MessageViewRepository
 import com.rest_service.read_service.repository.RoomMembersRepository
 import com.rest_service.read_service.repository.RoomViewRepository
@@ -42,9 +43,17 @@ class RoomService(
     }
 
     fun get(roomId: UUID): Mono<RoomDTO> {
-        return roomViewRepository.findById(roomId)
-            .map { mapper.convertValue(it, RoomDTO::class.java) }
-            .switchIfEmpty(NotFoundException("Room with id $roomId does not exist.").toMono())
+        return Mono.zip(
+            roomViewRepository.findById(roomId)
+                .switchIfEmpty(NotFoundException("Room with id $roomId does not exist.").toMono()),
+            userViewRepository.findByEmail(securityManager.getCurrentUserEmail()),
+        )
+            .flatMap { (room, currentUser) ->
+                if (!room.members.contains(currentUser.id))
+                    return@flatMap Mono.error(UnauthorizedException())
+
+                mapper.convertValue(room, RoomDTO::class.java).toMono()
+            }
     }
 
     private fun updateMembers(room: RoomDTO): Mono<Void> {

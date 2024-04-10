@@ -1,4 +1,4 @@
-package com.rest_service.read_service.controller
+package com.rest_service.read_service.controller.internal
 
 import com.rest_service.commons.dto.UserDTO
 import com.rest_service.read_service.service.UserService
