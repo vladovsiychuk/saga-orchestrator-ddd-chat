@@ -41,7 +41,9 @@ class UserService(
     }
 
     fun getCurrentUser(): Mono<UserDTO> {
-        TODO("Not yet implemented")
+        return securityManager.getCurrentUserEmail().toMono()
+            .flatMap { userViewRepository.findByEmail(it) }
+            .map { mapper.convertValue(it, UserDTO::class.java) }
     }
 
     fun getAllUsers(): Flux<UserDTO> {
