@@ -7,6 +7,7 @@ import com.rest_service.read_service.exception.NotFoundException
 import com.rest_service.read_service.repository.MessageViewRepository
 import jakarta.inject.Singleton
 import java.util.UUID
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
 import reactor.kotlin.core.publisher.toMono
@@ -29,5 +30,10 @@ class MessageService(private val repository: MessageViewRepository) {
         return repository.findById(messageId)
             .map { mapper.convertValue(it, MessageDTO::class.java) }
             .switchIfEmpty(NotFoundException("Message with id $messageId does not exist.").toMono())
+    }
+
+    fun getMessagesByRoomId(roomId: UUID): Flux<MessageDTO> {
+        return repository.findByRoomId(roomId)
+            .map { mapper.convertValue(it, MessageDTO::class.java) }
     }
 }
