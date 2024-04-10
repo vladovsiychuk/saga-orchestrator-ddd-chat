@@ -8,6 +8,7 @@ import io.micronaut.context.annotation.Requires
 import io.micronaut.context.env.Environment
 import io.micronaut.retry.annotation.Fallback
 import java.util.UUID
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Fallback
@@ -26,6 +27,10 @@ class MockedViewClient : ViewServiceFetcher {
     }
 
     override fun getMessage(id: UUID): Mono<MessageDTO> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getMessagesByRoomId(roomId: UUID): Flux<MessageDTO> {
         TODO("Not yet implemented")
     }
 }
