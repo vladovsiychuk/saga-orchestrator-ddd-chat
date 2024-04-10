@@ -1,7 +1,9 @@
 package com.rest_service.read_service.service
 
+import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.commons.dto.UserDTO
+import com.rest_service.read_service.ListCommand
 import com.rest_service.read_service.SecurityManager
 import com.rest_service.read_service.entity.UserView
 import com.rest_service.read_service.exception.NotFoundException
@@ -58,5 +60,10 @@ class UserService(
                     .flatMap { userId -> userViewRepository.findById(userId) }
                     .map { mapper.convertValue(it, UserDTO::class.java) }
             }
+    }
+
+    fun list(listCommand: ListCommand): Flux<UserDTO> {
+        return userViewRepository.findByTypeAndEmail(listCommand.type, "%${listCommand.query}%")
+            .map { mapper.convertValue(it) }
     }
 }

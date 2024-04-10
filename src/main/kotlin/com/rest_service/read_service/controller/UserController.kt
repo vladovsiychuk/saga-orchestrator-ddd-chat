@@ -1,6 +1,7 @@
 package com.rest_service.read_service.controller
 
 import com.rest_service.commons.dto.UserDTO
+import com.rest_service.read_service.ListCommand
 import com.rest_service.read_service.service.UserService
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
@@ -26,5 +27,10 @@ class UserController(private val userService: UserService) {
     @Get("/currentUser")
     fun getCurrentUser(): Mono<UserDTO> {
         return userService.getCurrentUser()
+    }
+
+    @Get("/{?listCommand*}")
+    fun index(listCommand: ListCommand): Flux<UserDTO> {
+        return userService.list(listCommand)
     }
 }
