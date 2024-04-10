@@ -185,6 +185,17 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+        <createTable tableName="room_member">
+            <column name="id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="room_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="member_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
     </changeSet>
 
 </databaseChangeLog>
