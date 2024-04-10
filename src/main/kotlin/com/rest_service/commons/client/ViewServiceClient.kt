@@ -31,6 +31,6 @@ interface ViewServiceClient : ViewServiceFetcher {
     @Get("/internal/messages/{id}")
     override fun getMessage(id: UUID): Mono<MessageDTO>
 
-    @Get("/internal/messages/rooms/{id}")
+    @Get("/internal/messages/rooms/{roomId}")
     override fun getMessagesByRoomId(roomId: UUID): Flux<MessageDTO>
 }
