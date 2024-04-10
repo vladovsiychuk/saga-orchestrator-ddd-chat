@@ -2,9 +2,12 @@ package com.rest_service.read_service.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.commons.dto.MessageDTO
+import com.rest_service.read_service.SecurityManager
 import com.rest_service.read_service.entity.MessageView
 import com.rest_service.read_service.exception.NotFoundException
 import com.rest_service.read_service.repository.MessageViewRepository
+import com.rest_service.read_service.repository.RoomMemberRepository
+import com.rest_service.read_service.repository.UserViewRepository
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Flux
@@ -13,27 +16,41 @@ import reactor.kotlin.core.publisher.switchIfEmpty
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-class MessageService(private val repository: MessageViewRepository) {
+class MessageService(
+    private val messageViewRepository: MessageViewRepository,
+    private val securityManager: SecurityManager,
+    private val userViewRepository: UserViewRepository,
+    private val roomMemberRepository: RoomMemberRepository,
+) {
 
     val mapper = jacksonObjectMapper()
 
     fun updateMessage(message: MessageDTO) {
         val messageEntity = mapper.convertValue(message, MessageView::class.java)
 
-        repository.findById(messageEntity.id)
-            .flatMap { repository.update(messageEntity) }
-            .switchIfEmpty { repository.save(messageEntity) }
+        messageViewRepository.findById(messageEntity.id)
+            .flatMap { messageViewRepository.update(messageEntity) }
+            .switchIfEmpty { messageViewRepository.save(messageEntity) }
             .subscribe()
     }
 
     fun get(messageId: UUID): Mono<MessageDTO> {
-        return repository.findById(messageId)
+        return messageViewRepository.findById(messageId)
             .map { mapper.convertValue(it, MessageDTO::class.java) }
             .switchIfEmpty(NotFoundException("Message with id $messageId does not exist.").toMono())
     }
 
     fun getMessagesByRoomId(roomId: UUID): Flux<MessageDTO> {
-        return repository.findByRoomId(roomId)
+        return messageViewRepository.findByRoomIdOrderByDateCreated(roomId)
+            .map { mapper.convertValue(it, MessageDTO::class.java) }
+    }
+
+    fun list(roomLimit: Int): Flux<MessageDTO> {
+        return userViewRepository.findByEmail(securityManager.getCurrentUserEmail())
+            .flatMapMany { user -> roomMemberRepository.findByMemberId(user.id) }
+            .flatMap { room ->
+                messageViewRepository.findByRoomIdOrderByDateCreated(room.roomId).takeLast(roomLimit)
+            }
             .map { mapper.convertValue(it, MessageDTO::class.java) }
     }
 }

@@ -7,7 +7,7 @@ import com.rest_service.read_service.ListCommand
 import com.rest_service.read_service.SecurityManager
 import com.rest_service.read_service.entity.UserView
 import com.rest_service.read_service.exception.NotFoundException
-import com.rest_service.read_service.repository.RoomMembersRepository
+import com.rest_service.read_service.repository.RoomMemberRepository
 import com.rest_service.read_service.repository.RoomViewRepository
 import com.rest_service.read_service.repository.UserViewRepository
 import jakarta.inject.Singleton
@@ -22,7 +22,7 @@ import reactor.kotlin.core.publisher.toMono
 class UserService(
     private val securityManager: SecurityManager,
     private val userViewRepository: UserViewRepository,
-    private val roomMemberRepository: RoomMembersRepository,
+    private val roomMemberRepository: RoomMemberRepository,
     private val roomViewRepository: RoomViewRepository,
 ) {
     val mapper = jacksonObjectMapper()

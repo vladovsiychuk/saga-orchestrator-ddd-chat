@@ -11,5 +11,5 @@ import reactor.core.publisher.Mono
 @R2dbcRepository(dialect = Dialect.MYSQL)
 interface MessageViewRepository : ReactorCrudRepository<MessageView, UUID> {
     fun update(message: MessageView): Mono<MessageView>
-    fun findByRoomId(roomId: UUID): Flux<MessageView>
+    fun findByRoomIdOrderByDateCreated(roomId: UUID): Flux<MessageView>
 }

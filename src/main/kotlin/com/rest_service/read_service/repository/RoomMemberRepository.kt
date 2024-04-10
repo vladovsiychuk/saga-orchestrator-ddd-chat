@@ -9,7 +9,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @R2dbcRepository(dialect = Dialect.MYSQL)
-interface RoomMembersRepository : ReactorCrudRepository<RoomMember, UUID> {
+interface RoomMemberRepository : ReactorCrudRepository<RoomMember, UUID> {
     fun deleteByRoomId(roomId: UUID): Mono<Long>
     fun findByRoomId(roomId: UUID): Mono<RoomMember>
     fun findByMemberId(memberId: UUID): Flux<RoomMember>

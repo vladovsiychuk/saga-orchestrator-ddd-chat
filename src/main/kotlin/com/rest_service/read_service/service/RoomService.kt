@@ -8,7 +8,7 @@ import com.rest_service.read_service.entity.RoomView
 import com.rest_service.read_service.exception.NotFoundException
 import com.rest_service.read_service.exception.UnauthorizedException
 import com.rest_service.read_service.repository.MessageViewRepository
-import com.rest_service.read_service.repository.RoomMembersRepository
+import com.rest_service.read_service.repository.RoomMemberRepository
 import com.rest_service.read_service.repository.RoomViewRepository
 import com.rest_service.read_service.repository.UserViewRepository
 import jakarta.inject.Singleton
@@ -24,7 +24,7 @@ import reactor.kotlin.core.util.function.component2
 @Singleton
 class RoomService(
     private val roomViewRepository: RoomViewRepository,
-    private val memberRepository: RoomMembersRepository,
+    private val memberRepository: RoomMemberRepository,
     private val securityManager: SecurityManager,
     private val userViewRepository: UserViewRepository,
     private val messageViewRepository: MessageViewRepository,
@@ -71,7 +71,7 @@ class RoomService(
                     .flatMap { roomMember ->
                         Mono.zip(
                             roomViewRepository.findById(roomMember.roomId),
-                            messageViewRepository.findByRoomId(roomMember.roomId).collectList()
+                            messageViewRepository.findByRoomIdOrderByDateCreated(roomMember.roomId).collectList()
                         ).flatMap { (roomView, roomMessages) ->
                             if (roomView.createdBy != currentUser.id && roomMessages.isEmpty())
                                 Mono.empty()
