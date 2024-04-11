@@ -15,7 +15,7 @@ import java.util.UUID
 import reactor.core.publisher.Mono
 
 @Singleton
-@Named("MessageReadInitiatedEventHandler_messageDomain")
+@Named("MessageTranslateInitiatedEventHandler_messageDomain")
 class MessageTranslateInitiatedEventHandler(
     applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val messageStateManager: MessageStateManager,
