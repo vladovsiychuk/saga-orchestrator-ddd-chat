@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono
 
 @Controller("/v1/messages")
 @Secured(SecurityRule.IS_AUTHENTICATED)
-class MessageController(private val messageService: MessageService) {
+class MessageViewController(private val messageService: MessageService) {
     @Get("/{id}")
     fun get(id: UUID): Mono<MessageDTO> {
         return messageService.get(id)

@@ -13,8 +13,9 @@ import reactor.core.publisher.Mono
 
 @Controller("/v1/users")
 @Secured(SecurityRule.IS_AUTHENTICATED)
-class UserController(private val userService: UserService) {
-    @Get("/")
+class UserViewController(private val userService: UserService) {
+
+    @Get("/all")
     fun roomsMembers(): Flux<UserDTO> {
         return userService.getAllUsers()
     }

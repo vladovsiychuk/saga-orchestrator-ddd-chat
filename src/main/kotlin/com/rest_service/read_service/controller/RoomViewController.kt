@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono
 
 @Controller("/v1/rooms")
 @Secured(SecurityRule.IS_AUTHENTICATED)
-class RoomController(private val roomService: RoomService) {
+class RoomViewController(private val roomService: RoomService) {
 
     @Get("/")
     fun list(): Flux<RoomDTO> {
