@@ -44,7 +44,7 @@
                 <constraints nullable="true"/>
             </column>
             <column name="email" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" unique="true"/>
             </column>
             <column name="avatar" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="true"/>
