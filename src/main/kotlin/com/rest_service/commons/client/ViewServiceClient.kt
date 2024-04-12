@@ -13,7 +13,7 @@ import java.util.UUID
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-@Client(id = "view_service")
+@Client(id = "view-service")
 @Requires(notEnv = [Environment.TEST])
 @CircuitBreaker(attempts = "2", delay = "200ms")
 @Recoverable(api = ViewServiceFetcher::class)

@@ -18,6 +18,17 @@ micronaut:
           secret:
             generator:
               secret: pleaseChangeThisSecretForANewOne
+      writer:
+        header:
+          enabled: true
+      propagation:
+        enabled: true
+        service-id-regex: "view-service"
+  http:
+    services:
+      view-service:
+        urls:
+          - "http://localhost:8082"
 
 datasources:
   default:

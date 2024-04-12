@@ -17,7 +17,7 @@ class InternalUserController(private val userService: UserService) {
     }
 
     @Get("/currentUser")
-    fun getCurrentUser(id: UUID): Mono<UserDTO> {
+    fun getCurrentUser(): Mono<UserDTO> {
         return userService.getCurrentUser()
     }
 }
