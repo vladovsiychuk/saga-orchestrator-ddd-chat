@@ -20,7 +20,8 @@ class UserCreatedState(private val domain: UserDomain) : UserState {
             UserDomainEventType.MESSAGE_UPDATE_APPROVED    -> approveMessageCreate(event)
             UserDomainEventType.MESSAGE_READ_APPROVED      -> approveMessageRead(event)
             UserDomainEventType.MESSAGE_TRANSLATE_APPROVED -> approveMessageTranslate(event)
-            else                                           -> throw UnsupportedOperationException()
+            else                                           ->
+                throw UnsupportedOperationException("Operation with type ${event.type} is not supported.")
         }
     }
 

@@ -12,7 +12,8 @@ class RoomInCreationState(private val domain: RoomDomain) : RoomState {
     override fun apply(event: RoomDomainEvent): RoomDomainEvent {
         return when (event.type) {
             RoomDomainEventType.ROOM_CREATED -> createRoom(event)
-            else                             -> throw UnsupportedOperationException()
+            else                             ->
+                throw UnsupportedOperationException("Operation with type ${event.type} is not supported.")
         }
     }
 

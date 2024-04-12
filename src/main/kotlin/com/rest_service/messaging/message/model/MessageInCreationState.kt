@@ -12,7 +12,8 @@ class MessageInCreationState(private val domain: MessageDomain) : MessageState {
     override fun apply(event: MessageDomainEvent): MessageDomainEvent {
         return when (event.type) {
             MessageDomainEventType.MESSAGE_CREATED -> createMessage(event)
-            else                                   -> throw UnsupportedOperationException()
+            else                                   ->
+                throw UnsupportedOperationException("Operation with type ${event.type} is not supported.")
         }
     }
 

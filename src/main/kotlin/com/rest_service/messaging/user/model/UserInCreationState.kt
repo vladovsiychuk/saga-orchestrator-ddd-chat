@@ -12,7 +12,8 @@ class UserInCreationState(private val domain: UserDomain) : UserState {
     override fun apply(event: UserDomainEvent): UserDomainEvent {
         return when (event.type) {
             UserDomainEventType.USER_CREATED -> createUser(event)
-            else                             -> throw UnsupportedOperationException()
+            else                             ->
+                throw UnsupportedOperationException("Operation with type ${event.type} is not supported.")
         }
     }
 

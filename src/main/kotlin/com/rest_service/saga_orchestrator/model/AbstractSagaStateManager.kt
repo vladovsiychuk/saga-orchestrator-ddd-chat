@@ -51,7 +51,7 @@ abstract class AbstractSagaStateManager<C : Command, D : DTO> : Domain {
                     event
                 }
 
-                else          -> throw UnsupportedOperationException()
+                else          -> throw UnsupportedOperationException("Operation with type ${event.type} is not supported.")
             }
         }
 
@@ -74,7 +74,7 @@ abstract class AbstractSagaStateManager<C : Command, D : DTO> : Domain {
                     event
                 }
 
-                else           -> throw UnsupportedOperationException()
+                else           -> throw UnsupportedOperationException("Operation with type ${event.type} is not supported.")
             }
         }
 
@@ -82,12 +82,12 @@ abstract class AbstractSagaStateManager<C : Command, D : DTO> : Domain {
     }
 
     inner class ErrorState : SagaState {
-        override fun apply(event: SagaDomainEvent) = throw UnsupportedOperationException()
+        override fun apply(event: SagaDomainEvent) = throw UnsupportedOperationException("Operation with type ${event.type} is not supported.")
         override fun createSagaResponseEvent() = createErrorResponseEvent().toMono()
     }
 
     inner class CompletedState : SagaState {
-        override fun apply(event: SagaDomainEvent) = throw UnsupportedOperationException()
+        override fun apply(event: SagaDomainEvent) = throw UnsupportedOperationException("Operation with type ${event.type} is not supported.")
         override fun createSagaResponseEvent() = createCompletedResponseEvent().toMono()
     }
 

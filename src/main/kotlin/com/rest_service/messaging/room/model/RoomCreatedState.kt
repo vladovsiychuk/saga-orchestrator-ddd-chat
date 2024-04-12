@@ -18,7 +18,8 @@ class RoomCreatedState(private val domain: RoomDomain) : RoomState {
             RoomDomainEventType.MESSAGE_CREATE_APPROVED    -> approveMessageCreate(event)
             RoomDomainEventType.MESSAGE_READ_APPROVED      -> approveMessageRead(event)
             RoomDomainEventType.MESSAGE_TRANSLATE_APPROVED -> approveMessageTranslate(event)
-            else                                           -> throw UnsupportedOperationException()
+            else                                           ->
+                throw UnsupportedOperationException("Operation with type ${event.type} is not supported.")
         }
     }
 

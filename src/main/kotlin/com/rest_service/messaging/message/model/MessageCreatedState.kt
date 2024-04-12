@@ -19,7 +19,8 @@ class MessageCreatedState(private val domain: MessageDomain) : MessageState {
             MessageDomainEventType.MESSAGE_UPDATED    -> updateMessage(event)
             MessageDomainEventType.MESSAGE_READ       -> readMessage(event)
             MessageDomainEventType.MESSAGE_TRANSLATED -> translateMessage(event)
-            else                                      -> throw UnsupportedOperationException()
+            else                                      ->
+                throw UnsupportedOperationException("Operation with type ${event.type} is not supported.")
         }
     }
 
