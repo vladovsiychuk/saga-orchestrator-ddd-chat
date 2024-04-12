@@ -8,12 +8,10 @@ import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.command.UserCreateCommand
 import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.messaging.user.infrastructure.UserDomainEventType
-import com.rest_service.messaging.user.model.UserDomain
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 
 @Singleton
 class UserCreateInitiatedEventHandler(
@@ -24,7 +22,8 @@ class UserCreateInitiatedEventHandler(
     override fun checkOperationFailed(operationId: UUID) = userStateManager.checkOperationFailed(operationId)
 
     override fun rebuildDomain(event: SagaEvent): Mono<Domain> {
-        return UserDomain(event.operationId, event.responsibleUserEmail, event.responsibleUserId!!).toMono()
+        val command = mapper.convertValue(event.payload, UserCreateCommand::class.java)
+        return userStateManager.rebuildUser(command.email, event)
     }
 
     override fun mapDomainEvent(event: SagaEvent): DomainEvent {

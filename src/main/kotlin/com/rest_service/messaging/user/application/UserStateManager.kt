@@ -8,10 +8,10 @@ import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.dto.ErrorDTO
 import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
-import com.rest_service.messaging.room.model.RoomDomain
 import com.rest_service.messaging.user.infrastructure.UserDomainEvent
 import com.rest_service.messaging.user.infrastructure.UserDomainEventRepository
 import com.rest_service.messaging.user.infrastructure.UserDomainEventType
+import com.rest_service.messaging.user.model.UserDomain
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import java.util.UUID
@@ -35,18 +35,35 @@ class UserStateManager(
             }
     }
 
-    fun rebuildUser(roomId: UUID, event: SagaEvent): Mono<Domain> {
-        return repository.findDomainEvents(roomId)
+    fun rebuildUser(userId: UUID, event: SagaEvent): Mono<Domain> {
+        return repository.findDomainEvents(userId)
             .collectList()
             .flatMap { events ->
-                val roomDomain = RoomDomain(event.operationId, event.responsibleUserEmail, event.responsibleUserId!!)
+                val userDomain = UserDomain(event.operationId, event.responsibleUserEmail, event.responsibleUserId!!)
 
                 if (events.isEmpty())
-                    return@flatMap roomDomain.toMono()
+                    return@flatMap userDomain.toMono()
 
                 events.toFlux()
                     .concatMap { event ->
-                        roomDomain.apply(event).toMono().thenReturn(roomDomain)
+                        userDomain.apply(event).toMono().thenReturn(userDomain)
+                    }
+                    .last()
+            }
+    }
+
+    fun rebuildUser(userEmail: String, event: SagaEvent): Mono<Domain> {
+        return repository.findDomainEvents(userEmail)
+            .collectList()
+            .flatMap { events ->
+                val userDomain = UserDomain(event.operationId, event.responsibleUserEmail, null)
+
+                if (events.isEmpty())
+                    return@flatMap userDomain.toMono()
+
+                events.toFlux()
+                    .concatMap { event ->
+                        userDomain.apply(event).toMono().thenReturn(userDomain)
                     }
                     .last()
             }
@@ -74,7 +91,7 @@ class UserStateManager(
                     event.operationId,
                     ServiceEnum.USER_SERVICE,
                     event.responsibleUserEmail,
-                    event.responsibleUserId!!,
+                    event.responsibleUserId,
                     ErrorDTO(error.message),
                 )
                 applicationEventPublisher.publishEventAsync(errorEvent)
