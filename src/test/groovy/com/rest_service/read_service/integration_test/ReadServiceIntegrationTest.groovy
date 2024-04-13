@@ -12,6 +12,7 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.reactor.http.client.ReactorHttpClient
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import jakarta.inject.Inject
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
@@ -28,13 +29,16 @@ class ReadServiceIntegrationTest extends Specification {
     @Inject
     SagaEventHandler eventHandler
 
+    @Shared
+    UUID userId = UUID.randomUUID()
+
     def conditions = new PollingConditions(timeout: 5, initialDelay: 0.5, factor: 1.25)
 
     void "Should create or update user view on user completed event"() {
         given:
-        def userId = UUID.randomUUID()
         def userDto = anyValidUserDTO()
         userDto.id = userId
+        userDto.email = 'user-1@gmail.com' //needed for the next test
         def event = new SagaEvent(SagaEventType.USER_CREATE_COMPLETED, UUID.randomUUID(), ServiceEnum.SAGA_SERVICE, "example@test.com", userId, userDto)
 
         when:
@@ -54,6 +58,7 @@ class ReadServiceIntegrationTest extends Specification {
         def roomId = UUID.randomUUID()
         def roomDto = anyValidRoomDTO()
         roomDto.id = roomId
+        roomDto.members.add(userId)
         def event = new SagaEvent(SagaEventType.ROOM_CREATE_COMPLETED, UUID.randomUUID(), ServiceEnum.SAGA_SERVICE, "example@test.com", UUID.randomUUID(), roomDto)
 
         when:
