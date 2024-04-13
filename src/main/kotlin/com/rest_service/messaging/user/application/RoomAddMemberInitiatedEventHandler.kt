@@ -24,12 +24,12 @@ class RoomAddMemberInitiatedEventHandler(
     override fun checkOperationFailed(operationId: UUID) = userStateManager.checkOperationFailed(operationId)
 
     override fun rebuildDomain(event: SagaEvent): Mono<Domain> {
-        val command = mapper.convertValue(event, RoomAddMemberCommand::class.java)
+        val command = mapper.convertValue(event.payload, RoomAddMemberCommand::class.java)
         return userStateManager.rebuildUser(command.memberId, event)
     }
 
     override fun mapDomainEvent(event: SagaEvent): DomainEvent {
-        val command = mapper.convertValue(event, RoomAddMemberCommand::class.java)
+        val command = mapper.convertValue(event.payload, RoomAddMemberCommand::class.java)
         return userStateManager.mapDomainEvent(command.memberId, null, UserDomainEventType.ROOM_ADD_MEMBER_APPROVED, event)
     }
 

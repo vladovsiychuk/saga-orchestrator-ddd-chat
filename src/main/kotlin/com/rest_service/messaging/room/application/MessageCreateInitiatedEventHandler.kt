@@ -24,12 +24,12 @@ class MessageCreateInitiatedEventHandler(
     override fun checkOperationFailed(operationId: UUID) = roomStateManager.checkOperationFailed(operationId)
 
     override fun rebuildDomain(event: SagaEvent): Mono<Domain> {
-        val command = mapper.convertValue(event, MessageCreateCommand::class.java)
+        val command = mapper.convertValue(event.payload, MessageCreateCommand::class.java)
         return roomStateManager.rebuildRoom(command.roomId, event)
     }
 
     override fun mapDomainEvent(event: SagaEvent): DomainEvent {
-        val command = mapper.convertValue(event, MessageCreateCommand::class.java)
+        val command = mapper.convertValue(event.payload, MessageCreateCommand::class.java)
         return roomStateManager.mapDomainEvent(command.roomId, RoomDomainEventType.MESSAGE_CREATE_APPROVED, event)
     }
 

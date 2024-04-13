@@ -26,13 +26,13 @@ class MessageTranslateInitiatedEventHandler(
     override fun checkOperationFailed(operationId: UUID) = roomStateManager.checkOperationFailed(operationId)
 
     override fun rebuildDomain(event: SagaEvent): Mono<Domain> {
-        val command = mapper.convertValue(event, MessageTranslateCommand::class.java)
+        val command = mapper.convertValue(event.payload, MessageTranslateCommand::class.java)
         return viewServiceFetcher.getMessage(command.messageId)
             .flatMap { message -> roomStateManager.rebuildRoom(message.roomId, event) }
     }
 
     override fun mapDomainEvent(event: SagaEvent): DomainEvent {
-        val command = mapper.convertValue(event, MessageTranslateCommand::class.java)
+        val command = mapper.convertValue(event.payload, MessageTranslateCommand::class.java)
 
         return viewServiceFetcher.getMessage(command.messageId)
             .map { message ->
