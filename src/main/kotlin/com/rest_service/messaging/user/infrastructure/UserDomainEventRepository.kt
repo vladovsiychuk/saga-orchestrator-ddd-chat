@@ -28,7 +28,7 @@ interface UserDomainEventRepository : ReactorCrudRepository<UserDomainEvent, UUI
     @Query(
         """
             SELECT * FROM user_domain_event
-            WHERE userId = :userId
+            WHERE user_id = :userId
             AND operation_id NOT IN (
                 SELECT operation_id FROM user_domain_event
                 WHERE type = 'UNDO'
