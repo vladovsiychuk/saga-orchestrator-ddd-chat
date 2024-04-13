@@ -64,7 +64,7 @@ abstract class AbstractSagaStateManager<C : Command, D : DTO> : Domain {
                 approveEvent() -> {
                     approvedServices.add(event.responsibleService)
                     if (event.responsibleService == mainDomainService()) dto = transformDTO(event.payload)
-                    if (isComplete()) state = CompletedState()
+                    state = if (isComplete()) CompletedState() else InApprovingState()
                     event
                 }
 
@@ -79,6 +79,15 @@ abstract class AbstractSagaStateManager<C : Command, D : DTO> : Domain {
         }
 
         override fun createSagaResponseEvent() = createInitiatedResponseEvent().toMono()
+    }
+
+    inner class InApprovingState : SagaState {
+        override fun apply(event: SagaDomainEvent): SagaDomainEvent {
+            state = InitiatedState()
+            return state.apply(event)
+        }
+
+        override fun createSagaResponseEvent(): Mono<SagaEvent> = Mono.empty()
     }
 
     inner class ErrorState : SagaState {

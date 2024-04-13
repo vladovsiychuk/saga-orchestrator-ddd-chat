@@ -42,7 +42,7 @@ class RoomCreateSagaStateTest extends Specification {
         (the roomSaga responseEvent() type) == ROOM_CREATE_COMPLETED
     }
 
-    def 'should stay in INITIATED state when not all approved events were received'() {
+    def 'should not have a response event when not all approved events were received'() {
         given: 'a room saga in INITIATED state'
         def roomSaga = aRoomSaga()
         def createEvent = anEvent() from SAGA_SERVICE withPayload anyValidRoomCreateCommand() ofType ROOM_CREATE_START
@@ -55,7 +55,7 @@ class RoomCreateSagaStateTest extends Specification {
         the roomSaga reactsTo approvedEventFromRoomService.event
 
         then:
-        (the roomSaga responseEvent() type) == ROOM_CREATE_INITIATED
+        (the roomSaga responseEvent()) == null
     }
 
     def 'should change the status to ERROR when processing the REJECTED event'() {
