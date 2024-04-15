@@ -39,7 +39,12 @@ class MessageStateManager(
         return repository.findDomainEvents(messageId)
             .collectList()
             .flatMap { events ->
-                val roomDomain = MessageDomain(event.operationId, event.responsibleUserEmail, event.responsibleUserId!!)
+                val roomDomain = MessageDomain(
+                    event.operationId,
+                    event.responsibleUserEmail,
+                    event.responsibleUserId!!,
+                    false
+                )
 
                 if (events.isEmpty())
                     return@flatMap roomDomain.toMono()
@@ -49,6 +54,10 @@ class MessageStateManager(
                         roomDomain.apply(event).toMono().thenReturn(roomDomain)
                     }
                     .last()
+                    .map { domain ->
+                        domain.validateCommands = true
+                        domain
+                    }
             }
     }
 

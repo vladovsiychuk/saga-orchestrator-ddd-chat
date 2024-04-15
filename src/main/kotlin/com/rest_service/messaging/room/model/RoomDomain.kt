@@ -12,6 +12,7 @@ class RoomDomain(
     var operationId: UUID,
     var responsibleUserEmail: String,
     var responsibleUserId: UUID,
+    var validateCommands: Boolean = true,
 ) : Domain {
     private var state: RoomState = RoomInCreationState(this)
     var room: RoomDTO? = null

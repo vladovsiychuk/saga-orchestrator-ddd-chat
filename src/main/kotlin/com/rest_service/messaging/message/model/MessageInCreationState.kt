@@ -1,27 +1,16 @@
 package com.rest_service.messaging.message.model
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.rest_service.commons.command.MessageCreateCommand
-import com.rest_service.commons.dto.MessageDTO
 import com.rest_service.messaging.message.infrastructure.MessageDomainEvent
 import com.rest_service.messaging.message.infrastructure.MessageDomainEventType
 
 class MessageInCreationState(private val domain: MessageDomain) : MessageState {
-    private val mapper = jacksonObjectMapper()
-
     override fun apply(event: MessageDomainEvent): MessageDomainEvent {
-        return when (event.type) {
-            MessageDomainEventType.MESSAGE_CREATED -> createMessage(event)
+        when (event.type) {
+            MessageDomainEventType.MESSAGE_CREATED -> MessageCreatedState(domain, event)
             else                                   ->
                 throw UnsupportedOperationException("Operation with type ${event.type} is not supported.")
-        }
-    }
+        }.let { domain.changeState(it) }
 
-    private fun createMessage(event: MessageDomainEvent): MessageDomainEvent {
-        val command = mapper.convertValue(event.payload, MessageCreateCommand::class.java)
-
-        domain.message = MessageDTO(command, event)
-        domain.changeState(MessageCreatedState(domain))
         return event
     }
 

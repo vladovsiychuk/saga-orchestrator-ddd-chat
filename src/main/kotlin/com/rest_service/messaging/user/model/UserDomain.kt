@@ -12,6 +12,7 @@ class UserDomain(
     val operationId: UUID,
     var responsibleUserEmail: String,
     val responsibleUserId: UUID?,
+    var validateCommands: Boolean = true
 ) : Domain {
     private var state: UserState = UserInCreationState(this)
     var currentUser: UserDTO? = null

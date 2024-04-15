@@ -3,7 +3,7 @@ package com.rest_service.messaging.room.model
 import com.rest_service.commons.SagaEvent
 
 class RoomDomainDSL {
-    RoomDomain domain = new RoomDomain(UUID.randomUUID(), "example@test.com", UUID.randomUUID())
+    RoomDomain domain = new RoomDomain(UUID.randomUUID(), "example@test.com", UUID.randomUUID(), true)
 
     static RoomDomainDSL aRoom() {
         return new RoomDomainDSL()

@@ -3,7 +3,7 @@ package com.rest_service.messaging.message.model
 import com.rest_service.commons.SagaEvent
 
 class MessageDomainDSL {
-    MessageDomain domain = new MessageDomain(UUID.randomUUID(), "example@test.com", UUID.randomUUID())
+    MessageDomain domain = new MessageDomain(UUID.randomUUID(), "example@test.com", UUID.randomUUID(), true)
 
     static MessageDomainDSL aMessage() {
         return new MessageDomainDSL()

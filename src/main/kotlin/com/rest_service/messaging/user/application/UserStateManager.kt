@@ -39,7 +39,12 @@ class UserStateManager(
         return repository.findDomainEvents(userId)
             .collectList()
             .flatMap { events ->
-                val userDomain = UserDomain(event.operationId, event.responsibleUserEmail, event.responsibleUserId!!)
+                val userDomain = UserDomain(
+                    event.operationId,
+                    event.responsibleUserEmail,
+                    event.responsibleUserId!!,
+                    false
+                )
 
                 if (events.isEmpty())
                     return@flatMap userDomain.toMono()
@@ -49,6 +54,10 @@ class UserStateManager(
                         userDomain.apply(event).toMono().thenReturn(userDomain)
                     }
                     .last()
+                    .map { domain ->
+                        domain.validateCommands = true
+                        domain
+                    }
             }
     }
 
@@ -56,7 +65,12 @@ class UserStateManager(
         return repository.findDomainEvents(userEmail)
             .collectList()
             .flatMap { events ->
-                val userDomain = UserDomain(event.operationId, event.responsibleUserEmail, null)
+                val userDomain = UserDomain(
+                    event.operationId,
+                    event.responsibleUserEmail,
+                    null,
+                    false
+                )
 
                 if (events.isEmpty())
                     return@flatMap userDomain.toMono()
@@ -66,6 +80,10 @@ class UserStateManager(
                         userDomain.apply(event).toMono().thenReturn(userDomain)
                     }
                     .last()
+                    .map { domain ->
+                        domain.validateCommands = true
+                        domain
+                    }
             }
     }
 
