@@ -14,7 +14,7 @@ class UserCreatedState(private val domain: UserDomain) : UserState {
     constructor(domain: UserDomain, event: UserDomainEvent) : this(domain) {
         val command = mapper.convertValue(event.payload, UserCreateCommand::class.java)
 
-        if (domain.validateCommands)
+        if (domain.operationId == event.operationId)
             if (domain.responsibleUserEmail != command.email)
                 throw RuntimeException("Responsible user doesn't have permissions to create the user")
 

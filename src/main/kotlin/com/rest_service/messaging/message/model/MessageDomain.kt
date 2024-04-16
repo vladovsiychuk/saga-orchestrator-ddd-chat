@@ -12,7 +12,6 @@ class MessageDomain(
     var operationId: UUID,
     var responsibleUserEmail: String,
     val responsibleUserId: UUID,
-    var validateCommands: Boolean = true,
 ) : Domain {
     private var state: MessageState = MessageInCreationState(this)
     var message: MessageDTO? = null

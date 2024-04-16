@@ -13,7 +13,7 @@ class MessageTranslateState(private val domain: MessageDomain) : MessageState {
     constructor(domain: MessageDomain, event: MessageDomainEvent) : this(domain) {
         val command = mapper.convertValue(event.payload, MessageTranslateCommand::class.java)
 
-        if (domain.validateCommands)
+        if (domain.operationId == event.operationId)
             if (domain.message!!.translations.any { it.language == command.language })
                 throw RuntimeException("Message with id ${domain.message!!.id} is already translate to ${command.language}.")
 

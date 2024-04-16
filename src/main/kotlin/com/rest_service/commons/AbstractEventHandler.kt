@@ -14,16 +14,11 @@ abstract class AbstractEventHandler(private val applicationEventPublisher: Appli
 
     fun handleEvent(sagaEvent: SagaEvent) {
         checkOperationFailed(sagaEvent.operationId)
-            .then(
-                rebuildDomain(sagaEvent).zipWith(mapDomainEvent(sagaEvent).toMono())
-                { domain, domainEvent ->
-                    domain.apply(domainEvent).toMono()
-                        .flatMap { saveEvent(it) }
-                        .flatMap { domain.createResponseSagaEvent() }
-                        .doOnNext { responseEvent -> applicationEventPublisher.publishEventAsync(responseEvent) }
-                }
-            )
-            .flatMap { it }
+            .then(mapDomainEvent(sagaEvent).toMono())
+            .flatMap { domainEvent -> saveEvent(domainEvent) }
+            .flatMap { rebuildDomain(sagaEvent) }
+            .flatMap { domain -> domain.createResponseSagaEvent() }
+            .doOnNext { responseEvent -> applicationEventPublisher.publishEventAsync(responseEvent) }
             .then()
             .onErrorResume { handleError(sagaEvent, it) }
             .subscribe()

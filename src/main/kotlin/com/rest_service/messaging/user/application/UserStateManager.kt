@@ -43,7 +43,6 @@ class UserStateManager(
                     event.operationId,
                     event.responsibleUserEmail,
                     event.responsibleUserId!!,
-                    false
                 )
 
                 if (events.isEmpty())
@@ -54,10 +53,6 @@ class UserStateManager(
                         userDomain.apply(event).toMono().thenReturn(userDomain)
                     }
                     .last()
-                    .map { domain ->
-                        domain.validateCommands = true
-                        domain
-                    }
             }
     }
 
@@ -69,7 +64,6 @@ class UserStateManager(
                     event.operationId,
                     event.responsibleUserEmail,
                     null,
-                    false
                 )
 
                 if (events.isEmpty())
@@ -80,10 +74,6 @@ class UserStateManager(
                         userDomain.apply(event).toMono().thenReturn(userDomain)
                     }
                     .last()
-                    .map { domain ->
-                        domain.validateCommands = true
-                        domain
-                    }
             }
     }
 

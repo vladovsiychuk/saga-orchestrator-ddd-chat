@@ -43,7 +43,6 @@ class RoomStateManager(
                     event.operationId,
                     event.responsibleUserEmail,
                     event.responsibleUserId!!,
-                    false
                 )
 
                 if (events.isEmpty())
@@ -54,10 +53,6 @@ class RoomStateManager(
                         roomDomain.apply(event).toMono().thenReturn(roomDomain)
                     }
                     .last()
-                    .map { domain ->
-                        domain.validateCommands = true
-                        domain
-                    }
             }
     }
 

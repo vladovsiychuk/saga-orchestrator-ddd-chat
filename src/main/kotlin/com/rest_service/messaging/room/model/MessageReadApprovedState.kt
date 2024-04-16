@@ -8,7 +8,7 @@ import reactor.kotlin.core.publisher.toMono
 
 class MessageReadApprovedState(private val domain: RoomDomain) : RoomState {
     constructor(domain: RoomDomain, event: RoomDomainEvent) : this(domain) {
-        if (domain.validateCommands)
+        if (domain.operationId == event.operationId)
             if (event.responsibleUserId !in domain.room!!.members)
                 throw RuntimeException("User with id ${event.responsibleUserId} is not a member of the room with id ${domain.room!!.id}")
     }

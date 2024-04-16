@@ -11,7 +11,7 @@ class UserDomainEventDSL {
         "example@test.com",
         [:],
         UserDomainEventType.USER_CREATED,
-        UUID.randomUUID(),
+        UUID.fromString("423ec267-5523-448f-ad18-d3204dfa3f08"),
         123123
     )
 

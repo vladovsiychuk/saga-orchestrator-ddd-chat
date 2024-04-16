@@ -14,7 +14,7 @@ class MessageTranslateApprovedState(private val domain: UserDomain) : UserState 
         val command = mapper.convertValue(event.payload, MessageTranslateCommand::class.java)
         val user = domain.currentUser!!
 
-        if (domain.validateCommands)
+        if (domain.operationId == event.operationId)
             when {
                 user.type != UserType.TRANSLATOR                        ->
                     throw RuntimeException("User with id ${user.id} is not a translator.")
