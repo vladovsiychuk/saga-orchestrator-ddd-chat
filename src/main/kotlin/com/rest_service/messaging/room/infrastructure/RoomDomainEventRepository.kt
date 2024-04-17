@@ -18,7 +18,7 @@ interface RoomDomainEventRepository : ReactorCrudRepository<RoomDomainEvent, UUI
         """
             SELECT * FROM room_domain_event
             WHERE room_id = :roomId
-            AND opration_id NOT IN (
+            AND operation_id NOT IN (
                 SELECT operation_id FROM room_domain_event
                 WHERE type = 'UNDO'
             )

@@ -18,7 +18,7 @@ interface MessageDomainEventRepository : ReactorCrudRepository<MessageDomainEven
         """
             SELECT * FROM message_domain_event
             WHERE message_id = :messageId
-            AND opration_id NOT IN (
+            AND operation_id NOT IN (
                 SELECT operation_id FROM message_domain_event
                 WHERE type = 'UNDO'
             )
