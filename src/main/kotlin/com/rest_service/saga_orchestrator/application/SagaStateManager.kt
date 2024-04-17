@@ -32,18 +32,18 @@ class SagaStateManager(
             }
     }
 
-    fun rebuildSaga(operationId: UUID, domain: Domain): Mono<Domain> {
-        return repository.findByOperationIdOrderByDateCreated(operationId)
+    fun rebuildSaga(event: SagaDomainEvent, domain: Domain): Mono<Domain> {
+        return repository.findByOperationIdOrderByDateCreated(event.operationId)
             .collectList()
             .flatMap { events ->
-                if (events.isEmpty())
-                    return@flatMap domain.toMono()
 
                 events.toFlux()
+                    .takeUntil { it.id == event.id }
                     .concatMap { event ->
                         domain.apply(event).toMono().thenReturn(domain)
                     }
                     .last()
+                    .defaultIfEmpty(domain)
             }
     }
 
@@ -62,7 +62,6 @@ class SagaStateManager(
                     type,
                     event.operationId,
                     ServiceEnum.SAGA_SERVICE,
-                    event.responsibleUserEmail,
                     event.responsibleUserId,
                     ErrorDTO(error.message),
                 )

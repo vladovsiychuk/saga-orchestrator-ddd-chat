@@ -15,7 +15,7 @@ data class RoomDTO(
     val dateUpdated: Long,
 ) : DTO {
     constructor(command: RoomCreateCommand, event: RoomDomainEvent) : this(
-        event.roomId!!,
+        event.roomId,
         null,
         event.responsibleUserId,
         mutableSetOf(command.companionId, event.responsibleUserId),

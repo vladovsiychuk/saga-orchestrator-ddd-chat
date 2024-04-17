@@ -8,7 +8,7 @@ import reactor.kotlin.core.publisher.toMono
 
 class MessageReadState(private val domain: MessageDomain) : MessageState {
     constructor(domain: MessageDomain, event: MessageDomainEvent) : this(domain) {
-        domain.message!!.read.add(event.responsibleUserId)
+        domain.message.read.add(event.responsibleUserId)
     }
 
     override fun apply(event: MessageDomainEvent) = run {
@@ -19,5 +19,5 @@ class MessageReadState(private val domain: MessageDomain) : MessageState {
             }
     }
 
-    override fun createResponseEvent() = SagaEvent(SagaEventType.MESSAGE_READ_APPROVED, domain.operationId, ServiceEnum.MESSAGE_SERVICE, domain.responsibleUserEmail, domain.responsibleUserId, domain.message!!).toMono()
+    override fun createResponseEvent(sagaEvent: SagaEvent) = SagaEvent(SagaEventType.MESSAGE_READ_APPROVED, domain.operationId, ServiceEnum.MESSAGE_SERVICE, sagaEvent.responsibleUserId, domain.message).toMono()
 }

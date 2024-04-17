@@ -1,5 +1,6 @@
 package com.rest_service.messaging.user.model
 
+import com.rest_service.commons.SagaEvent
 import com.rest_service.messaging.user.infrastructure.UserDomainEvent
 import com.rest_service.messaging.user.infrastructure.UserDomainEventType
 
@@ -13,5 +14,5 @@ class UserInCreationState(private val domain: UserDomain) : UserState {
         }
     }
 
-    override fun createResponseEvent() = throw UnsupportedOperationException("No next event for user in creation state.")
+    override fun createResponseEvent(sagaEvent: SagaEvent) = throw UnsupportedOperationException("No next event for user in creation state.")
 }

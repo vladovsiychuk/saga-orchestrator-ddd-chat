@@ -14,11 +14,11 @@ class MessageTranslateState(private val domain: MessageDomain) : MessageState {
         val command = mapper.convertValue(event.payload, MessageTranslateCommand::class.java)
 
         if (domain.operationId == event.operationId)
-            if (domain.message!!.translations.any { it.language == command.language })
-                throw RuntimeException("Message with id ${domain.message!!.id} is already translate to ${command.language}.")
+            if (domain.message.translations.any { it.language == command.language })
+                throw RuntimeException("Message with id ${domain.message.id} is already translate to ${command.language}.")
 
         val newTranslation = TranslationDTO(event.responsibleUserId, command.translation, command.language, false)
-        domain.message!!.translations.add(newTranslation)
+        domain.message.translations.add(newTranslation)
     }
 
     private val mapper = jacksonObjectMapper()
@@ -31,5 +31,5 @@ class MessageTranslateState(private val domain: MessageDomain) : MessageState {
             }
     }
 
-    override fun createResponseEvent() = SagaEvent(SagaEventType.MESSAGE_TRANSLATE_APPROVED, domain.operationId, ServiceEnum.MESSAGE_SERVICE, domain.responsibleUserEmail, domain.responsibleUserId, domain.message!!).toMono()
+    override fun createResponseEvent(sagaEvent: SagaEvent) = SagaEvent(SagaEventType.MESSAGE_TRANSLATE_APPROVED, domain.operationId, ServiceEnum.MESSAGE_SERVICE, sagaEvent.responsibleUserId, domain.message).toMono()
 }

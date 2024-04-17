@@ -1,5 +1,6 @@
 package com.rest_service.messaging.room.model
 
+import com.rest_service.commons.Domain
 import com.rest_service.commons.SagaEvent
 
 class RoomDomainDSL {
@@ -38,7 +39,7 @@ class RoomDomainDSL {
     }
 
     SagaEvent responseEvent() {
-        return domain.createResponseSagaEvent().block()
+        return Domain.createResponseSagaEvent().block()
     }
 }
 

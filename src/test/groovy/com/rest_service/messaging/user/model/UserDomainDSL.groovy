@@ -1,5 +1,6 @@
 package com.rest_service.messaging.user.model
 
+import com.rest_service.commons.Domain
 import com.rest_service.commons.SagaEvent
 
 class UserDomainDSL {
@@ -33,7 +34,7 @@ class UserDomainDSL {
     }
 
     SagaEvent responseEvent() {
-        return domain.createResponseSagaEvent().block()
+        return Domain.createResponseSagaEvent().block()
     }
 }
 

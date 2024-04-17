@@ -47,7 +47,7 @@ open class SagaEventHandler(
             .let { user ->
                 WebSocketEvent(user, WebSocketType.USER_CREATED)
                     .let { event -> mapper.writeValueAsString(event) }
-                    .let { eventString -> webSocketService.sendMessageToUser(eventString, user.temporaryId!!) }
+                    .let { eventString -> webSocketService.sendMessageToUser(eventString, user.id) }
             }
     }
 

@@ -35,24 +35,17 @@ class MessageStateManager(
             }
     }
 
-    fun rebuildMessage(messageId: UUID, event: SagaEvent): Mono<Domain> {
+    fun rebuildMessage(messageId: UUID, operationId: UUID): Mono<Domain> {
         return repository.findDomainEvents(messageId)
             .collectList()
             .flatMap { events ->
-                val roomDomain = MessageDomain(
-                    event.operationId,
-                    event.responsibleUserEmail,
-                    event.responsibleUserId!!,
-                )
-
-                if (events.isEmpty())
-                    return@flatMap roomDomain.toMono()
+                val messageDomain = MessageDomain(operationId)
 
                 events.toFlux()
-                    .concatMap { event ->
-                        roomDomain.apply(event).toMono().thenReturn(roomDomain)
-                    }
+                    .takeUntil { event -> event.operationId == operationId }
+                    .concatMap { event -> messageDomain.apply(event).toMono().thenReturn(messageDomain) }
                     .last()
+                    .defaultIfEmpty(messageDomain)
             }
     }
 
@@ -62,7 +55,7 @@ class MessageStateManager(
             payload = mapper.convertValue(event.payload),
             type = type,
             operationId = event.operationId,
-            responsibleUserId = event.responsibleUserId!!
+            responsibleUserId = event.responsibleUserId
         )
     }
 
@@ -77,8 +70,7 @@ class MessageStateManager(
                     type,
                     event.operationId,
                     ServiceEnum.MESSAGE_SERVICE,
-                    event.responsibleUserEmail,
-                    event.responsibleUserId!!,
+                    event.responsibleUserId,
                     ErrorDTO(error.message),
                 )
                 applicationEventPublisher.publishEventAsync(errorEvent)

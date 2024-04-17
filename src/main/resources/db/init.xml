@@ -18,11 +18,8 @@
             <column name="responsible_service" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="responsible_user_email" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
             <column name="responsible_user_id" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
             <column name="type" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -36,9 +33,6 @@
         <createTable tableName="user_view">
             <column name="id" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="false" unique="true" primaryKey="true"/>
-            </column>
-            <column name="temporary_id" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="true"/>
             </column>
             <column name="username" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="true"/>
@@ -121,10 +115,7 @@
                 <constraints nullable="false" unique="true" primaryKey="true"/>
             </column>
             <column name="user_id" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="email" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
             <column name="payload" type="java.sql.Types.CLOB">
                 <constraints nullable="false"/>
@@ -133,6 +124,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="operation_id" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="responsible_user_id" type="java.sql.Types.VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="date_created" type="java.sql.Types.BIGINT">
@@ -144,7 +138,7 @@
                 <constraints nullable="false" unique="true" primaryKey="true"/>
             </column>
             <column name="message_id" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
             <column name="payload" type="java.sql.Types.CLOB">
                 <constraints nullable="false"/>
@@ -167,7 +161,7 @@
                 <constraints nullable="false" unique="true" primaryKey="true"/>
             </column>
             <column name="room_id" type="java.sql.Types.VARCHAR(255)">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
             <column name="payload" type="java.sql.Types.CLOB">
                 <constraints nullable="false"/>

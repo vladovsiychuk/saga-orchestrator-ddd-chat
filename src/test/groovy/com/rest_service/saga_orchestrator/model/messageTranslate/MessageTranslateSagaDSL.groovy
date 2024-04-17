@@ -1,5 +1,6 @@
 package com.rest_service.saga_orchestrator.model.messageTranslate
 
+import com.rest_service.commons.Domain
 import com.rest_service.commons.SagaEvent
 import com.rest_service.saga_orchestrator.infrastructure.SagaDomainEvent
 import com.rest_service.saga_orchestrator.model.MessageTranslateSaga
@@ -22,6 +23,6 @@ class MessageTranslateSagaDSL {
     }
 
     SagaEvent responseEvent() {
-        state.createResponseSagaEvent().block()
+        Domain.createResponseSagaEvent().block()
     }
 }

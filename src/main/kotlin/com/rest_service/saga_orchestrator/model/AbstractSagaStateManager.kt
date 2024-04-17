@@ -34,7 +34,7 @@ abstract class AbstractSagaStateManager<C : Command, D : DTO> : Domain {
     private val mapper = jacksonObjectMapper()
 
     override fun apply(event: DomainEvent) = state.apply(event as SagaDomainEvent)
-    override fun createResponseSagaEvent() = state.createSagaResponseEvent()
+    override fun createResponseSagaEvent(sagaEvent: SagaEvent) = state.createSagaResponseEvent()
 
     inner class ReadyState : SagaState {
         override fun apply(event: SagaDomainEvent): SagaDomainEvent {

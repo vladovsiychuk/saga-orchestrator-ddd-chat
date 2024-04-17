@@ -20,8 +20,7 @@ data class SagaDomainEvent(
     @MappedProperty(type = DataType.JSON)
     var payload: Map<String, Any>,
     var responsibleService: ServiceEnum,
-    val responsibleUserEmail: String,
-    val responsibleUserId: UUID? = null,
+    val responsibleUserId: UUID,
     var type: SagaEventType,
     val dateCreated: Long = Instant.now()
         .toEpochMilli(),

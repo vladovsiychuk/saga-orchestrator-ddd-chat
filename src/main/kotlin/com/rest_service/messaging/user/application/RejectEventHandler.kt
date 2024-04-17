@@ -8,6 +8,7 @@ import com.rest_service.messaging.user.infrastructure.UserDomainEventRepository
 import com.rest_service.messaging.user.infrastructure.UserDomainEventType
 import jakarta.inject.Named
 import jakarta.inject.Singleton
+import java.util.UUID
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
@@ -30,9 +31,11 @@ class RejectEventHandler(private val repository: UserDomainEventRepository) {
 
     private fun createDomainEvent(sagaEvent: SagaEvent): Mono<UserDomainEvent> {
         return UserDomainEvent(
+            userId = UUID.fromString("00000000-0000-0000-0000-000000000000"),
             payload = mapper.convertValue(sagaEvent.payload),
             type = UserDomainEventType.UNDO,
-            operationId = sagaEvent.operationId
+            operationId = sagaEvent.operationId,
+            responsibleUserId = sagaEvent.responsibleUserId,
         ).toMono()
     }
 }

@@ -22,6 +22,7 @@ class UserService(
         val currentUserEmail = securityManager.getCurrentUserEmail()
         val operationId = UUID.randomUUID()
 
+        // TODO: Refactor this thing
         val translationLanguages = if (request.type == UserType.TRANSLATOR) {
             (request.translationLanguages ?: mutableSetOf()).apply {
                 add(request.primaryLanguage)
@@ -34,15 +35,13 @@ class UserService(
             currentUserEmail,
             request.primaryLanguage,
             translationLanguages,
-            request.temporaryId
         )
 
         val sagaEvent = SagaEvent(
             SagaEventType.USER_CREATE_START,
             operationId,
             ServiceEnum.SAGA_SERVICE,
-            currentUserEmail,
-            null,
+            UUID.nameUUIDFromBytes(currentUserEmail.toByteArray()),
             command
         )
 

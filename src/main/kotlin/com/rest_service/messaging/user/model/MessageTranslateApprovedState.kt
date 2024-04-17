@@ -12,7 +12,7 @@ import reactor.kotlin.core.publisher.toMono
 class MessageTranslateApprovedState(private val domain: UserDomain) : UserState {
     constructor(domain: UserDomain, event: UserDomainEvent) : this(domain) {
         val command = mapper.convertValue(event.payload, MessageTranslateCommand::class.java)
-        val user = domain.currentUser!!
+        val user = domain.currentUser
 
         if (domain.operationId == event.operationId)
             when {
@@ -26,7 +26,7 @@ class MessageTranslateApprovedState(private val domain: UserDomain) : UserState 
 
     private val mapper = jacksonObjectMapper()
 
-    override fun createResponseEvent() = SagaEvent(SagaEventType.MESSAGE_TRANSLATE_APPROVED, domain.operationId, ServiceEnum.USER_SERVICE, domain.responsibleUserEmail, domain.responsibleUserId!!, domain.currentUser!!).toMono()
+    override fun createResponseEvent(sagaEvent: SagaEvent) = SagaEvent(SagaEventType.MESSAGE_TRANSLATE_APPROVED, domain.operationId, ServiceEnum.USER_SERVICE, sagaEvent.responsibleUserId, domain.currentUser).toMono()
     override fun apply(event: UserDomainEvent) = run {
         UserCreatedState(domain)
             .let {

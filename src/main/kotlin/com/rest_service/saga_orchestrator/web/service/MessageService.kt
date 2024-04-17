@@ -14,13 +14,14 @@ import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 
 @Singleton
 class MessageService(
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val securityManager: SecurityManager,
 ) {
-    fun startCreateRoom(request: MessageCreateRequest): Mono<ResponseDTO> {
+    fun startCreateMessage(request: MessageCreateRequest): Mono<ResponseDTO> {
         return securityManager.getCurrentUser()
             .map { currentUser ->
                 val command = MessageCreateCommand(
@@ -33,7 +34,6 @@ class MessageService(
                     SagaEventType.MESSAGE_CREATE_START,
                     UUID.randomUUID(),
                     ServiceEnum.SAGA_SERVICE,
-                    currentUser.email,
                     currentUser.id,
                     command
                 )
@@ -43,14 +43,13 @@ class MessageService(
     }
 
     fun update(command: MessageUpdateRequest, messageId: UUID): Mono<ResponseDTO> {
-        return securityManager.getCurrentUserIdAndEmail()
-            .map { (currentUserId, currentUserEmail) ->
+        return securityManager.getCurrentUserEmail().toMono()
+            .map { currentUserEmail ->
                 SagaEvent(
                     SagaEventType.MESSAGE_UPDATE_START,
                     UUID.randomUUID(),
                     ServiceEnum.SAGA_SERVICE,
-                    currentUserEmail,
-                    currentUserId,
+                    UUID.nameUUIDFromBytes(currentUserEmail.toByteArray()),
                     MessageUpdateCommand(messageId, command.content)
                 )
             }
@@ -59,14 +58,13 @@ class MessageService(
     }
 
     fun read(messageId: UUID): Mono<ResponseDTO> {
-        return securityManager.getCurrentUserIdAndEmail()
-            .map { (currentUserId, currentUserEmail) ->
+        return securityManager.getCurrentUserEmail().toMono()
+            .map { currentUserEmail ->
                 SagaEvent(
                     SagaEventType.MESSAGE_READ_START,
                     UUID.randomUUID(),
                     ServiceEnum.SAGA_SERVICE,
-                    currentUserEmail,
-                    currentUserId,
+                    UUID.nameUUIDFromBytes(currentUserEmail.toByteArray()),
                     MessageReadCommand(messageId)
                 )
             }

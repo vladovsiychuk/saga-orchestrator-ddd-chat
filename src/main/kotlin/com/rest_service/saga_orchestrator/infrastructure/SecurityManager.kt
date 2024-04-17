@@ -6,7 +6,6 @@ import com.rest_service.read_service.exception.UnauthorizedException
 import io.micronaut.security.utils.SecurityService
 import jakarta.inject.Named
 import jakarta.inject.Singleton
-import java.util.UUID
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
 import reactor.kotlin.core.publisher.toMono
@@ -22,12 +21,6 @@ open class SecurityManager(
             throw RuntimeException("No valid credential found")
 
         return securityService.authentication.get().attributes["email"].toString()
-    }
-
-    open fun getCurrentUserIdAndEmail(): Mono<Pair<UUID, String>> {
-        return viewFetcher.getCurrentUser()
-            .switchIfEmpty { UnauthorizedException().toMono() }
-            .map { it.id to it.email }
     }
 
     open fun getCurrentUser(): Mono<UserDTO> {

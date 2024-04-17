@@ -13,6 +13,7 @@ import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 
 @Singleton
 class RoomService(
@@ -20,8 +21,8 @@ class RoomService(
     private val securityManager: SecurityManager,
 ) {
     fun startCreateRoom(request: RoomCreateRequest): Mono<ResponseDTO> {
-        return securityManager.getCurrentUserIdAndEmail()
-            .map { (currentUserId, currentUserEmail) ->
+        return securityManager.getCurrentUserEmail().toMono()
+            .map { currentUserEmail ->
                 val command = RoomCreateCommand(
                     request.companionUserId
                 )
@@ -30,8 +31,7 @@ class RoomService(
                     SagaEventType.ROOM_CREATE_START,
                     UUID.randomUUID(),
                     ServiceEnum.SAGA_SERVICE,
-                    currentUserEmail,
-                    currentUserId,
+                    UUID.nameUUIDFromBytes(currentUserEmail.toByteArray()),
                     command
                 )
             }
@@ -40,16 +40,15 @@ class RoomService(
     }
 
     fun startAddMember(roomId: UUID, command: RoomAddMemberRequest): Mono<ResponseDTO> {
-        return securityManager.getCurrentUserIdAndEmail()
-            .map { (currentUserId, currentUserEmail) ->
+        return securityManager.getCurrentUserEmail().toMono()
+            .map { currentUserEmail ->
                 val addMemberCommand = RoomAddMemberCommand(roomId, command.memberId)
 
                 SagaEvent(
                     SagaEventType.ROOM_ADD_MEMBER_START,
                     UUID.randomUUID(),
                     ServiceEnum.SAGA_SERVICE,
-                    currentUserEmail,
-                    currentUserId,
+                    UUID.nameUUIDFromBytes(currentUserEmail.toByteArray()),
                     addMemberCommand
                 )
             }

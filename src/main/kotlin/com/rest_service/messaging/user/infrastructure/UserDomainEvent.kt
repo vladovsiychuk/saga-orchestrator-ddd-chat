@@ -13,11 +13,11 @@ data class UserDomainEvent(
     @field:Id
     @AutoPopulated
     val eventId: UUID? = null,
-    val userId: UUID? = null,
-    var email: String? = null,
+    val userId: UUID,
     @MappedProperty(type = DataType.JSON)
-    var payload: Map<String, Any>,
-    var type: UserDomainEventType,
-    var operationId: UUID,
+    val payload: Map<String, Any>,
+    val type: UserDomainEventType,
+    val operationId: UUID,
+    val responsibleUserId: UUID,
     val dateCreated: Long = TimeUtils.now(),
 ) : DomainEvent

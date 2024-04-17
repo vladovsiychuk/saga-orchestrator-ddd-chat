@@ -35,24 +35,17 @@ class RoomStateManager(
             }
     }
 
-    fun rebuildRoom(roomId: UUID, event: SagaEvent): Mono<Domain> {
+    fun rebuildRoom(roomId: UUID, operationId: UUID): Mono<Domain> {
         return repository.findDomainEvents(roomId)
             .collectList()
             .flatMap { events ->
-                val roomDomain = RoomDomain(
-                    event.operationId,
-                    event.responsibleUserEmail,
-                    event.responsibleUserId!!,
-                )
-
-                if (events.isEmpty())
-                    return@flatMap roomDomain.toMono()
+                val roomDomain = RoomDomain(operationId)
 
                 events.toFlux()
-                    .concatMap { event ->
-                        roomDomain.apply(event).toMono().thenReturn(roomDomain)
-                    }
+                    .takeUntil { event -> event.operationId == operationId }
+                    .concatMap { event -> roomDomain.apply(event).toMono().thenReturn(roomDomain) }
                     .last()
+                    .defaultIfEmpty(roomDomain)
             }
     }
 
@@ -62,7 +55,7 @@ class RoomStateManager(
             payload = mapper.convertValue(event.payload),
             type = type,
             operationId = event.operationId,
-            responsibleUserId = event.responsibleUserId!!
+            responsibleUserId = event.responsibleUserId
         )
     }
 
@@ -77,8 +70,7 @@ class RoomStateManager(
                     type,
                     event.operationId,
                     ServiceEnum.ROOM_SERVICE,
-                    event.responsibleUserEmail,
-                    event.responsibleUserId!!,
+                    event.responsibleUserId,
                     ErrorDTO(error.message),
                 )
                 applicationEventPublisher.publishEventAsync(errorEvent)

@@ -8,20 +8,16 @@ import com.rest_service.messaging.user.infrastructure.UserDomainEvent
 import java.util.UUID
 import reactor.core.publisher.Mono
 
-class UserDomain(
-    val operationId: UUID,
-    var responsibleUserEmail: String,
-    val responsibleUserId: UUID?,
-) : Domain {
+class UserDomain(val operationId: UUID) : Domain {
     private var state: UserState = UserInCreationState(this)
-    var currentUser: UserDTO? = null
+    lateinit var currentUser: UserDTO
 
     override fun apply(event: DomainEvent): DomainEvent {
         return state.apply(event as UserDomainEvent)
     }
 
-    override fun createResponseSagaEvent(): Mono<SagaEvent> {
-        return state.createResponseEvent()
+    override fun createResponseSagaEvent(sagaEvent: SagaEvent): Mono<SagaEvent> {
+        return state.createResponseEvent(sagaEvent)
     }
 
     fun changeState(newState: UserState) {

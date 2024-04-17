@@ -8,20 +8,16 @@ import com.rest_service.messaging.room.infrastructure.RoomDomainEvent
 import java.util.UUID
 import reactor.core.publisher.Mono
 
-class RoomDomain(
-    var operationId: UUID,
-    var responsibleUserEmail: String,
-    var responsibleUserId: UUID,
-) : Domain {
+class RoomDomain(var operationId: UUID) : Domain {
     private var state: RoomState = RoomInCreationState(this)
-    var room: RoomDTO? = null
+    lateinit var room: RoomDTO
 
     override fun apply(event: DomainEvent): DomainEvent {
         return state.apply(event as RoomDomainEvent)
     }
 
-    override fun createResponseSagaEvent(): Mono<SagaEvent> {
-        return state.createResponseEvent()
+    override fun createResponseSagaEvent(sagaEvent: SagaEvent): Mono<SagaEvent> {
+        return state.createResponseEvent(sagaEvent)
     }
 
     fun changeState(newState: RoomState) {

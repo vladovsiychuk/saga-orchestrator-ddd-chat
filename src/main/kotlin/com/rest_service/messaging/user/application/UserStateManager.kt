@@ -35,55 +35,27 @@ class UserStateManager(
             }
     }
 
-    fun rebuildUser(userId: UUID, event: SagaEvent): Mono<Domain> {
+    fun rebuildUser(userId: UUID, operationId: UUID): Mono<Domain> {
         return repository.findDomainEvents(userId)
             .collectList()
             .flatMap { events ->
-                val userDomain = UserDomain(
-                    event.operationId,
-                    event.responsibleUserEmail,
-                    event.responsibleUserId!!,
-                )
-
-                if (events.isEmpty())
-                    return@flatMap userDomain.toMono()
+                val userDomain = UserDomain(operationId)
 
                 events.toFlux()
-                    .concatMap { event ->
-                        userDomain.apply(event).toMono().thenReturn(userDomain)
-                    }
+                    .takeUntil { event -> event.operationId == operationId }
+                    .concatMap { event -> userDomain.apply(event).toMono().thenReturn(userDomain) }
                     .last()
+                    .defaultIfEmpty(userDomain)
             }
     }
 
-    fun rebuildUser(userEmail: String, event: SagaEvent): Mono<Domain> {
-        return repository.findDomainEvents(userEmail)
-            .collectList()
-            .flatMap { events ->
-                val userDomain = UserDomain(
-                    event.operationId,
-                    event.responsibleUserEmail,
-                    null,
-                )
-
-                if (events.isEmpty())
-                    return@flatMap userDomain.toMono()
-
-                events.toFlux()
-                    .concatMap { event ->
-                        userDomain.apply(event).toMono().thenReturn(userDomain)
-                    }
-                    .last()
-            }
-    }
-
-    fun mapDomainEvent(userId: UUID, email: String?, type: UserDomainEventType, event: SagaEvent): DomainEvent {
+    fun mapDomainEvent(userId: UUID, type: UserDomainEventType, event: SagaEvent): DomainEvent {
         return UserDomainEvent(
             userId = userId,
-            email = email,
             payload = mapper.convertValue(event.payload),
             type = type,
             operationId = event.operationId,
+            responsibleUserId = event.responsibleUserId,
         )
     }
 
@@ -98,7 +70,6 @@ class UserStateManager(
                     type,
                     event.operationId,
                     ServiceEnum.USER_SERVICE,
-                    event.responsibleUserEmail,
                     event.responsibleUserId,
                     ErrorDTO(error.message),
                 )

@@ -9,7 +9,6 @@ import java.util.UUID
 @Introspected
 data class UserDTO(
     val id: UUID,
-    val temporaryId: UUID?,
     val username: String?,
     val email: String,
     val avatar: String?,
@@ -21,7 +20,6 @@ data class UserDTO(
 ) : DTO {
     constructor(command: UserCreateCommand, userId: UUID, dateCreated: Long) : this(
         userId,
-        command.temporaryId,
         command.username,
         command.email,
         null,

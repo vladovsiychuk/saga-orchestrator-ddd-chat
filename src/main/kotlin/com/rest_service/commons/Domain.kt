@@ -4,5 +4,5 @@ import reactor.core.publisher.Mono
 
 interface Domain {
     fun apply(event: DomainEvent): DomainEvent
-    fun createResponseSagaEvent(): Mono<SagaEvent>
+    fun createResponseSagaEvent(sagaEvent: SagaEvent): Mono<SagaEvent>
 }

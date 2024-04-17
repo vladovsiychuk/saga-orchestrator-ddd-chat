@@ -1,5 +1,6 @@
 package com.rest_service.saga_orchestrator.model.roomCreate
 
+import com.rest_service.commons.Domain
 import com.rest_service.commons.SagaEvent
 import com.rest_service.saga_orchestrator.infrastructure.SagaDomainEvent
 import com.rest_service.saga_orchestrator.model.RoomCreateSaga
@@ -23,6 +24,6 @@ class RoomCreateSagaDSL {
     }
 
     SagaEvent responseEvent() {
-        state.createResponseSagaEvent().block()
+        Domain.createResponseSagaEvent().block()
     }
 }

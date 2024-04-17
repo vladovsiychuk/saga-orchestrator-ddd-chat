@@ -31,5 +31,5 @@ class MessageCreatedState(private val domain: MessageDomain) : MessageState {
         return event
     }
 
-    override fun createResponseEvent() = SagaEvent(SagaEventType.MESSAGE_CREATE_APPROVED, domain.operationId, ServiceEnum.MESSAGE_SERVICE, domain.responsibleUserEmail, domain.responsibleUserId, domain.message!!).toMono()
+    override fun createResponseEvent(sagaEvent: SagaEvent) = SagaEvent(SagaEventType.MESSAGE_CREATE_APPROVED, domain.operationId, ServiceEnum.MESSAGE_SERVICE, sagaEvent.responsibleUserId, domain.message).toMono()
 }

@@ -10,7 +10,7 @@ import java.util.UUID
 
 class UserCreateSaga(
     val operationId: UUID,
-    val responsibleUserEmail: String
+    val responsibleUserId: UUID,
 ) : AbstractSagaStateManager<UserCreateCommand, UserDTO>() {
     private val mapper = jacksonObjectMapper()
     override fun startEvent() = SagaEventType.USER_CREATE_START
@@ -27,11 +27,11 @@ class UserCreateSaga(
     override fun mainDomainService() = ServiceEnum.USER_SERVICE
 
     override fun createInitiatedResponseEvent() =
-        SagaEvent(SagaEventType.USER_CREATE_INITIATED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, null, command)
+        SagaEvent(SagaEventType.USER_CREATE_INITIATED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, command)
 
     override fun createCompletedResponseEvent() =
-        SagaEvent(SagaEventType.USER_CREATE_COMPLETED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, null, dto)
+        SagaEvent(SagaEventType.USER_CREATE_COMPLETED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, dto)
 
     override fun createErrorResponseEvent() =
-        SagaEvent(SagaEventType.USER_CREATE_ERROR, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, null, errorDto!!)
+        SagaEvent(SagaEventType.USER_CREATE_ERROR, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, errorDto!!)
 }

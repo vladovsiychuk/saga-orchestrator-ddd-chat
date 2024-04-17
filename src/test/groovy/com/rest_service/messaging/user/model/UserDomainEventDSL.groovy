@@ -28,12 +28,11 @@ class UserDomainEventDSL {
     }
 
     UserDomainEventDSL ofType(UserDomainEventType type) {
-        event.type = type
+        event = copyWith(type: type)
         return this
     }
 
     UserDomainEventDSL withPayload(Map payload) {
-        event.payload = payload
         return this
     }
 
@@ -46,5 +45,16 @@ class UserDomainEventDSL {
         event.operationId = operationId
         return this
     }
-}
 
+    private UserDomainEvent copyWith(Map changes) {
+        new UserDomainEvent(
+            (UUID) changes.get('eventId') ?: this.event.eventId,
+            (UUID) changes.get('userId') ?: this.event.userId,
+            (String) changes.get('email') ?: this.event.email,
+            (Map<String, Object>) (changes.get('payload') ?: this.event.payload),
+            (UserDomainEventType) changes.get('type') ?: this.event.type,
+            (UUID) changes.get('operationId') ?: this.event.operationId,
+            (Long) changes.get('dateCreated') ?: this.event.dateCreated
+        )
+    }
+}

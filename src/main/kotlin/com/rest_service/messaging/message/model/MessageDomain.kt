@@ -8,20 +8,16 @@ import com.rest_service.messaging.message.infrastructure.MessageDomainEvent
 import java.util.UUID
 import reactor.core.publisher.Mono
 
-class MessageDomain(
-    var operationId: UUID,
-    var responsibleUserEmail: String,
-    val responsibleUserId: UUID,
-) : Domain {
+class MessageDomain(var operationId: UUID) : Domain {
     private var state: MessageState = MessageInCreationState(this)
-    var message: MessageDTO? = null
+    lateinit var message: MessageDTO
 
     override fun apply(event: DomainEvent): DomainEvent {
         return state.apply(event as MessageDomainEvent)
     }
 
-    override fun createResponseSagaEvent(): Mono<SagaEvent> {
-        return state.createResponseEvent()
+    override fun createResponseSagaEvent(sagaEvent: SagaEvent): Mono<SagaEvent> {
+        return state.createResponseEvent(sagaEvent)
     }
 
     fun changeState(newState: MessageState) {

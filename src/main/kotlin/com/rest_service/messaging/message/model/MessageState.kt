@@ -6,5 +6,5 @@ import reactor.core.publisher.Mono
 
 interface MessageState {
     fun apply(event: MessageDomainEvent): MessageDomainEvent
-    fun createResponseEvent(): Mono<SagaEvent>
+    fun createResponseEvent(sagaEvent: SagaEvent): Mono<SagaEvent>
 }

@@ -6,5 +6,5 @@ import reactor.core.publisher.Mono
 
 interface RoomState {
     fun apply(event: RoomDomainEvent): RoomDomainEvent
-    fun createResponseEvent(): Mono<SagaEvent>
+    fun createResponseEvent(sagaEvent: SagaEvent): Mono<SagaEvent>
 }

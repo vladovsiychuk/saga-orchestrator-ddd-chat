@@ -11,7 +11,7 @@ import reactor.kotlin.core.publisher.toMono
 class MessageUpdatedState(private val domain: MessageDomain) : MessageState {
     constructor(domain: MessageDomain, event: MessageDomainEvent) : this(domain) {
         val command = mapper.convertValue(event.payload, MessageUpdateCommand::class.java)
-        domain.message!!.content = command.content
+        domain.message.content = command.content
     }
 
     private val mapper = jacksonObjectMapper()
@@ -24,5 +24,5 @@ class MessageUpdatedState(private val domain: MessageDomain) : MessageState {
             }
     }
 
-    override fun createResponseEvent() = SagaEvent(SagaEventType.MESSAGE_UPDATE_APPROVED, domain.operationId, ServiceEnum.MESSAGE_SERVICE, domain.responsibleUserEmail, domain.responsibleUserId, domain.message!!).toMono()
+    override fun createResponseEvent(sagaEvent: SagaEvent) = SagaEvent(SagaEventType.MESSAGE_UPDATE_APPROVED, domain.operationId, ServiceEnum.MESSAGE_SERVICE, sagaEvent.responsibleUserId, domain.message).toMono()
 }

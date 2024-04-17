@@ -7,6 +7,7 @@ import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.command.MessageTranslateCommand
 import com.rest_service.commons.enums.SagaEventType
+import com.rest_service.messaging.message.infrastructure.MessageDomainEvent
 import com.rest_service.messaging.message.infrastructure.MessageDomainEventType
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Named
@@ -23,9 +24,9 @@ class MessageTranslateInitiatedEventHandler(
     private val mapper = jacksonObjectMapper()
     override fun checkOperationFailed(operationId: UUID) = messageStateManager.checkOperationFailed(operationId)
 
-    override fun rebuildDomain(event: SagaEvent): Mono<Domain> {
-        val command = mapper.convertValue(event.payload, MessageTranslateCommand::class.java)
-        return messageStateManager.rebuildMessage(command.messageId, event)
+    override fun rebuildDomainFromEvent(event: DomainEvent): Mono<Domain> {
+        event as MessageDomainEvent
+        return messageStateManager.rebuildMessage(event.messageId, event.operationId)
     }
 
     override fun mapDomainEvent(event: SagaEvent): DomainEvent {
@@ -33,9 +34,8 @@ class MessageTranslateInitiatedEventHandler(
         return messageStateManager.mapDomainEvent(command.messageId, MessageDomainEventType.MESSAGE_TRANSLATED, event)
     }
 
-    override fun saveEvent(event: DomainEvent): Mono<Boolean> {
-        return messageStateManager.saveEvent(event)
-            .thenReturn(true)
+    override fun saveEvent(event: DomainEvent): Mono<DomainEvent> {
+        return messageStateManager.saveEvent(event).map { it }
     }
 
     override fun handleError(event: SagaEvent, error: Throwable): Mono<Void> {

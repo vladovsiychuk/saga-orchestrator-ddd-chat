@@ -8,7 +8,6 @@ data class SagaEvent(
     val type: SagaEventType,
     val operationId: UUID,
     val responsibleService: ServiceEnum,
-    val responsibleUserEmail: String,
-    val responsibleUserId: UUID?,
+    val responsibleUserId: UUID,
     val payload: Any,
 )

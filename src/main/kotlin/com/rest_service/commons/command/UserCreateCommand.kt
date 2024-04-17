@@ -4,7 +4,6 @@ import com.rest_service.commons.enums.LanguageEnum
 import com.rest_service.commons.enums.UserType
 import com.rest_service.commons.exception.IncorrectInputException
 import io.micronaut.core.annotation.Introspected
-import java.util.UUID
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
@@ -15,7 +14,6 @@ data class UserCreateCommand(
     val email: String,
     val primaryLanguage: LanguageEnum,
     var translationLanguages: Set<LanguageEnum>?,
-    val temporaryId: UUID,
 ) : Command {
     fun validate(): Mono<Boolean> {
         return if (type == UserType.TRANSLATOR && translationLanguages!!.size < 2)

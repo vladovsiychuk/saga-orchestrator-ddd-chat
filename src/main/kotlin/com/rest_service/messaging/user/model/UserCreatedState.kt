@@ -8,6 +8,7 @@ import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.messaging.user.infrastructure.UserDomainEvent
 import com.rest_service.messaging.user.infrastructure.UserDomainEventType
+import java.util.UUID
 import reactor.kotlin.core.publisher.toMono
 
 class UserCreatedState(private val domain: UserDomain) : UserState {
@@ -15,10 +16,10 @@ class UserCreatedState(private val domain: UserDomain) : UserState {
         val command = mapper.convertValue(event.payload, UserCreateCommand::class.java)
 
         if (domain.operationId == event.operationId)
-            if (domain.responsibleUserEmail != command.email)
+            if (UUID.nameUUIDFromBytes(command.email.toByteArray()) != event.responsibleUserId)
                 throw RuntimeException("Responsible user doesn't have permissions to create the user")
 
-        domain.currentUser = UserDTO(command, event.userId!!, event.dateCreated)
+        domain.currentUser = UserDTO(command, event.userId, event.dateCreated)
     }
 
     private val mapper = jacksonObjectMapper()
@@ -37,5 +38,5 @@ class UserCreatedState(private val domain: UserDomain) : UserState {
         return event
     }
 
-    override fun createResponseEvent() = SagaEvent(SagaEventType.USER_CREATE_APPROVED, domain.operationId, ServiceEnum.USER_SERVICE, domain.responsibleUserEmail, domain.currentUser!!.id, domain.currentUser!!).toMono()
+    override fun createResponseEvent(sagaEvent: SagaEvent) = SagaEvent(SagaEventType.USER_CREATE_APPROVED, domain.operationId, ServiceEnum.USER_SERVICE, sagaEvent.responsibleUserId, domain.currentUser).toMono()
 }

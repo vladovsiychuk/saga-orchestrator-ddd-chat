@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono
 class MessageController(private val messageService: MessageService) {
     @Post("/")
     fun create(request: MessageCreateRequest): Mono<ResponseDTO> {
-        return messageService.startCreateRoom(request)
+        return messageService.startCreateMessage(request)
     }
 
     @Put("/{messageId}")

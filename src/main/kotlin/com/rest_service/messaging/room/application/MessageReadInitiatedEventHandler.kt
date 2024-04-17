@@ -8,6 +8,7 @@ import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.client.ViewServiceFetcher
 import com.rest_service.commons.command.MessageReadCommand
 import com.rest_service.commons.enums.SagaEventType
+import com.rest_service.messaging.room.infrastructure.RoomDomainEvent
 import com.rest_service.messaging.room.infrastructure.RoomDomainEventType
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Named
@@ -25,10 +26,9 @@ class MessageReadInitiatedEventHandler(
     private val mapper = jacksonObjectMapper()
     override fun checkOperationFailed(operationId: UUID) = roomStateManager.checkOperationFailed(operationId)
 
-    override fun rebuildDomain(event: SagaEvent): Mono<Domain> {
-        val command = mapper.convertValue(event.payload, MessageReadCommand::class.java)
-        return viewServiceFetcher.getMessage(command.messageId)
-            .flatMap { message -> roomStateManager.rebuildRoom(message.roomId, event) }
+    override fun rebuildDomainFromEvent(event: DomainEvent): Mono<Domain> {
+        event as RoomDomainEvent
+        return roomStateManager.rebuildRoom(event.roomId, event.operationId)
     }
 
     override fun mapDomainEvent(event: SagaEvent): DomainEvent {
@@ -41,9 +41,8 @@ class MessageReadInitiatedEventHandler(
             .block()!!
     }
 
-    override fun saveEvent(event: DomainEvent): Mono<Boolean> {
-        return roomStateManager.saveEvent(event)
-            .thenReturn(true)
+    override fun saveEvent(event: DomainEvent): Mono<DomainEvent> {
+        return roomStateManager.saveEvent(event).map { it }
     }
 
     override fun handleError(event: SagaEvent, error: Throwable): Mono<Void> {

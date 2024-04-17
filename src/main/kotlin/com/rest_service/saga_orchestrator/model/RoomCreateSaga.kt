@@ -10,7 +10,6 @@ import java.util.UUID
 
 class RoomCreateSaga(
     val operationId: UUID,
-    val responsibleUserEmail: String,
     private val responsibleUserId: UUID,
 ) : AbstractSagaStateManager<RoomCreateCommand, RoomDTO>() {
     private val mapper = jacksonObjectMapper()
@@ -33,11 +32,11 @@ class RoomCreateSaga(
     override fun mainDomainService() = ServiceEnum.ROOM_SERVICE
 
     override fun createInitiatedResponseEvent() =
-        SagaEvent(SagaEventType.ROOM_CREATE_INITIATED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, responsibleUserId, command)
+        SagaEvent(SagaEventType.ROOM_CREATE_INITIATED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, command)
 
     override fun createCompletedResponseEvent() =
-        SagaEvent(SagaEventType.ROOM_CREATE_COMPLETED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, responsibleUserId, dto)
+        SagaEvent(SagaEventType.ROOM_CREATE_COMPLETED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, dto)
 
     override fun createErrorResponseEvent() =
-        SagaEvent(SagaEventType.ROOM_CREATE_ERROR, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, responsibleUserId, errorDto!!)
+        SagaEvent(SagaEventType.ROOM_CREATE_ERROR, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, errorDto!!)
 }

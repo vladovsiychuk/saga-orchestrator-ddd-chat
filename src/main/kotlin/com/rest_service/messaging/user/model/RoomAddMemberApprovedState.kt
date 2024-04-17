@@ -7,7 +7,7 @@ import com.rest_service.messaging.user.infrastructure.UserDomainEvent
 import reactor.kotlin.core.publisher.toMono
 
 class RoomAddMemberApprovedState(private val domain: UserDomain) : UserState {
-    override fun createResponseEvent() = SagaEvent(SagaEventType.ROOM_ADD_MEMBER_APPROVED, domain.operationId, ServiceEnum.USER_SERVICE, domain.responsibleUserEmail, domain.responsibleUserId!!, domain.currentUser!!).toMono()
+    override fun createResponseEvent(sagaEvent: SagaEvent) = SagaEvent(SagaEventType.ROOM_ADD_MEMBER_APPROVED, domain.operationId, ServiceEnum.USER_SERVICE, sagaEvent.responsibleUserId, domain.currentUser).toMono()
     override fun apply(event: UserDomainEvent) = run {
         UserCreatedState(domain)
             .let {

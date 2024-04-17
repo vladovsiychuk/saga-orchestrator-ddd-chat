@@ -32,5 +32,5 @@ class RoomCreatedState(private val domain: RoomDomain) : RoomState {
         return event
     }
 
-    override fun createResponseEvent() = SagaEvent(SagaEventType.ROOM_CREATE_APPROVED, domain.operationId, ServiceEnum.ROOM_SERVICE, domain.responsibleUserEmail, domain.responsibleUserId, domain.room!!).toMono()
+    override fun createResponseEvent(sagaEvent: SagaEvent) = SagaEvent(SagaEventType.ROOM_CREATE_APPROVED, domain.operationId, ServiceEnum.ROOM_SERVICE, sagaEvent.responsibleUserId, domain.room).toMono()
 }

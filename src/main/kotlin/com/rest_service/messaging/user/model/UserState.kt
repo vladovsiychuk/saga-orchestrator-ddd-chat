@@ -6,5 +6,5 @@ import reactor.core.publisher.Mono
 
 interface UserState {
     fun apply(event: UserDomainEvent): UserDomainEvent
-    fun createResponseEvent(): Mono<SagaEvent>
+    fun createResponseEvent(sagaEvent: SagaEvent): Mono<SagaEvent>
 }

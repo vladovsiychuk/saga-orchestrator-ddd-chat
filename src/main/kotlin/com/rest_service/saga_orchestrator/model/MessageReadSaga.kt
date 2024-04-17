@@ -10,7 +10,6 @@ import java.util.UUID
 
 class MessageReadSaga(
     val operationId: UUID,
-    val responsibleUserEmail: String,
     private val responsibleUserId: UUID,
 ) : AbstractSagaStateManager<MessageReadCommand, MessageDTO>() {
     private val mapper = jacksonObjectMapper()
@@ -33,11 +32,11 @@ class MessageReadSaga(
     override fun mainDomainService() = ServiceEnum.MESSAGE_SERVICE
 
     override fun createInitiatedResponseEvent() =
-        SagaEvent(SagaEventType.MESSAGE_READ_INITIATED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, responsibleUserId, command)
+        SagaEvent(SagaEventType.MESSAGE_READ_INITIATED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, command)
 
     override fun createCompletedResponseEvent() =
-        SagaEvent(SagaEventType.MESSAGE_READ_COMPLETED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, responsibleUserId, dto)
+        SagaEvent(SagaEventType.MESSAGE_READ_COMPLETED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, dto)
 
     override fun createErrorResponseEvent() =
-        SagaEvent(SagaEventType.MESSAGE_READ_ERROR, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserEmail, responsibleUserId, errorDto!!)
+        SagaEvent(SagaEventType.MESSAGE_READ_ERROR, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, errorDto!!)
 }
