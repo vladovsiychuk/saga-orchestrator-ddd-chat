@@ -25,27 +25,20 @@ class RoomStateManager(
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
 ) {
     private val mapper = jacksonObjectMapper()
-    fun checkOperationFailed(operationId: UUID): Mono<Boolean> {
-        return repository.existsByOperationIdAndType(operationId, RoomDomainEventType.UNDO)
-            .flatMap {
-                if (it)
-                    return@flatMap Mono.empty()
-                else
-                    true.toMono()
-            }
-    }
 
     fun rebuildRoom(roomId: UUID, operationId: UUID): Mono<Domain> {
         return repository.findDomainEvents(roomId)
+            .takeUntil { it.operationId == operationId }
             .collectList()
             .flatMap { events ->
-                val roomDomain = RoomDomain(operationId)
-
-                events.toFlux()
-                    .takeUntil { event -> event.operationId == operationId }
-                    .concatMap { event -> roomDomain.apply(event).toMono().thenReturn(roomDomain) }
-                    .last()
-                    .defaultIfEmpty(roomDomain)
+                if (events.last().operationId != operationId)
+                    Mono.empty()
+                else
+                    events.toFlux()
+                        .reduce(RoomDomain(operationId)) { domain, event ->
+                            domain.apply(event)
+                            domain
+                        }
             }
     }
 
@@ -75,6 +68,16 @@ class RoomStateManager(
                 )
                 applicationEventPublisher.publishEventAsync(errorEvent)
                 Mono.error(error)
+            }
+    }
+
+    private fun checkOperationFailed(operationId: UUID): Mono<Boolean> {
+        return repository.existsByOperationIdAndType(operationId, RoomDomainEventType.UNDO)
+            .flatMap {
+                if (it)
+                    return@flatMap Mono.empty()
+                else
+                    true.toMono()
             }
     }
 }

@@ -25,27 +25,20 @@ class MessageStateManager(
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
 ) {
     private val mapper = jacksonObjectMapper()
-    fun checkOperationFailed(operationId: UUID): Mono<Boolean> {
-        return repository.existsByOperationIdAndType(operationId, MessageDomainEventType.UNDO)
-            .flatMap {
-                if (it)
-                    return@flatMap Mono.empty()
-                else
-                    true.toMono()
-            }
-    }
 
     fun rebuildMessage(messageId: UUID, operationId: UUID): Mono<Domain> {
         return repository.findDomainEvents(messageId)
+            .takeUntil { it.operationId == operationId }
             .collectList()
             .flatMap { events ->
-                val messageDomain = MessageDomain(operationId)
-
-                events.toFlux()
-                    .takeUntil { event -> event.operationId == operationId }
-                    .concatMap { event -> messageDomain.apply(event).toMono().thenReturn(messageDomain) }
-                    .last()
-                    .defaultIfEmpty(messageDomain)
+                if (events.last().operationId != operationId)
+                    Mono.empty()
+                else
+                    events.toFlux()
+                        .reduce(MessageDomain(operationId)) { domain, event ->
+                            domain.apply(event)
+                            domain
+                        }
             }
     }
 
@@ -75,6 +68,16 @@ class MessageStateManager(
                 )
                 applicationEventPublisher.publishEventAsync(errorEvent)
                 Mono.error(error)
+            }
+    }
+
+    private fun checkOperationFailed(operationId: UUID): Mono<Boolean> {
+        return repository.existsByOperationIdAndType(operationId, MessageDomainEventType.UNDO)
+            .flatMap {
+                if (it)
+                    return@flatMap Mono.empty()
+                else
+                    true.toMono()
             }
     }
 }

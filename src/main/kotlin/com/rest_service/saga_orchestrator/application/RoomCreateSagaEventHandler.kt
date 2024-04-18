@@ -9,9 +9,7 @@ import com.rest_service.saga_orchestrator.infrastructure.SagaDomainEvent
 import com.rest_service.saga_orchestrator.model.RoomCreateSaga
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
-import java.util.UUID
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 
 @Singleton
 class RoomCreateSagaEventHandler(
@@ -33,9 +31,5 @@ class RoomCreateSagaEventHandler(
 
     override fun handleError(event: SagaEvent, error: Throwable): Mono<Void> {
         return sagaStateManager.handleError(event, error, SagaEventType.ROOM_CREATE_REJECTED)
-    }
-
-    override fun checkOperationFailed(operationId: UUID): Mono<Boolean> {
-        return false.toMono()
     }
 }

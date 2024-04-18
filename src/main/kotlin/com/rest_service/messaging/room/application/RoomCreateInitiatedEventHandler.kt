@@ -19,8 +19,6 @@ class RoomCreateInitiatedEventHandler(
     applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val roomStateManager: RoomStateManager,
 ) : AbstractEventHandler(applicationEventPublisher) {
-    override fun checkOperationFailed(operationId: UUID) = roomStateManager.checkOperationFailed(operationId)
-
     override fun rebuildDomainFromEvent(event: DomainEvent): Mono<Domain> {
         event as RoomDomainEvent
         return roomStateManager.rebuildRoom(event.roomId, event.operationId)

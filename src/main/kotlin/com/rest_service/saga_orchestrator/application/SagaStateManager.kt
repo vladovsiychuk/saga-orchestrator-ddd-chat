@@ -22,15 +22,6 @@ class SagaStateManager(
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
 ) {
     private val mapper = jacksonObjectMapper()
-    fun checkOperationFailed(operationId: UUID, rejectType: SagaEventType): Mono<Boolean> {
-        return repository.existsByOperationIdAndType(operationId, rejectType)
-            .flatMap {
-                if (it)
-                    return@flatMap Mono.empty()
-                else
-                    true.toMono()
-            }
-    }
 
     fun rebuildSaga(event: SagaDomainEvent, domain: Domain): Mono<Domain> {
         return repository.findByOperationIdOrderByDateCreated(event.operationId)
@@ -43,7 +34,6 @@ class SagaStateManager(
                         domain.apply(event).toMono().thenReturn(domain)
                     }
                     .last()
-                    .defaultIfEmpty(domain)
             }
     }
 
@@ -67,6 +57,16 @@ class SagaStateManager(
                 )
                 applicationEventPublisher.publishEventAsync(errorEvent)
                 Mono.error(error)
+            }
+    }
+
+    private fun checkOperationFailed(operationId: UUID, rejectType: SagaEventType): Mono<Boolean> {
+        return repository.existsByOperationIdAndType(operationId, rejectType)
+            .flatMap {
+                if (it)
+                    return@flatMap Mono.empty()
+                else
+                    true.toMono()
             }
     }
 }

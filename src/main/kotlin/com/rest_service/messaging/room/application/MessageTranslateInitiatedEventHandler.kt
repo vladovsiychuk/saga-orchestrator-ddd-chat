@@ -13,7 +13,6 @@ import com.rest_service.messaging.room.infrastructure.RoomDomainEventType
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Named
 import jakarta.inject.Singleton
-import java.util.UUID
 import reactor.core.publisher.Mono
 
 @Singleton
@@ -24,8 +23,6 @@ class MessageTranslateInitiatedEventHandler(
     private val viewServiceFetcher: ViewServiceFetcher,
 ) : AbstractEventHandler(applicationEventPublisher) {
     private val mapper = jacksonObjectMapper()
-    override fun checkOperationFailed(operationId: UUID) = roomStateManager.checkOperationFailed(operationId)
-
     override fun rebuildDomainFromEvent(event: DomainEvent): Mono<Domain> {
         event as RoomDomainEvent
         return roomStateManager.rebuildRoom(event.roomId, event.operationId)

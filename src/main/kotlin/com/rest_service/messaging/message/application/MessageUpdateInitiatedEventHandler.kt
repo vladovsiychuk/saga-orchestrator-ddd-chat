@@ -12,7 +12,6 @@ import com.rest_service.messaging.message.infrastructure.MessageDomainEventType
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Named
 import jakarta.inject.Singleton
-import java.util.UUID
 import reactor.core.publisher.Mono
 
 @Singleton
@@ -22,8 +21,6 @@ class MessageUpdateInitiatedEventHandler(
     private val messageStateManager: MessageStateManager,
 ) : AbstractEventHandler(applicationEventPublisher) {
     private val mapper = jacksonObjectMapper()
-    override fun checkOperationFailed(operationId: UUID) = messageStateManager.checkOperationFailed(operationId)
-
     override fun rebuildDomainFromEvent(event: DomainEvent): Mono<Domain> {
         event as MessageDomainEvent
         return messageStateManager.rebuildMessage(event.messageId, event.operationId)

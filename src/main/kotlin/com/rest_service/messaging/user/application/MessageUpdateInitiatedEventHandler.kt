@@ -10,7 +10,6 @@ import com.rest_service.messaging.user.infrastructure.UserDomainEventType
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Named
 import jakarta.inject.Singleton
-import java.util.UUID
 import reactor.core.publisher.Mono
 
 @Singleton
@@ -19,8 +18,6 @@ class MessageUpdateInitiatedEventHandler(
     applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val userStateManager: UserStateManager,
 ) : AbstractEventHandler(applicationEventPublisher) {
-    override fun checkOperationFailed(operationId: UUID) = userStateManager.checkOperationFailed(operationId)
-
     override fun rebuildDomainFromEvent(event: DomainEvent): Mono<Domain> {
         event as UserDomainEvent
         return userStateManager.rebuildUser(event.userId, event.operationId)

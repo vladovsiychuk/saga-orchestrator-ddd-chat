@@ -25,27 +25,20 @@ class UserStateManager(
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
 ) {
     private val mapper = jacksonObjectMapper()
-    fun checkOperationFailed(operationId: UUID): Mono<Boolean> {
-        return repository.existsByOperationIdAndType(operationId, UserDomainEventType.UNDO)
-            .flatMap {
-                if (it)
-                    return@flatMap Mono.empty()
-                else
-                    true.toMono()
-            }
-    }
 
     fun rebuildUser(userId: UUID, operationId: UUID): Mono<Domain> {
         return repository.findDomainEvents(userId)
+            .takeUntil { it.operationId == operationId }
             .collectList()
             .flatMap { events ->
-                val userDomain = UserDomain(operationId)
-
-                events.toFlux()
-                    .takeUntil { event -> event.operationId == operationId }
-                    .concatMap { event -> userDomain.apply(event).toMono().thenReturn(userDomain) }
-                    .last()
-                    .defaultIfEmpty(userDomain)
+                if (events.last().operationId != operationId)
+                    Mono.empty()
+                else
+                    events.toFlux()
+                        .reduce(UserDomain(operationId)) { domain, event ->
+                            domain.apply(event)
+                            domain
+                        }
             }
     }
 
@@ -75,6 +68,16 @@ class UserStateManager(
                 )
                 applicationEventPublisher.publishEventAsync(errorEvent)
                 Mono.error(error)
+            }
+    }
+
+    private fun checkOperationFailed(operationId: UUID): Mono<Boolean> {
+        return repository.existsByOperationIdAndType(operationId, UserDomainEventType.UNDO)
+            .flatMap {
+                if (it)
+                    return@flatMap Mono.empty()
+                else
+                    true.toMono()
             }
     }
 }
