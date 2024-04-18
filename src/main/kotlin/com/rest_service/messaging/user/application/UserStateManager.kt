@@ -6,7 +6,6 @@ import com.rest_service.commons.Domain
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.dto.ErrorDTO
-import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.messaging.user.infrastructure.UserDomainEvent
 import com.rest_service.messaging.user.infrastructure.UserDomainEventRepository
@@ -56,11 +55,11 @@ class UserStateManager(
         return repository.save(event as UserDomainEvent)
     }
 
-    fun handleError(event: SagaEvent, error: Throwable, type: SagaEventType): Mono<Void> {
+    fun handleError(event: SagaEvent, error: Throwable): Mono<Void> {
         return checkOperationFailed(event.operationId)
             .flatMap {
                 val errorEvent = SagaEvent(
-                    type,
+                    event.type.rejectedEventType!!,
                     event.operationId,
                     ServiceEnum.USER_SERVICE,
                     event.responsibleUserId,

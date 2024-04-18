@@ -1,31 +1,61 @@
 package com.rest_service.messaging.user.application
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.rest_service.commons.AbstractEventHandler
+import com.rest_service.commons.Domain
+import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
+import com.rest_service.commons.command.RoomAddMemberCommand
+import com.rest_service.commons.command.RoomCreateCommand
 import com.rest_service.commons.enums.SagaEventType
+import com.rest_service.messaging.user.infrastructure.UserDomainEvent
+import com.rest_service.messaging.user.infrastructure.UserDomainEventType
+import io.micronaut.context.event.ApplicationEventPublisher
 import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.scheduling.annotation.Async
 import jakarta.inject.Singleton
+import reactor.core.publisher.Mono
 
 @Singleton
 open class UserActionListener(
-    private val userCreateInitiatedEventHandler: UserCreateInitiatedEventHandler,
-    private val roomCreateInitiatedEventHandler: RoomCreateInitiatedEventHandler,
-    private val roomAddMemberInitiatedEventHandler: RoomAddMemberInitiatedEventHandler,
-    private val messageUpdateInitiatedEventHandler: MessageUpdateInitiatedEventHandler,
-    private val messageReadInitiatedEventHandler: MessageReadInitiatedEventHandler,
-    private val messageTranslateInitiatedEventHandler: MessageTranslateInitiatedEventHandler,
     private val rejectEventHandler: RejectEventHandler,
+    private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
+    private val userStateManager: UserStateManager,
 ) {
+    private val mapper = jacksonObjectMapper()
+
     @EventListener
     @Async
     open fun messageActionListener(event: SagaEvent) {
         when (event.type) {
-            SagaEventType.USER_CREATE_INITIATED       -> userCreateInitiatedEventHandler.handleEvent(event)
-            SagaEventType.ROOM_CREATE_INITIATED       -> roomCreateInitiatedEventHandler.handleEvent(event)
-            SagaEventType.ROOM_ADD_MEMBER_INITIATED   -> roomAddMemberInitiatedEventHandler.handleEvent(event)
-            SagaEventType.MESSAGE_UPDATE_INITIATED    -> messageUpdateInitiatedEventHandler.handleEvent(event)
-            SagaEventType.MESSAGE_READ_INITIATED      -> messageReadInitiatedEventHandler.handleEvent(event)
-            SagaEventType.MESSAGE_TRANSLATE_INITIATED -> messageTranslateInitiatedEventHandler.handleEvent(event)
+            SagaEventType.USER_CREATE_INITIATED       -> handleEventWithMapper(event) {
+                userStateManager.mapDomainEvent(event.responsibleUserId, UserDomainEventType.USER_CREATED, event)
+            }
+
+            SagaEventType.ROOM_CREATE_INITIATED       -> handleEventWithMapper(event) {
+                val command = mapper.convertValue(event.payload, RoomCreateCommand::class.java)
+                userStateManager
+                    .mapDomainEvent(command.companionId, UserDomainEventType.ROOM_CREATE_APPROVED, event)
+            }
+
+            SagaEventType.ROOM_ADD_MEMBER_INITIATED   -> handleEventWithMapper(event) {
+                val command = mapper.convertValue(event.payload, RoomAddMemberCommand::class.java)
+                userStateManager
+                    .mapDomainEvent(command.memberId, UserDomainEventType.ROOM_ADD_MEMBER_APPROVED, event)
+            }
+
+            SagaEventType.MESSAGE_UPDATE_INITIATED    -> handleEventWithMapper(event) {
+                userStateManager.mapDomainEvent(event.responsibleUserId, UserDomainEventType.MESSAGE_UPDATE_APPROVED, event)
+            }
+
+            SagaEventType.MESSAGE_READ_INITIATED      -> handleEventWithMapper(event) {
+                userStateManager.mapDomainEvent(event.responsibleUserId, UserDomainEventType.MESSAGE_READ_APPROVED, event)
+            }
+
+            SagaEventType.MESSAGE_TRANSLATE_INITIATED -> handleEventWithMapper(event) {
+                userStateManager.mapDomainEvent(event.responsibleUserId, UserDomainEventType.MESSAGE_TRANSLATE_APPROVED, event)
+            }
+
             SagaEventType.USER_CREATE_REJECTED,
             SagaEventType.ROOM_CREATE_REJECTED,
             SagaEventType.ROOM_ADD_MEMBER_REJECTED,
@@ -35,5 +65,20 @@ open class UserActionListener(
 
             else                                      -> {}
         }
+    }
+
+    private fun handleEventWithMapper(event: SagaEvent, mapper: () -> DomainEvent) {
+        object : AbstractEventHandler(applicationEventPublisher) {
+            override fun rebuildDomainFromEvent(event: DomainEvent): Mono<Domain> {
+                event as UserDomainEvent
+                return userStateManager.rebuildUser(event.userId, event.operationId)
+            }
+
+            override fun mapDomainEvent(event: SagaEvent) = mapper()
+
+            override fun saveEvent(event: DomainEvent): Mono<DomainEvent> = userStateManager.saveEvent(event).map { it }
+
+            override fun handleError(event: SagaEvent, error: Throwable) = userStateManager.handleError(event, error)
+        }.handleEvent(event)
     }
 }
