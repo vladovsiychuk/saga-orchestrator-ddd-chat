@@ -1,6 +1,7 @@
 package com.rest_service.saga_orchestrator.web
 
 import com.rest_service.saga_orchestrator.web.request.MessageCreateRequest
+import com.rest_service.saga_orchestrator.web.request.MessageTranslateRequest
 import com.rest_service.saga_orchestrator.web.request.MessageUpdateRequest
 import com.rest_service.saga_orchestrator.web.service.MessageService
 import io.micronaut.http.annotation.Body
@@ -28,5 +29,10 @@ class MessageController(private val messageService: MessageService) {
     @Put("/{id}/read")
     fun read(id: UUID): Mono<ResponseDTO> {
         return messageService.read(id)
+    }
+
+    @Put("/{id}/translate")
+    fun translate(@Body command: MessageTranslateRequest, id: UUID): Mono<ResponseDTO> {
+        return messageService.translate(command, id)
     }
 }

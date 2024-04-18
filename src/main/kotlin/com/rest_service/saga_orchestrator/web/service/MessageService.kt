@@ -3,12 +3,14 @@ package com.rest_service.saga_orchestrator.web.service
 import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.command.MessageCreateCommand
 import com.rest_service.commons.command.MessageReadCommand
+import com.rest_service.commons.command.MessageTranslateCommand
 import com.rest_service.commons.command.MessageUpdateCommand
 import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.saga_orchestrator.infrastructure.SecurityManager
 import com.rest_service.saga_orchestrator.web.ResponseDTO
 import com.rest_service.saga_orchestrator.web.request.MessageCreateRequest
+import com.rest_service.saga_orchestrator.web.request.MessageTranslateRequest
 import com.rest_service.saga_orchestrator.web.request.MessageUpdateRequest
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
@@ -66,6 +68,21 @@ class MessageService(
                     ServiceEnum.SAGA_SERVICE,
                     UUID.nameUUIDFromBytes(currentUserEmail.toByteArray()),
                     MessageReadCommand(messageId)
+                )
+            }
+            .doOnNext { applicationEventPublisher.publishEventAsync(it) }
+            .map { ResponseDTO(it.operationId) }
+    }
+
+    fun translate(command: MessageTranslateRequest, messageId: UUID): Mono<ResponseDTO> {
+        return securityManager.getCurrentUserEmail().toMono()
+            .map { currentUserEmail ->
+                SagaEvent(
+                    SagaEventType.MESSAGE_TRANSLATE_START,
+                    UUID.randomUUID(),
+                    ServiceEnum.SAGA_SERVICE,
+                    UUID.nameUUIDFromBytes(currentUserEmail.toByteArray()),
+                    MessageTranslateCommand(messageId, command.translation, command.language)
                 )
             }
             .doOnNext { applicationEventPublisher.publishEventAsync(it) }
