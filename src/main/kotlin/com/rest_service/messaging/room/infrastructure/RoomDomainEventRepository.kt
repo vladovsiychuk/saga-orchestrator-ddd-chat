@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono
 @R2dbcRepository(dialect = Dialect.MYSQL)
 interface RoomDomainEventRepository : ReactorCrudRepository<RoomDomainEvent, UUID> {
     fun save(sagaEvent: RoomDomainEvent): Mono<RoomDomainEvent>
-    fun findByOperationIdOrderByDateCreated(operationId: UUID): Flux<RoomDomainEvent>
     fun existsByOperationIdAndType(operationId: UUID, type: RoomDomainEventType): Mono<Boolean>
 
     @Query(

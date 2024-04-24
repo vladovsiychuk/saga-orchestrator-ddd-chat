@@ -15,19 +15,6 @@ interface UserDomainEventRepository : ReactorCrudRepository<UserDomainEvent, UUI
     @Query(
         """
             SELECT * FROM user_domain_event
-            WHERE email = :email
-            AND operation_id NOT IN (
-                SELECT operation_id FROM user_domain_event
-                WHERE type = 'UNDO'
-            )
-            ORDER BY date_created
-        """
-    )
-    fun findDomainEvents(email: String): Flux<UserDomainEvent>
-
-    @Query(
-        """
-            SELECT * FROM user_domain_event
             WHERE user_id = :userId
             AND operation_id NOT IN (
                 SELECT operation_id FROM user_domain_event

@@ -19,7 +19,7 @@ data class MessageDTO(
     val dateCreated: Long,
 ) : DTO {
     constructor(command: MessageCreateCommand, event: MessageDomainEvent) : this(
-        event.messageId!!,
+        event.messageId,
         command.roomId,
         event.responsibleUserId,
         command.content,
