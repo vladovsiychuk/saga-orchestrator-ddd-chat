@@ -3,6 +3,7 @@ package com.rest_service.saga_orchestrator.model
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.command.UserCreateCommand
+import com.rest_service.commons.dto.DTO
 import com.rest_service.commons.dto.UserDTO
 import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
@@ -13,6 +14,7 @@ class UserCreateSaga(
     val responsibleUserId: UUID,
 ) : AbstractSagaStateManager<UserCreateCommand, UserDTO>() {
     private val mapper = jacksonObjectMapper()
+
     override fun startEvent() = SagaEventType.USER_CREATE_START
     override fun approveEvent() = SagaEventType.USER_CREATE_APPROVED
     override fun rejectEvent() = SagaEventType.USER_CREATE_REJECTED
@@ -34,4 +36,8 @@ class UserCreateSaga(
 
     override fun createErrorResponseEvent() =
         SagaEvent(SagaEventType.USER_CREATE_ERROR, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, errorDto!!)
+
+    override fun toDto(): DTO {
+        return object : DTO {}
+    }
 }

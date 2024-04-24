@@ -2,11 +2,9 @@ package com.rest_service.messaging.message.application
 
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.rest_service.commons.Domain
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.dto.ErrorDTO
-import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.messaging.message.infrastructure.MessageDomainEvent
 import com.rest_service.messaging.message.infrastructure.MessageDomainEventRepository
@@ -16,7 +14,6 @@ import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
@@ -26,19 +23,12 @@ class MessageStateManager(
 ) {
     private val mapper = jacksonObjectMapper()
 
-    fun rebuildMessage(messageId: UUID, operationId: UUID): Mono<Domain> {
+    fun rebuildMessage(messageId: UUID, operationId: UUID): Mono<MessageDomain> {
         return repository.findDomainEvents(messageId)
             .takeUntil { it.operationId == operationId }
-            .collectList()
-            .flatMap { events ->
-                if (events.last().operationId != operationId)
-                    Mono.empty()
-                else
-                    events.toFlux()
-                        .reduce(MessageDomain(operationId)) { domain, event ->
-                            domain.apply(event)
-                            domain
-                        }
+            .reduce(MessageDomain(operationId)) { domain, event ->
+                domain.apply(event)
+                domain
             }
     }
 
@@ -56,11 +46,11 @@ class MessageStateManager(
         return repository.save(event as MessageDomainEvent)
     }
 
-    fun handleError(event: SagaEvent, error: Throwable, type: SagaEventType): Mono<Void> {
+    fun handleError(event: SagaEvent, error: Throwable): Mono<Void> {
         return checkOperationFailed(event.operationId)
             .flatMap {
                 val errorEvent = SagaEvent(
-                    type,
+                    event.type.rejectedEventType!!,
                     event.operationId,
                     ServiceEnum.MESSAGE_SERVICE,
                     event.responsibleUserId,

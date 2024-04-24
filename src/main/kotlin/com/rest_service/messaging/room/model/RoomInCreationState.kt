@@ -1,6 +1,5 @@
 package com.rest_service.messaging.room.model
 
-import com.rest_service.commons.SagaEvent
 import com.rest_service.messaging.room.infrastructure.RoomDomainEvent
 import com.rest_service.messaging.room.infrastructure.RoomDomainEventType
 
@@ -14,6 +13,4 @@ class RoomInCreationState(private val domain: RoomDomain) : RoomState {
 
         return event
     }
-
-    override fun createResponseEvent(sagaEvent: SagaEvent) = throw UnsupportedOperationException("No next event for room in creation state.")
 }

@@ -8,6 +8,7 @@ import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.command.RoomAddMemberCommand
 import com.rest_service.commons.command.RoomCreateCommand
 import com.rest_service.commons.enums.SagaEventType
+import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.messaging.user.infrastructure.UserDomainEvent
 import com.rest_service.messaging.user.infrastructure.UserDomainEventType
 import io.micronaut.context.event.ApplicationEventPublisher
@@ -15,6 +16,7 @@ import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.scheduling.annotation.Async
 import jakarta.inject.Singleton
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 
 @Singleton
 open class UserActionListener(
@@ -67,18 +69,22 @@ open class UserActionListener(
         }
     }
 
-    private fun handleEventWithMapper(event: SagaEvent, mapper: () -> DomainEvent) {
+    private fun handleEventWithMapper(sagaEvent: SagaEvent, mapper: () -> DomainEvent) {
         object : AbstractEventHandler(applicationEventPublisher) {
-            override fun rebuildDomainFromEvent(event: DomainEvent): Mono<Domain> {
-                event as UserDomainEvent
-                return userStateManager.rebuildUser(event.userId, event.operationId)
+            override fun rebuildDomainFromEvent(domainEvent: DomainEvent): Mono<Domain> {
+                domainEvent as UserDomainEvent
+                return userStateManager.rebuildUser(domainEvent.userId, domainEvent.operationId).map { it }
             }
 
-            override fun mapDomainEvent(event: SagaEvent) = mapper()
+            override fun mapDomainEvent() = mapper().toMono()
 
-            override fun saveEvent(event: DomainEvent): Mono<DomainEvent> = userStateManager.saveEvent(event).map { it }
+            override fun saveEvent(domainEvent: DomainEvent): Mono<DomainEvent> = userStateManager.saveEvent(domainEvent).map { it }
 
-            override fun handleError(event: SagaEvent, error: Throwable) = userStateManager.handleError(event, error)
-        }.handleEvent(event)
+            override fun handleError(error: Throwable) = userStateManager.handleError(sagaEvent, error)
+
+            override fun createResponseSagaEvent(domain: Domain) =
+                SagaEvent(sagaEvent.type.approvedEventType!!, sagaEvent.operationId, ServiceEnum.USER_SERVICE, sagaEvent.responsibleUserId, domain.toDto()).toMono()
+
+        }.handleEvent(sagaEvent)
     }
 }

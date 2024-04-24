@@ -1,8 +1,7 @@
 package com.rest_service.commons
 
-import reactor.core.publisher.Mono
+import com.rest_service.commons.dto.DTO
 
 interface Domain {
-    fun apply(event: DomainEvent): DomainEvent
-    fun createResponseSagaEvent(sagaEvent: SagaEvent): Mono<SagaEvent>
+    fun toDto(): DTO
 }

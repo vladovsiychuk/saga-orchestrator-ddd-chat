@@ -2,7 +2,6 @@ package com.rest_service.messaging.user.application
 
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.rest_service.commons.Domain
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.dto.ErrorDTO
@@ -15,7 +14,6 @@ import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
@@ -25,19 +23,12 @@ class UserStateManager(
 ) {
     private val mapper = jacksonObjectMapper()
 
-    fun rebuildUser(userId: UUID, operationId: UUID): Mono<Domain> {
+    fun rebuildUser(userId: UUID, operationId: UUID): Mono<UserDomain> {
         return repository.findDomainEvents(userId)
             .takeUntil { it.operationId == operationId }
-            .collectList()
-            .flatMap { events ->
-                if (events.last().operationId != operationId)
-                    Mono.empty()
-                else
-                    events.toFlux()
-                        .reduce(UserDomain(operationId)) { domain, event ->
-                            domain.apply(event)
-                            domain
-                        }
+            .reduce(UserDomain(operationId)) { domain, event ->
+                domain.apply(event)
+                domain
             }
     }
 

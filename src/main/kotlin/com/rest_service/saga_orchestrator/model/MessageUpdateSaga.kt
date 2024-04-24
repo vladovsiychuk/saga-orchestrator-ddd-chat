@@ -3,6 +3,7 @@ package com.rest_service.saga_orchestrator.model
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.command.MessageUpdateCommand
+import com.rest_service.commons.dto.DTO
 import com.rest_service.commons.dto.MessageDTO
 import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
@@ -39,4 +40,8 @@ class MessageUpdateSaga(
 
     override fun createErrorResponseEvent() =
         SagaEvent(SagaEventType.MESSAGE_UPDATE_ERROR, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, errorDto!!)
+
+    override fun toDto(): DTO {
+        return object : DTO {}
+    }
 }

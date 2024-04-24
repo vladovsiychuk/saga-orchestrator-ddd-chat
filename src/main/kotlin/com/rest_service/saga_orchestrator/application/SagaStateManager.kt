@@ -9,6 +9,7 @@ import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.saga_orchestrator.infrastructure.SagaDomainEvent
 import com.rest_service.saga_orchestrator.infrastructure.SagaEventRepository
+import com.rest_service.saga_orchestrator.model.AbstractSagaStateManager
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import java.util.UUID
@@ -23,8 +24,9 @@ class SagaStateManager(
 ) {
     private val mapper = jacksonObjectMapper()
 
-    fun rebuildSaga(event: SagaDomainEvent, domain: Domain): Mono<Domain> {
+    fun rebuildSaga(event: SagaDomainEvent, domain: AbstractSagaStateManager<*, *>): Mono<Domain> {
         return repository.findByOperationIdOrderByDateCreated(event.operationId)
+            .takeUntil { it.id == event.id }
             .collectList()
             .flatMap { events ->
 
@@ -45,11 +47,11 @@ class SagaStateManager(
         return repository.save(event as SagaDomainEvent)
     }
 
-    fun handleError(event: SagaEvent, error: Throwable, type: SagaEventType): Mono<Void> {
-        return checkOperationFailed(event.operationId, type)
+    fun handleError(event: SagaEvent, error: Throwable): Mono<Void> {
+        return checkOperationFailed(event.operationId, event.type.rejectedEventType!!)
             .flatMap {
                 val errorEvent = SagaEvent(
-                    type,
+                    event.type.rejectedEventType,
                     event.operationId,
                     ServiceEnum.SAGA_SERVICE,
                     event.responsibleUserId,

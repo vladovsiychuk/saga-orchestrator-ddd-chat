@@ -1,15 +1,11 @@
 package com.rest_service.messaging.user.model
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.rest_service.commons.SagaEvent
 import com.rest_service.commons.command.UserCreateCommand
 import com.rest_service.commons.dto.UserDTO
-import com.rest_service.commons.enums.SagaEventType
-import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.messaging.user.infrastructure.UserDomainEvent
 import com.rest_service.messaging.user.infrastructure.UserDomainEventType
 import java.util.UUID
-import reactor.kotlin.core.publisher.toMono
 
 class UserCreatedState(private val domain: UserDomain) : UserState {
     constructor(domain: UserDomain, event: UserDomainEvent) : this(domain) {
@@ -37,6 +33,4 @@ class UserCreatedState(private val domain: UserDomain) : UserState {
 
         return event
     }
-
-    override fun createResponseEvent(sagaEvent: SagaEvent) = SagaEvent(SagaEventType.USER_CREATE_APPROVED, domain.operationId, ServiceEnum.USER_SERVICE, sagaEvent.responsibleUserId, domain.currentUser).toMono()
 }
