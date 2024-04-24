@@ -85,6 +85,6 @@ open class UserActionListener(
             override fun createResponseSagaEvent(domain: Domain) =
                 SagaEvent(sagaEvent.type.approvedEventType!!, sagaEvent.operationId, ServiceEnum.USER_SERVICE, sagaEvent.responsibleUserId, domain.toDto()).toMono()
 
-        }.handleEvent(sagaEvent)
+        }.handleEvent()
     }
 }

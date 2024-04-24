@@ -77,6 +77,6 @@ open class MessageActionListener(
             override fun createResponseSagaEvent(domain: Domain) =
                 SagaEvent(sagaEvent.type.approvedEventType!!, sagaEvent.operationId, ServiceEnum.MESSAGE_SERVICE, sagaEvent.responsibleUserId, domain.toDto()).toMono()
 
-        }.handleEvent(sagaEvent)
+        }.handleEvent()
     }
 }

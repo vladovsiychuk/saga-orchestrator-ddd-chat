@@ -10,7 +10,7 @@ abstract class AbstractEventHandler(private val applicationEventPublisher: Appli
     protected abstract fun handleError(error: Throwable): Mono<Void>
     protected abstract fun createResponseSagaEvent(domain: Domain): Mono<SagaEvent>
 
-    fun handleEvent(sagaEvent: SagaEvent) {
+    fun handleEvent() {
         mapDomainEvent()
             .flatMap { domainEvent -> saveEvent(domainEvent) }
             .flatMap { savedEvent -> rebuildDomainFromEvent(savedEvent) }

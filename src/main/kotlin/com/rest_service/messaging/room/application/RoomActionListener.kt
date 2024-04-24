@@ -96,6 +96,6 @@ open class RoomActionListener(
             override fun createResponseSagaEvent(domain: Domain) =
                 SagaEvent(sagaEvent.type.approvedEventType!!, sagaEvent.operationId, ServiceEnum.ROOM_SERVICE, sagaEvent.responsibleUserId, domain.toDto()).toMono()
 
-        }.handleEvent(sagaEvent)
+        }.handleEvent()
     }
 }

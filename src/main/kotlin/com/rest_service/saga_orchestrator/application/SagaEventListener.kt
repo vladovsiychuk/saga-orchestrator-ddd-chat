@@ -98,6 +98,6 @@ open class SagaEventListener(
             override fun createResponseSagaEvent(domain: Domain) =
                 (domain as AbstractSagaStateManager<*, *>).createResponseSagaEvent()
 
-        }.handleEvent(sagaEvent)
+        }.handleEvent()
     }
 }
