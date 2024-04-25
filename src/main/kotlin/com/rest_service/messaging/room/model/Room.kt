@@ -11,7 +11,7 @@ import com.rest_service.messaging.room.infrastructure.RoomDomainEvent
 import com.rest_service.messaging.room.infrastructure.RoomDomainEventType
 import java.util.UUID
 
-class Room(var operationId: UUID) : Domain {
+class Room : Domain {
     private var status = RoomStatus.IN_CREATION
     private lateinit var room: RoomData
 
@@ -57,18 +57,17 @@ class Room(var operationId: UUID) : Domain {
 
     private fun checkForRoomCreatedStatus() {
         if (status != RoomStatus.CREATED)
-            throw RuntimeException("Room is not yet created. Operation id: $operationId")
+            throw RuntimeException("Room is not yet created.")
     }
 
     private fun checkForRoomInCreationStatus() {
         if (status != RoomStatus.IN_CREATION)
-            throw RuntimeException("Room is already created. Operation id: $operationId")
+            throw RuntimeException("Room is already created.")
     }
 
     private fun checkMembership(event: RoomDomainEvent) {
-        if (operationId == event.operationId)
-            if (event.responsibleUserId !in room.members)
-                throw RuntimeException("User with id ${event.responsibleUserId} is not a member of the room with id ${room.id}")
+        if (event.responsibleUserId !in room.members)
+            throw RuntimeException("User with id ${event.responsibleUserId} is not a member of the room with id ${room.id}")
     }
 
     override fun toDto(): DTO {

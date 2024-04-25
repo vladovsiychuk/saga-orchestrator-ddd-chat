@@ -14,7 +14,7 @@ import com.rest_service.messaging.message.infrastructure.MessageDomainEvent
 import com.rest_service.messaging.message.infrastructure.MessageDomainEventType
 import java.util.UUID
 
-class Message(var operationId: UUID) : Domain {
+class Message : Domain {
     private var status = MessageStatus.IN_CREATION
     private lateinit var message: MessageData
 
@@ -66,9 +66,8 @@ class Message(var operationId: UUID) : Domain {
         checkForMessageCreatedStatus()
         val command = mapper.convertValue(event.payload, MessageTranslateCommand::class.java)
 
-        if (operationId == event.operationId)
-            if (message.translations.any { it.language == command.language })
-                throw RuntimeException("Message with id ${message.id} is already translate to ${command.language}.")
+        if (message.translations.any { it.language == command.language })
+            throw RuntimeException("Message with id ${message.id} is already translate to ${command.language}.")
 
         val newTranslation = TranslationDTO(event.responsibleUserId, command.translation, command.language, false)
         message.translations.add(newTranslation)
@@ -76,12 +75,12 @@ class Message(var operationId: UUID) : Domain {
 
     private fun checkForMessageCreatedStatus() {
         if (status != MessageStatus.CREATED)
-            throw RuntimeException("Message is not yet created. Operation id: $operationId")
+            throw RuntimeException("Message is not yet created.")
     }
 
     private fun checkForMessageInCreationStatus() {
         if (status != MessageStatus.IN_CREATION)
-            throw RuntimeException("Message is already created. Operation id: $operationId")
+            throw RuntimeException("Message is already created.")
     }
 
     override fun toDto(): DTO {

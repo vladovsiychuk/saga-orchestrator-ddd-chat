@@ -26,7 +26,7 @@ class RoomStateManager(
     fun rebuildRoom(roomId: UUID, operationId: UUID): Mono<Room> {
         return repository.findDomainEvents(roomId)
             .takeUntil { it.operationId == operationId }
-            .reduce(Room(operationId)) { domain, event ->
+            .reduce(Room()) { domain, event ->
                 domain.apply(event)
                 domain
             }

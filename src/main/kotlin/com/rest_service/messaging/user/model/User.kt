@@ -13,7 +13,7 @@ import com.rest_service.messaging.user.infrastructure.UserDomainEvent
 import com.rest_service.messaging.user.infrastructure.UserDomainEventType
 import java.util.UUID
 
-class User(val operationId: UUID) : Domain {
+class User : Domain {
     private var status = UserStatus.IN_CREATION
     private lateinit var user: UserData
 
@@ -39,9 +39,8 @@ class User(val operationId: UUID) : Domain {
         checkForUserInCreationStatus()
         val command = mapper.convertValue(event.payload, UserCreateCommand::class.java)
 
-        if (operationId == event.operationId)
-            if (UUID.nameUUIDFromBytes(command.email.toByteArray()) != event.responsibleUserId)
-                throw RuntimeException("Responsible user doesn't have permissions to create the user")
+        if (UUID.nameUUIDFromBytes(command.email.toByteArray()) != event.responsibleUserId)
+            throw RuntimeException("Responsible user doesn't have permissions to create the user")
 
         user = UserData(
             event.userId,
@@ -63,24 +62,23 @@ class User(val operationId: UUID) : Domain {
 
         val command = mapper.convertValue(event.payload, MessageTranslateCommand::class.java)
 
-        if (operationId == event.operationId)
-            when {
-                user.type != UserType.TRANSLATOR                        ->
-                    throw RuntimeException("User with id ${user.id} is not a translator.")
+        when {
+            user.type != UserType.TRANSLATOR                        ->
+                throw RuntimeException("User with id ${user.id} is not a translator.")
 
-                !user.translationLanguages!!.contains(command.language) ->
-                    throw RuntimeException("User with id ${user.id} cannot translate ${command.language}")
-            }
+            !user.translationLanguages!!.contains(command.language) ->
+                throw RuntimeException("User with id ${user.id} cannot translate ${command.language}")
+        }
     }
 
     private fun checkForUserCreatedStatus() {
         if (status != UserStatus.CREATED)
-            throw RuntimeException("User is not yet created. Operation id: $operationId")
+            throw RuntimeException("User is not yet created.")
     }
 
     private fun checkForUserInCreationStatus() {
         if (status != UserStatus.IN_CREATION)
-            throw RuntimeException("User is already created. Operation id: $operationId")
+            throw RuntimeException("User is already created.")
     }
 
     override fun toDto(): DTO {

@@ -26,7 +26,7 @@ class UserStateManager(
     fun rebuildUser(userId: UUID, operationId: UUID): Mono<User> {
         return repository.findDomainEvents(userId)
             .takeUntil { it.operationId == operationId }
-            .reduce(User(operationId)) { domain, event ->
+            .reduce(User()) { domain, event ->
                 domain.apply(event)
                 domain
             }

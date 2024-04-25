@@ -26,7 +26,7 @@ class MessageStateManager(
     fun rebuildMessage(messageId: UUID, operationId: UUID): Mono<Message> {
         return repository.findDomainEvents(messageId)
             .takeUntil { it.operationId == operationId }
-            .reduce(Message(operationId)) { domain, event ->
+            .reduce(Message()) { domain, event ->
                 domain.apply(event)
                 domain
             }
