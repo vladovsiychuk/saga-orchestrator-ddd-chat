@@ -5,7 +5,6 @@ import com.rest_service.commons.Domain
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.command.MessageTranslateCommand
 import com.rest_service.commons.command.UserCreateCommand
-import com.rest_service.commons.dto.DTO
 import com.rest_service.commons.dto.UserDTO
 import com.rest_service.commons.enums.LanguageEnum
 import com.rest_service.commons.enums.UserType
@@ -81,7 +80,7 @@ class User : Domain {
             throw RuntimeException("User is already created.")
     }
 
-    override fun toDto(): DTO {
+    override fun toDto(): UserDTO {
         return UserDTO(
             user.id,
             user.username,

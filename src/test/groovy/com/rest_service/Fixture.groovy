@@ -5,7 +5,7 @@ import com.rest_service.commons.enums.UserType
 
 class Fixture {
     static Map anyValidUserCreateCommand() {
-        ["type": UserType.REGULAR_USER, "email": "example@test.com", "primaryLanguage": LanguageEnum.ENGLISH, "temporaryId": UUID.randomUUID()]
+        ["type": UserType.REGULAR_USER, "email": "example@test.com", "primaryLanguage": LanguageEnum.ENGLISH]
     }
 
     static Map anyValidRoomCreateCommand() {

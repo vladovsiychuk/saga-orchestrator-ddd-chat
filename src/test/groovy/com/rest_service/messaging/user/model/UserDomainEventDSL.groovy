@@ -8,10 +8,10 @@ class UserDomainEventDSL {
     UserDomainEvent event = new UserDomainEvent(
         UUID.randomUUID(),
         UUID.randomUUID(),
-        "example@test.com",
         [:],
         UserDomainEventType.USER_CREATED,
-        UUID.fromString("423ec267-5523-448f-ad18-d3204dfa3f08"),
+        UUID.randomUUID(),
+        UUID.nameUUIDFromBytes("example@test.com".bytes),
         123123
     )
 
@@ -33,16 +33,7 @@ class UserDomainEventDSL {
     }
 
     UserDomainEventDSL withPayload(Map payload) {
-        return this
-    }
-
-    UserDomainEventDSL from(String userEmail) {
-        event.email = userEmail
-        return this
-    }
-
-    UserDomainEventDSL withOperationId(UUID operationId) {
-        event.operationId = operationId
+        event = copyWith(payload: payload)
         return this
     }
 
@@ -50,10 +41,10 @@ class UserDomainEventDSL {
         new UserDomainEvent(
             (UUID) changes.get('eventId') ?: this.event.eventId,
             (UUID) changes.get('userId') ?: this.event.userId,
-            (String) changes.get('email') ?: this.event.email,
             (Map<String, Object>) (changes.get('payload') ?: this.event.payload),
             (UserDomainEventType) changes.get('type') ?: this.event.type,
             (UUID) changes.get('operationId') ?: this.event.operationId,
+            (UUID) changes.get('responsibleUserId') ?: this.event.responsibleUserId,
             (Long) changes.get('dateCreated') ?: this.event.dateCreated
         )
     }

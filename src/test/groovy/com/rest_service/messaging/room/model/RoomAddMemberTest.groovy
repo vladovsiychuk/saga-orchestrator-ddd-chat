@@ -1,14 +1,13 @@
 package com.rest_service.messaging.room.model
 
-import com.rest_service.commons.enums.SagaEventType
 import spock.lang.Specification
 
 import static com.rest_service.Fixture.anyValidRoomAddMemberCommand
 import static com.rest_service.Fixture.anyValidRoomCreateCommand
 import static com.rest_service.messaging.room.infrastructure.RoomDomainEventType.ROOM_CREATED
 import static com.rest_service.messaging.room.infrastructure.RoomDomainEventType.ROOM_MEMBER_ADDED
-import static com.rest_service.messaging.room.model.RoomDomainDSL.aRoom
-import static com.rest_service.messaging.room.model.RoomDomainDSL.the
+import static com.rest_service.messaging.room.model.RoomDSL.aRoom
+import static com.rest_service.messaging.room.model.RoomDSL.the
 import static com.rest_service.messaging.room.model.RoomDomainEventDSL.anEvent
 
 class RoomAddMemberTest extends Specification {
@@ -31,10 +30,22 @@ class RoomAddMemberTest extends Specification {
         the room reactsTo roomAddMemberEvent
 
         then:
-        (the room responseEvent() type) == SagaEventType.ROOM_ADD_MEMBER_APPROVED
+        def roomData = (the room data())
+        roomData.members.size() > 1
+        roomData.members.contains(newMemberId)
+    }
 
-        and: 'new member is added to the room'
-        room.domain.room.members.size() > 1
-        room.domain.room.members.contains(newMemberId)
+    def 'should throw an error when trying to approve the room add member for not yet created room'() {
+        given: 'a room in InCreation state'
+        def user = aRoom()
+
+        and: 'request to approve the room creation'
+        def roomCreatedEvent = anEvent() ofType ROOM_MEMBER_ADDED withPayload anyValidRoomAddMemberCommand()
+
+        when:
+        the user reactsTo roomCreatedEvent
+
+        then:
+        thrown(RuntimeException)
     }
 }

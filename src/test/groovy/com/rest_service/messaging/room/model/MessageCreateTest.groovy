@@ -1,14 +1,13 @@
 package com.rest_service.messaging.room.model
 
-import com.rest_service.commons.enums.SagaEventType
 import spock.lang.Specification
 
+import static RoomDSL.aRoom
+import static RoomDSL.the
 import static com.rest_service.Fixture.anyValidMessageCreateCommand
 import static com.rest_service.Fixture.anyValidRoomCreateCommand
 import static com.rest_service.messaging.room.infrastructure.RoomDomainEventType.MESSAGE_CREATE_APPROVED
 import static com.rest_service.messaging.room.infrastructure.RoomDomainEventType.ROOM_CREATED
-import static com.rest_service.messaging.room.model.RoomDomainDSL.aRoom
-import static com.rest_service.messaging.room.model.RoomDomainDSL.the
 import static com.rest_service.messaging.room.model.RoomDomainEventDSL.anEvent
 
 class MessageCreateTest extends Specification {
@@ -26,6 +25,20 @@ class MessageCreateTest extends Specification {
         the room reactsTo messageCreateApprovedEvent
 
         then:
-        (the room responseEvent() type) == SagaEventType.MESSAGE_CREATE_APPROVED
+        (the room data()) != null
+    }
+
+    def 'should throw an error when trying to approve message creation on non-existing room'() {
+        given: 'a room in InCreation state'
+        def room = aRoom()
+
+        and: 'a message create command'
+        def messageCreateEvent = anEvent() ofType MESSAGE_CREATE_APPROVED withPayload anyValidMessageCreateCommand()
+
+        when:
+        the room reactsTo messageCreateEvent
+
+        then:
+        thrown(RuntimeException)
     }
 }

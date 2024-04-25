@@ -10,7 +10,7 @@ class RoomDomainEventDSL {
         [:],
         RoomDomainEventType.ROOM_CREATED,
         UUID.randomUUID(),
-        UUID.fromString("423ec267-5523-448f-ad18-d3204dfa3f08"),
+        UUID.randomUUID(),
         123123
     )
 
@@ -27,18 +27,30 @@ class RoomDomainEventDSL {
     }
 
     RoomDomainEventDSL ofType(RoomDomainEventType type) {
-        event.type = type
+        event = copyWith(type: type)
         return this
     }
 
     RoomDomainEventDSL withPayload(Map payload) {
-        event.payload = payload
+        event = copyWith(payload: payload)
         return this
     }
 
     RoomDomainEventDSL from(UUID userId) {
-        event.responsibleUserId = userId
+        event = copyWith(responsibleUserId: userId)
         return this
+    }
+
+    private RoomDomainEvent copyWith(Map changes) {
+        new RoomDomainEvent(
+            (UUID) changes.get('eventId') ?: this.event.eventId,
+            (UUID) changes.get('roomId') ?: this.event.roomId,
+            (Map<String, Object>) (changes.get('payload') ?: this.event.payload),
+            (RoomDomainEventType) changes.get('type') ?: this.event.type,
+            (UUID) changes.get('responsibleUserId') ?: this.event.responsibleUserId,
+            (UUID) changes.get('operationId') ?: this.event.operationId,
+            (Long) changes.get('dateCreated') ?: this.event.dateCreated
+        )
     }
 }
 

@@ -1,14 +1,14 @@
 package com.rest_service.messaging.room.model
 
-import com.rest_service.commons.enums.SagaEventType
+
 import spock.lang.Specification
 
+import static RoomDSL.aRoom
+import static RoomDSL.the
 import static com.rest_service.Fixture.anyValidMessageTranslateCommand
 import static com.rest_service.Fixture.anyValidRoomCreateCommand
 import static com.rest_service.messaging.room.infrastructure.RoomDomainEventType.MESSAGE_TRANSLATE_APPROVED
 import static com.rest_service.messaging.room.infrastructure.RoomDomainEventType.ROOM_CREATED
-import static com.rest_service.messaging.room.model.RoomDomainDSL.aRoom
-import static com.rest_service.messaging.room.model.RoomDomainDSL.the
 import static com.rest_service.messaging.room.model.RoomDomainEventDSL.anEvent
 
 class MessageTranslateTest extends Specification {
@@ -27,7 +27,7 @@ class MessageTranslateTest extends Specification {
         the room reactsTo messageTranslateApprovedEvent
 
         then:
-        (the room responseEvent() type) == SagaEventType.MESSAGE_TRANSLATE_APPROVED
+        (the room data()) != null
     }
 
     def 'should throw an error when a non-room member tries to translate the message'() {
@@ -43,6 +43,20 @@ class MessageTranslateTest extends Specification {
 
         when:
         the room reactsTo messageTranslateApprovedEvent
+
+        then:
+        thrown(RuntimeException)
+    }
+
+    def 'should throw an error when trying to approve the translation on non-existing room'() {
+        given: 'a room in InCreation state'
+        def room = aRoom()
+
+        and: 'a message translate command'
+        def messageTranslateEvent = anEvent() ofType MESSAGE_TRANSLATE_APPROVED withPayload anyValidMessageTranslateCommand()
+
+        when:
+        the room reactsTo messageTranslateEvent
 
         then:
         thrown(RuntimeException)

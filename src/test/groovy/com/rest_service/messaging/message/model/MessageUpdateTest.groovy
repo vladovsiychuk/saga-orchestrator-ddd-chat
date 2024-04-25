@@ -1,14 +1,14 @@
 package com.rest_service.messaging.message.model
 
-import com.rest_service.commons.enums.SagaEventType
+
 import spock.lang.Specification
 
+import static MessageDSL.aMessage
+import static MessageDSL.the
 import static com.rest_service.Fixture.anyValidMessageCreateCommand
 import static com.rest_service.Fixture.anyValidMessageUpdateCommand
 import static com.rest_service.messaging.message.infrastructure.MessageDomainEventType.MESSAGE_CREATED
 import static com.rest_service.messaging.message.infrastructure.MessageDomainEventType.MESSAGE_UPDATED
-import static com.rest_service.messaging.message.model.MessageDomainDSL.aMessage
-import static com.rest_service.messaging.message.model.MessageDomainDSL.the
 import static com.rest_service.messaging.message.model.MessageDomainEventDSL.anEvent
 
 class MessageUpdateTest extends Specification {
@@ -30,9 +30,6 @@ class MessageUpdateTest extends Specification {
         the message reactsTo messageUpdatedEvent
 
         then:
-        (the message responseEvent() type) == SagaEventType.MESSAGE_UPDATE_APPROVED
-
-        and:
-        message.domain.message.content == 'new content'
+        (the message data()).content == 'new content'
     }
 }

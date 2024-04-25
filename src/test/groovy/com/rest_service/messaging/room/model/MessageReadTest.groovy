@@ -1,14 +1,14 @@
 package com.rest_service.messaging.room.model
 
-import com.rest_service.commons.enums.SagaEventType
+
 import spock.lang.Specification
 
+import static RoomDSL.aRoom
+import static RoomDSL.the
 import static com.rest_service.Fixture.anyValidMessageReadCommand
 import static com.rest_service.Fixture.anyValidRoomCreateCommand
 import static com.rest_service.messaging.room.infrastructure.RoomDomainEventType.MESSAGE_READ_APPROVED
 import static com.rest_service.messaging.room.infrastructure.RoomDomainEventType.ROOM_CREATED
-import static com.rest_service.messaging.room.model.RoomDomainDSL.aRoom
-import static com.rest_service.messaging.room.model.RoomDomainDSL.the
 import static com.rest_service.messaging.room.model.RoomDomainEventDSL.anEvent
 
 class MessageReadTest extends Specification {
@@ -27,7 +27,7 @@ class MessageReadTest extends Specification {
         the room reactsTo messageReadApprovedEvent
 
         then:
-        (the room responseEvent() type) == SagaEventType.MESSAGE_READ_APPROVED
+        (the room data()) != null
     }
 
     def 'should throw an error when a non-room member tries to read the message'() {
@@ -43,6 +43,20 @@ class MessageReadTest extends Specification {
 
         when:
         the room reactsTo messageReadApprovedEvent
+
+        then:
+        thrown(RuntimeException)
+    }
+
+    def 'should throw an error when trying to approve the read on non-existing room'() {
+        given: 'a room in InCreation state'
+        def room = aRoom()
+
+        and: 'a message read command'
+        def messageReadEvent = anEvent() ofType MESSAGE_READ_APPROVED withPayload anyValidMessageReadCommand()
+
+        when:
+        the room reactsTo messageReadEvent
 
         then:
         thrown(RuntimeException)

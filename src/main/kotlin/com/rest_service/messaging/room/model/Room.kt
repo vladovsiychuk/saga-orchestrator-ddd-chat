@@ -5,7 +5,6 @@ import com.rest_service.commons.Domain
 import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.command.RoomAddMemberCommand
 import com.rest_service.commons.command.RoomCreateCommand
-import com.rest_service.commons.dto.DTO
 import com.rest_service.commons.dto.RoomDTO
 import com.rest_service.messaging.room.infrastructure.RoomDomainEvent
 import com.rest_service.messaging.room.infrastructure.RoomDomainEventType
@@ -70,7 +69,7 @@ class Room : Domain {
             throw RuntimeException("User with id ${event.responsibleUserId} is not a member of the room with id ${room.id}")
     }
 
-    override fun toDto(): DTO {
+    override fun toDto(): RoomDTO {
         return RoomDTO(
             room.id,
             room.name,

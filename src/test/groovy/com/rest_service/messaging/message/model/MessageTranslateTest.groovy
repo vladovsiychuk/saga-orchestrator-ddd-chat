@@ -1,15 +1,14 @@
 package com.rest_service.messaging.message.model
 
 import com.rest_service.commons.enums.LanguageEnum
-import com.rest_service.commons.enums.SagaEventType
 import spock.lang.Specification
 
+import static MessageDSL.aMessage
+import static MessageDSL.the
 import static com.rest_service.Fixture.anyValidMessageCreateCommand
 import static com.rest_service.Fixture.anyValidMessageTranslateCommand
 import static com.rest_service.messaging.message.infrastructure.MessageDomainEventType.MESSAGE_CREATED
 import static com.rest_service.messaging.message.infrastructure.MessageDomainEventType.MESSAGE_TRANSLATED
-import static com.rest_service.messaging.message.model.MessageDomainDSL.aMessage
-import static com.rest_service.messaging.message.model.MessageDomainDSL.the
 import static com.rest_service.messaging.message.model.MessageDomainEventDSL.anEvent
 
 class MessageTranslateTest extends Specification {
@@ -30,10 +29,7 @@ class MessageTranslateTest extends Specification {
         the message reactsTo messageTranslateEvent
 
         then:
-        (the message responseEvent() type) == SagaEventType.MESSAGE_TRANSLATE_APPROVED
-
-        and:
-        message.domain.message.translations.find { it.language == LanguageEnum.ENGLISH }.translation == 'new translation text'
+        (the message data()).translations.find { it.language == LanguageEnum.ENGLISH }.translation == 'new translation text'
     }
 
     def 'should throw an error when trying to translate the message to already translated language'() {
@@ -50,6 +46,20 @@ class MessageTranslateTest extends Specification {
         the message reactsTo messageTranslateEvent
 
         when: 'message react to the same translation'
+        the message reactsTo messageTranslateEvent
+
+        then:
+        thrown(RuntimeException)
+    }
+
+    def 'should throw an error when trying to translate an non-existing message'() {
+        given: 'a message in InCreation state'
+        def message = aMessage()
+
+        and: 'a message translate event'
+        def messageTranslateEvent = anEvent() ofType MESSAGE_TRANSLATED withPayload anyValidMessageTranslateCommand()
+
+        when:
         the message reactsTo messageTranslateEvent
 
         then:

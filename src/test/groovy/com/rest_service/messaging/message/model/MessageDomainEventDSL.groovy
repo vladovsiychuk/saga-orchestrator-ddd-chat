@@ -10,7 +10,7 @@ class MessageDomainEventDSL {
         [:],
         MessageDomainEventType.MESSAGE_CREATED,
         UUID.randomUUID(),
-        UUID.fromString("423ec267-5523-448f-ad18-d3204dfa3f08"),
+        UUID.randomUUID(),
         123123
     )
 
@@ -27,23 +27,30 @@ class MessageDomainEventDSL {
     }
 
     MessageDomainEventDSL ofType(MessageDomainEventType type) {
-        event.type = type
+        event = copyWith(type: type)
         return this
     }
 
     MessageDomainEventDSL withPayload(Map payload) {
-        event.payload = payload
-        return this
-    }
-
-    MessageDomainEventDSL withOperationId(UUID operationId) {
-        event.operationId = operationId
+        event = copyWith(payload: payload)
         return this
     }
 
     MessageDomainEventDSL from(UUID userId) {
-        event.responsibleUserId = userId
+        event = copyWith(responsibleUserId: userId)
         return this
+    }
+
+    private MessageDomainEvent copyWith(Map changes) {
+        new MessageDomainEvent(
+            (UUID) changes.get('eventId') ?: this.event.eventId,
+            (UUID) changes.get('messageId') ?: this.event.messageId,
+            (Map<String, Object>) (changes.get('payload') ?: this.event.payload),
+            (MessageDomainEventType) changes.get('type') ?: this.event.type,
+            (UUID) changes.get('responsibleUserId') ?: this.event.responsibleUserId,
+            (UUID) changes.get('operationId') ?: this.event.operationId,
+            (Long) changes.get('dateCreated') ?: this.event.dateCreated
+        )
     }
 }
 
