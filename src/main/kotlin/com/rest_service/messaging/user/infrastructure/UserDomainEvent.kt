@@ -1,6 +1,7 @@
 package com.rest_service.messaging.user.infrastructure
 
 import com.rest_service.commons.DomainEvent
+import com.rest_service.commons.TimeUtils
 import io.micronaut.data.annotation.AutoPopulated
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity

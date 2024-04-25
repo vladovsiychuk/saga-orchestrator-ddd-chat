@@ -1,4 +1,4 @@
-package com.rest_service.messaging.user.infrastructure
+package com.rest_service.commons
 
 import java.time.Clock
 import java.time.Instant

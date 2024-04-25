@@ -9,7 +9,7 @@ import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.messaging.room.infrastructure.RoomDomainEvent
 import com.rest_service.messaging.room.infrastructure.RoomDomainEventRepository
 import com.rest_service.messaging.room.infrastructure.RoomDomainEventType
-import com.rest_service.messaging.room.model.RoomDomain
+import com.rest_service.messaging.room.model.Room
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import java.util.UUID
@@ -23,10 +23,10 @@ class RoomStateManager(
 ) {
     private val mapper = jacksonObjectMapper()
 
-    fun rebuildRoom(roomId: UUID, operationId: UUID): Mono<RoomDomain> {
+    fun rebuildRoom(roomId: UUID, operationId: UUID): Mono<Room> {
         return repository.findDomainEvents(roomId)
             .takeUntil { it.operationId == operationId }
-            .reduce(RoomDomain(operationId)) { domain, event ->
+            .reduce(Room(operationId)) { domain, event ->
                 domain.apply(event)
                 domain
             }

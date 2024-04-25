@@ -9,7 +9,7 @@ import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.messaging.message.infrastructure.MessageDomainEvent
 import com.rest_service.messaging.message.infrastructure.MessageDomainEventRepository
 import com.rest_service.messaging.message.infrastructure.MessageDomainEventType
-import com.rest_service.messaging.message.model.MessageDomain
+import com.rest_service.messaging.message.model.Message
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import java.util.UUID
@@ -23,10 +23,10 @@ class MessageStateManager(
 ) {
     private val mapper = jacksonObjectMapper()
 
-    fun rebuildMessage(messageId: UUID, operationId: UUID): Mono<MessageDomain> {
+    fun rebuildMessage(messageId: UUID, operationId: UUID): Mono<Message> {
         return repository.findDomainEvents(messageId)
             .takeUntil { it.operationId == operationId }
-            .reduce(MessageDomain(operationId)) { domain, event ->
+            .reduce(Message(operationId)) { domain, event ->
                 domain.apply(event)
                 domain
             }

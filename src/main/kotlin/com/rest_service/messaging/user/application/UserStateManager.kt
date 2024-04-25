@@ -9,7 +9,7 @@ import com.rest_service.commons.enums.ServiceEnum
 import com.rest_service.messaging.user.infrastructure.UserDomainEvent
 import com.rest_service.messaging.user.infrastructure.UserDomainEventRepository
 import com.rest_service.messaging.user.infrastructure.UserDomainEventType
-import com.rest_service.messaging.user.model.UserDomain
+import com.rest_service.messaging.user.model.User
 import io.micronaut.context.event.ApplicationEventPublisher
 import jakarta.inject.Singleton
 import java.util.UUID
@@ -23,10 +23,10 @@ class UserStateManager(
 ) {
     private val mapper = jacksonObjectMapper()
 
-    fun rebuildUser(userId: UUID, operationId: UUID): Mono<UserDomain> {
+    fun rebuildUser(userId: UUID, operationId: UUID): Mono<User> {
         return repository.findDomainEvents(userId)
             .takeUntil { it.operationId == operationId }
-            .reduce(UserDomain(operationId)) { domain, event ->
+            .reduce(User(operationId)) { domain, event ->
                 domain.apply(event)
                 domain
             }
