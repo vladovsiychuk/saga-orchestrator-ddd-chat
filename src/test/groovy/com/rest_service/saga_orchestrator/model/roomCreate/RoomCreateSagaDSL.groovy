@@ -1,13 +1,12 @@
 package com.rest_service.saga_orchestrator.model.roomCreate
 
-import com.rest_service.commons.Domain
+
 import com.rest_service.commons.SagaEvent
 import com.rest_service.saga_orchestrator.infrastructure.SagaDomainEvent
 import com.rest_service.saga_orchestrator.model.RoomCreateSaga
 
-
 class RoomCreateSagaDSL {
-    RoomCreateSaga state = new RoomCreateSaga(UUID.randomUUID(), "example@test.com", UUID.randomUUID())
+    RoomCreateSaga state = new RoomCreateSaga(UUID.randomUUID(), UUID.randomUUID())
 
     static RoomCreateSagaDSL the(RoomCreateSagaDSL dsl) {
         return dsl
@@ -24,6 +23,6 @@ class RoomCreateSagaDSL {
     }
 
     SagaEvent responseEvent() {
-        Domain.createResponseSagaEvent().block()
+        state.createResponseSagaEvent().block()
     }
 }

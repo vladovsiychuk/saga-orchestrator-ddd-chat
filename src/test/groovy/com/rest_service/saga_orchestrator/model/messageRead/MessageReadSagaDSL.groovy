@@ -1,12 +1,12 @@
 package com.rest_service.saga_orchestrator.model.messageRead
 
-import com.rest_service.commons.Domain
+
 import com.rest_service.commons.SagaEvent
 import com.rest_service.saga_orchestrator.infrastructure.SagaDomainEvent
 import com.rest_service.saga_orchestrator.model.MessageReadSaga
 
 class MessageReadSagaDSL {
-    MessageReadSaga state = new MessageReadSaga(UUID.randomUUID(), "example@test.com", UUID.randomUUID())
+    MessageReadSaga state = new MessageReadSaga(UUID.randomUUID(), UUID.randomUUID())
 
     static MessageReadSagaDSL the(MessageReadSagaDSL dsl) {
         return dsl
@@ -23,6 +23,6 @@ class MessageReadSagaDSL {
     }
 
     SagaEvent responseEvent() {
-        Domain.createResponseSagaEvent().block()
+        state.createResponseSagaEvent().block()
     }
 }

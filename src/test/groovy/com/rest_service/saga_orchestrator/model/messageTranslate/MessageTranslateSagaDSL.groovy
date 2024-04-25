@@ -1,12 +1,12 @@
 package com.rest_service.saga_orchestrator.model.messageTranslate
 
-import com.rest_service.commons.Domain
+
 import com.rest_service.commons.SagaEvent
 import com.rest_service.saga_orchestrator.infrastructure.SagaDomainEvent
 import com.rest_service.saga_orchestrator.model.MessageTranslateSaga
 
 class MessageTranslateSagaDSL {
-    MessageTranslateSaga state = new MessageTranslateSaga(UUID.randomUUID(), "example@test.com", UUID.randomUUID())
+    MessageTranslateSaga state = new MessageTranslateSaga(UUID.randomUUID(), UUID.randomUUID())
 
     static MessageTranslateSagaDSL the(MessageTranslateSagaDSL dsl) {
         return dsl
@@ -23,6 +23,6 @@ class MessageTranslateSagaDSL {
     }
 
     SagaEvent responseEvent() {
-        Domain.createResponseSagaEvent().block()
+        state.createResponseSagaEvent().block()
     }
 }

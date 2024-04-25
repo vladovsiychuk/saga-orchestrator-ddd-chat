@@ -10,9 +10,8 @@ class SagaEventDSL {
         UUID.randomUUID(),
         [:],
         ServiceEnum.SAGA_SERVICE,
-        "test-user",
         UUID.randomUUID(),
-        SagaEventType.ROOM_CREATE_START,
+        SagaEventType.USER_CREATE_START,
         123123,
     )
 

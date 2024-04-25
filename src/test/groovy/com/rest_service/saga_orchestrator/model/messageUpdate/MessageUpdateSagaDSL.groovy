@@ -1,12 +1,12 @@
 package com.rest_service.saga_orchestrator.model.messageUpdate
 
-import com.rest_service.commons.Domain
+
 import com.rest_service.commons.SagaEvent
 import com.rest_service.saga_orchestrator.infrastructure.SagaDomainEvent
 import com.rest_service.saga_orchestrator.model.MessageUpdateSaga
 
 class MessageUpdateSagaDSL {
-    MessageUpdateSaga state = new MessageUpdateSaga(UUID.randomUUID(), "example@test.com", UUID.randomUUID())
+    MessageUpdateSaga state = new MessageUpdateSaga(UUID.randomUUID(), UUID.randomUUID())
 
     static MessageUpdateSagaDSL the(MessageUpdateSagaDSL dsl) {
         return dsl
@@ -23,6 +23,6 @@ class MessageUpdateSagaDSL {
     }
 
     SagaEvent responseEvent() {
-        Domain.createResponseSagaEvent().block()
+        state.createResponseSagaEvent().block()
     }
 }
