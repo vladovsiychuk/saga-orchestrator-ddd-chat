@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-open class MessageActionListener(
+open class MessageSagaEventHandler(
     private val rejectEventHandler: RejectEventHandler,
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val messageStateManager: MessageStateManager,

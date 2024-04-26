@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-open class UserActionListener(
+open class UserSagaEventHandler(
     private val rejectEventHandler: RejectEventHandler,
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val userStateManager: UserStateManager,

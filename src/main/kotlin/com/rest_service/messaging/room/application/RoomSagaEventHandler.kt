@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-open class RoomActionListener(
+open class RoomSagaEventHandler(
     private val rejectEventHandler: RejectEventHandler,
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val roomStateManager: RoomStateManager,

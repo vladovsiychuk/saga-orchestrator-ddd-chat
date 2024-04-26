@@ -6,7 +6,6 @@ import com.rest_service.commons.DomainEvent
 import com.rest_service.commons.command.MessageCreateCommand
 import com.rest_service.commons.command.MessageTranslateCommand
 import com.rest_service.commons.command.MessageUpdateCommand
-import com.rest_service.commons.dto.DTO
 import com.rest_service.commons.dto.MessageDTO
 import com.rest_service.commons.dto.TranslationDTO
 import com.rest_service.commons.enums.LanguageEnum
@@ -83,7 +82,7 @@ class Message : Domain {
             throw RuntimeException("Message is already created.")
     }
 
-    override fun toDto(): DTO {
+    override fun toDto(): MessageDTO {
         return MessageDTO(
             message.id,
             message.roomId,
