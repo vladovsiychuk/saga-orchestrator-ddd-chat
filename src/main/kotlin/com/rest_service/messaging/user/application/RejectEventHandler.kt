@@ -6,14 +6,12 @@ import com.rest_service.commons.SagaEvent
 import com.rest_service.messaging.user.infrastructure.UserDomainEvent
 import com.rest_service.messaging.user.infrastructure.UserDomainEventRepository
 import com.rest_service.messaging.user.infrastructure.UserDomainEventType
-import jakarta.inject.Named
 import jakarta.inject.Singleton
 import java.util.UUID
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-@Named("RejectEventHandler_userDomain")
 class RejectEventHandler(private val repository: UserDomainEventRepository) {
     private val mapper = jacksonObjectMapper()
 

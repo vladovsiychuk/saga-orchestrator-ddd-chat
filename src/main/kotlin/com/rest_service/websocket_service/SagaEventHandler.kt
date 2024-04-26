@@ -10,13 +10,11 @@ import com.rest_service.commons.enums.SagaEventType
 import com.rest_service.websocket_service.configuration.WebSocketService
 import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.scheduling.annotation.Async
-import jakarta.inject.Named
 import jakarta.inject.Singleton
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-@Named("SagaEventHandler_websocketService")
 open class SagaEventHandler(
     private val webSocketService: WebSocketService,
     private val viewServiceFetcher: ViewServiceFetcher

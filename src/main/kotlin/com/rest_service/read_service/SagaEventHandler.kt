@@ -11,11 +11,9 @@ import com.rest_service.read_service.service.RoomService
 import com.rest_service.read_service.service.UserService
 import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.scheduling.annotation.Async
-import jakarta.inject.Named
 import jakarta.inject.Singleton
 
 @Singleton
-@Named("SagaEventHandler_readService")
 open class SagaEventHandler(
     private val userService: UserService,
     private val roomService: RoomService,

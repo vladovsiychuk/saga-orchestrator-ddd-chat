@@ -17,13 +17,11 @@ import com.rest_service.saga_orchestrator.model.UserCreateSaga
 import io.micronaut.context.event.ApplicationEventPublisher
 import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.scheduling.annotation.Async
-import jakarta.inject.Named
 import jakarta.inject.Singleton
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-@Named("SagaEventHandler_sagaOrchestrator")
 open class SagaEventHandler(
     private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>,
     private val sagaStateManager: SagaStateManager,

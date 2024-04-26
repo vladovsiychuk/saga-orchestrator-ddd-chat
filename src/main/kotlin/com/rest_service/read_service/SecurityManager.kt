@@ -1,11 +1,9 @@
 package com.rest_service.read_service
 
 import io.micronaut.security.utils.SecurityService
-import jakarta.inject.Named
 import jakarta.inject.Singleton
 
 @Singleton
-@Named("SecurityManager_readService")
 open class SecurityManager(
     private val securityService: SecurityService,
 ) {
