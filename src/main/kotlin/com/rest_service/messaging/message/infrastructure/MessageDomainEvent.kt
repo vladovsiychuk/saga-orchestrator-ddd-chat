@@ -16,9 +16,9 @@ data class MessageDomainEvent(
     val eventId: UUID? = null,
     val messageId: UUID,
     @MappedProperty(type = DataType.JSON)
-    var payload: Map<String, Any>,
-    var type: MessageDomainEventType,
-    var responsibleUserId: UUID,
-    var operationId: UUID,
+    val payload: Map<String, Any>,
+    val type: MessageDomainEventType,
+    val responsibleUserId: UUID,
+    val operationId: UUID,
     val dateCreated: Long = TimeUtils.now(),
 ) : DomainEvent
