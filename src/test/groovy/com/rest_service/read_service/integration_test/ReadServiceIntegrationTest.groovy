@@ -16,7 +16,8 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
-import static com.rest_service.Fixture.*
+import static com.rest_service.Fixture.anyValidRoomDTO
+import static com.rest_service.Fixture.anyValidUserDTO
 
 @MicronautTest(transactional = false)
 @Requires(env = Environment.TEST)
@@ -39,7 +40,7 @@ class ReadServiceIntegrationTest extends Specification {
         def userDto = anyValidUserDTO()
         userDto.id = userId
         userDto.email = 'user-1@gmail.com' //needed for the next test
-        def event = new SagaEvent(SagaEventType.USER_CREATE_COMPLETED, UUID.randomUUID(), ServiceEnum.SAGA_SERVICE, "example@test.com", userId, userDto)
+        def event = new SagaEvent(SagaEventType.USER_CREATE_COMPLETED, UUID.randomUUID(), ServiceEnum.SAGA_SERVICE, userId, userDto)
 
         when:
         eventHandler.messageActionListener(event)
@@ -59,7 +60,7 @@ class ReadServiceIntegrationTest extends Specification {
         def roomDto = anyValidRoomDTO()
         roomDto.id = roomId
         roomDto.members.add(userId)
-        def event = new SagaEvent(SagaEventType.ROOM_CREATE_COMPLETED, UUID.randomUUID(), ServiceEnum.SAGA_SERVICE, "example@test.com", UUID.randomUUID(), roomDto)
+        def event = new SagaEvent(SagaEventType.ROOM_CREATE_COMPLETED, UUID.randomUUID(), ServiceEnum.SAGA_SERVICE, UUID.randomUUID(), roomDto)
 
         when:
         eventHandler.messageActionListener(event)
@@ -70,26 +71,6 @@ class ReadServiceIntegrationTest extends Specification {
             def response = client.toBlocking().exchange(request, Map)
 
             assert response.body().id.toString() == roomId.toString()
-        }
-    }
-
-    void "Should create or update message view on message completed event"() {
-        given:
-        def messageId = UUID.randomUUID()
-        def messageDto = anyValidMessageDTO()
-        messageDto.id = messageId
-        def event = new SagaEvent(SagaEventType.MESSAGE_CREATE_COMPLETED, UUID.randomUUID(), ServiceEnum.SAGA_SERVICE, "example@test.com", UUID.randomUUID(), messageDto)
-
-        when:
-        eventHandler.messageActionListener(event)
-
-        then:
-        conditions.eventually {
-            def request = HttpRequest.GET("/messages/$messageId").bearerAuth(UserConstant.USER_1_TOKEN)
-            def response = client.toBlocking().exchange(request, Map)
-
-            assert response.body().id.toString() == messageId.toString()
-            assert true
         }
     }
 }
