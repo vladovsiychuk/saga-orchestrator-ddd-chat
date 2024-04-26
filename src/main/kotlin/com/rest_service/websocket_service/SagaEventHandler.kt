@@ -62,7 +62,7 @@ open class SagaEventHandler(
                                 webSocketService.sendMessageToUser(eventJsonString, roomMemberId)
                             }
                         }
-                }
+                }.subscribe()
             }
     }
 
