@@ -34,12 +34,12 @@
 
 8. Incomplete Features  
    8.1 Current Limitations  
-   9.1 Planned Features
+   8.1 Planned Features
 
-8. Contributing  
-   8.1 How to Contribute  
-   8.2 Code of Conduct  
-   8.3 Contributors
+9. Contributing  
+   9.1 How to Contribute  
+   9.2 Code of Conduct  
+   9.3 Contributors
 
 9. License
 
