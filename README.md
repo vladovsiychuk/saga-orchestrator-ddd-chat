@@ -1,9 +1,9 @@
 ## Table of contents
 
-1. Introduction  
-   1.1 Project Overview  
-   1.2 Key Features  
-   1.3 Technologies Used
+1. [Introduction](#introduction)  
+   1.1 [Project Overview](#11-project-overview)  
+   1.2 [Key Features](#12-key-features)  
+   1.3 [Technologies Used](#13-technologies-used)
 
 2. Architecture  
    2.1 System Architecture  
