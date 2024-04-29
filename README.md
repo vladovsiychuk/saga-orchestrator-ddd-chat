@@ -5,8 +5,8 @@
    1.2 [Key Features](#12-key-features)  
    1.3 [Technologies Used](#13-technologies-used)
 
-2. Architecture  
-   2.1 System Architecture  
+2. [Architecture](#2-architecture)  
+   2.1 [System Architecture](#21-system-architecture)  
    2.2 Saga Orchestration  
    2.3 Domain-Driven Design Overview  
    2.4 Event Sourcing Details  
@@ -71,7 +71,6 @@ looking to understand the implementation of sagas in microservices architecture 
 
 ## 2. Architecture
 
-![Architecture](docs/images/architecture.png)  
 The architecture of this project is designed to accommodate complex business processes within the domain of messaging and chat operations, using a flexible and scalable approach that leverages Domain-Driven Design (DDD), event sourcing, and reactive programming principles. While structured as a monolithic application for ease of development and deployment, it maintains a clear separation of
 concerns through its modular design, enabling potential evolution into a microservices architecture.
 Each core component of the system — including `saga_orchestrator`, `user`, `room`, and `message` — encapsulates its own business logic and state management, coordinated through a centralized saga orchestration mechanism that ensures transactional consistency across various operations. This design allows the system to handle complex workflows such as user registration, room management, and message
@@ -80,3 +79,37 @@ in a cohesive and robust manner.
 The adoption of event sourcing as a fundamental architectural pattern not only enables the system to preserve a complete history of all changes but also provides the flexibility to respond to future requirements and scaling needs. Coupled with a reactive programming approach, the system is well-equipped to handle a high volume of messages with efficiency and resilience, providing real-time
 feedback and interactions to the users.
 In the following sections, we'll dive deeper into the individual architectural components and their roles within the larger system.
+
+### 2.1 System Architecture
+
+The system architecture is conceived as a unified platform that supports real-time messaging and chat functionalities. It is a confluence of distinct yet interrelated modules that operate both independently and collaboratively, forming a cohesive ecosystem for messaging services. The following diagram provides a visual overview of the system's architectural design:
+![Architecture](docs/images/architecture.png)
+
+- Core Domains  
+  At the heart of the architecture are the core domain components:
+    - `User`: Manages user-related operations such as registration and profile management.
+    - `Room`: Handles room-related functionalities including creation, membership management, and room settings.
+    - `Message`: Takes care of all aspects of messaging, from sending and receiving messages to message translation and status updates.
+
+  These domains are designed following DDD principles, allowing for a clear separation of concerns and focused domain models.
+
+
+- Saga Orchestration  
+  The `saga_orchestrator` acts as the central coordinator for distributed transactions and complex business processes. It ensures data consistency and orchestrates the flow of events across different domain boundaries.
+
+
+- Infrastructure Services  
+  Infrastructure services provide support functionalities such as:
+
+    - `read_service`: Responsible for read operations, storing and retrieving the state of domain objects for query operations.
+    - `websocket_service`: Handles real-time communication with connected clients, ensuring timely updates and notifications are pushed via websockets.
+
+
+- Data Persistence  
+  Event sourcing is employed to persist the state changes as a sequence of events. Each core domain has its event table (`saga_event`, `user_domain_event`, `room_domain_event`, `message_domain_event`) which records all domain events that have occurred.
+
+
+- View Models  
+  The read side of the system is represented by view models (`user_view`, `room_view`, `message_view`, `room_members`) that are optimized for queries and provide the necessary data for the read service and other query operations.
+
+This architecture provides a robust foundation for scaling, maintenance, and future enhancements.
