@@ -45,7 +45,7 @@
 
 10. Contact Information
 
-## Introduction
+## 1. Introduction
 
 ### 1.1 Project Overview
 
@@ -69,3 +69,14 @@ looking to understand the implementation of sagas in microservices architecture 
 - WebSocket Communication: For real-time bi-directional communication between clients and servers.
 - PostgreSQL/MySQL: As the database system, depending on the deployment.
 
+## 2. Architecture
+
+![Architecture](docs/images/architecture.png)  
+The architecture of this project is designed to accommodate complex business processes within the domain of messaging and chat operations, using a flexible and scalable approach that leverages Domain-Driven Design (DDD), event sourcing, and reactive programming principles. While structured as a monolithic application for ease of development and deployment, it maintains a clear separation of
+concerns through its modular design, enabling potential evolution into a microservices architecture.
+Each core component of the system — including `saga_orchestrator`, `user`, `room`, and `message` — encapsulates its own business logic and state management, coordinated through a centralized saga orchestration mechanism that ensures transactional consistency across various operations. This design allows the system to handle complex workflows such as user registration, room management, and message
+handling
+in a cohesive and robust manner.
+The adoption of event sourcing as a fundamental architectural pattern not only enables the system to preserve a complete history of all changes but also provides the flexibility to respond to future requirements and scaling needs. Coupled with a reactive programming approach, the system is well-equipped to handle a high volume of messages with efficiency and resilience, providing real-time
+feedback and interactions to the users.
+In the following sections, we'll dive deeper into the individual architectural components and their roles within the larger system.
