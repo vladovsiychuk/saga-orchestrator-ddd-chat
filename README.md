@@ -49,25 +49,35 @@
 
 ### 1.1 Project Overview
 
-The `saga-orchestrator-ddd-chat` is an advanced chat application that leverages Domain-Driven Design (DDD) principles and Saga orchestration to provide a robust solution for real-time messaging. This project is designed to showcase how complex business transactions (sagas) that span multiple microservices can be coordinated in a reactive and event-driven architecture. It's ideal for developers
-looking to understand the implementation of sagas in microservices architecture or those developing complex systems requiring reliable communication mechanisms.
+Our application is an advanced chat platform designed to enable seamless communication among users who speak different languages. This platform supports real-time messaging and integrates human translators directly into the chat, allowing for accurate, context-aware translations that maintain the nuance of each conversation. It is ideal for environments requiring precise cross-language
+communication, such as multinational organizations, global customer service teams, and diverse project collaborations.
+
+The system allows for two types of user registrations: Regular users can sign up and choose their preferred language, while Translator users select a list of languages they can translate. Users can create rooms, add other users, and designate translators who can translate messages within these rooms.
 
 ### 1.2 Key Features
 
-- Real-time Messaging: Users can send and receive messages instantaneously.
-- Saga Orchestration: Ensures that all steps in a business transaction are completed successfully or compensated if any step fails.
-- Domain-Driven Design: Structures around the business domain, making it easier to understand and align with business requirements.
-- Event Sourcing: Persist changes to the application state as a sequence of events, allowing for robust auditing and historical state reconstruction.
-- Reactive Programming: Builds an asynchronous, non-blocking backend that efficiently handles concurrent user requests.
+- **Real-time Messaging**: Users can send and receive messages instantly in designated chat rooms.
+- **Human-Powered Translations**: Dedicated human translators provide accurate translations, ensuring clarity and context are preserved.
+- **Dynamic User Roles**: Two distinct user roles with specific capabilities:
+- **Regular Users**: Can participate in rooms and receive translations.
+- **Translator Users**: Can provide translations for messages in their proficient languages.
+- **Multi-language Support**: Each message can be translated into multiple languages, allowing participants to interact in their native language without barriers.
+- **Unique Translator Functionality**: Translators can only add translations for languages they are proficient in and cannot add a translation to a message if it already exists. This ensures that translations are provided by qualified individuals and that messages do not have redundant translations.
 
 ### 1.3 Technologies Used
 
-- Micronaut Framework: Used for building modular, easily testable microservice applications.
-- Kotlin: The primary language for building the application, offering conciseness and safety.
-- Project Reactor: Provides a reactive programming model, which helps in building scalable and efficient applications.
-- Jackson: For JSON serialization and deserialization.
-- WebSocket Communication: For real-time bi-directional communication between clients and servers.
-- PostgreSQL/MySQL: As the database system, depending on the deployment.
+- **Domain-Driven Design**: Structures around the business domain, making it easier to understand and align with business requirements.
+- **Saga Orchestration**: Ensures that all steps in a business transaction are completed successfully or compensated if any step fails.
+- **Event Sourcing and CQRS**: Implements event sourcing to reliably manage state changes and utilizes CQRS for enhanced performance in read operations
+- **Reactive Programming**: Employs Project Reactor to facilitate asynchronous and non-blocking operations.
+- **WebSocket Communication**: Enables real-time communication between the web interface and the server.
+- **Micronaut Framework**: Utilized for building scalable, efficient microservice architectures.
+- **Kotlin**: The primary language for building the application, offering conciseness and safety.
+- **Jackson**: For JSON serialization and deserialization.
+- **PostgreSQL/MySQL**: As the database system, depending on the deployment.
+
+The `saga-orchestrator-ddd-chat` is an advanced chat application that leverages Domain-Driven Design (DDD) principles and Saga orchestration to provide a robust solution for real-time messaging. This project is designed to showcase how complex business transactions (sagas) that span multiple microservices can be coordinated in a reactive and event-driven architecture. It's ideal for developers
+looking to understand the implementation of sagas in microservices architecture or those developing complex systems requiring reliable communication mechanisms.
 
 ## 2. Architecture
 
