@@ -85,7 +85,7 @@ In the following sections, we'll dive deeper into the individual architectural c
 The system architecture is conceived as a unified platform that supports real-time messaging and chat functionalities. It is a confluence of distinct yet interrelated modules that operate both independently and collaboratively, forming a cohesive ecosystem for messaging services. The following diagram provides a visual overview of the system's architectural design:
 ![Architecture](docs/images/architecture.png)
 
-- Core Domains  
+- **Core Domains**  
   At the heart of the architecture are the core domain components:
     - `User`: Manages user-related operations such as registration and profile management.
     - `Room`: Handles room-related functionalities including creation, membership management, and room settings.
@@ -94,22 +94,84 @@ The system architecture is conceived as a unified platform that supports real-ti
   These domains are designed following DDD principles, allowing for a clear separation of concerns and focused domain models.
 
 
-- Saga Orchestration  
+- **Saga Orchestration**  
   The `saga_orchestrator` acts as the central coordinator for distributed transactions and complex business processes. It ensures data consistency and orchestrates the flow of events across different domain boundaries.
 
 
-- Infrastructure Services  
+- **Infrastructure Services**  
   Infrastructure services provide support functionalities such as:
 
     - `read_service`: Responsible for read operations, storing and retrieving the state of domain objects for query operations.
     - `websocket_service`: Handles real-time communication with connected clients, ensuring timely updates and notifications are pushed via websockets.
 
 
-- Data Persistence  
+- **Data Persistence**  
   Event sourcing is employed to persist the state changes as a sequence of events. Each core domain has its event table (`saga_event`, `user_domain_event`, `room_domain_event`, `message_domain_event`) which records all domain events that have occurred.
 
 
-- View Models  
+- **View Models**  
   The read side of the system is represented by view models (`user_view`, `room_view`, `message_view`, `room_members`) that are optimized for queries and provide the necessary data for the read service and other query operations.
 
 This architecture provides a robust foundation for scaling, maintenance, and future enhancements.
+
+### 2.2 Saga Orchestration
+
+The saga orchestration mechanism is a critical aspect of the system architecture, designed to manage distributed transactions across various bounded contexts through a state machine implemented in the `AbstractSagaStateManager` class. This orchestration ensures that all transactions are consistently and reliably handled, leveraging event sourcing to maintain and rebuild the state of each saga.
+The diagram below
+illustrates the transitions and states:
+![Saga State Machine](docs/images/saga-state-machine.png)
+
+- **The Saga State Machine**  
+  The state machine at the core of saga orchestration initiates in a READY state and transitions through various stages based on the flow of events. It progresses to INITIATED upon a START event, broadcasting INITIATED event to relevant domains. Each domain processes this initiation asynchronously and responds with either APPROVED or REJECTED events.
+
+
+- **Handling Events and State Transitions**
+  In the IN_APPROVING state, the saga orchestrator verifies transaction completion by checking for the necessary approvals from all involved services. If the conditions are met, it transitions to the COMPLETE state and issues a COMPLETED event. Conversely, upon receiving a REJECTED event, the saga orchestrator moves to an error state and emits an ERROR event, which is consumed only
+  by `websocket_service`.
+
+
+- **Compensation Logic and Error Handling**  
+  The REJECTED event is critical as it is consumed not only by the `saga_orchestrator` but also by all participating domains. This triggers compensation logic across the system, where necessary rollback or corrective actions are taken. The `saga _orchestrator` additionally emits an ERROR event, which is specifically consumed by the `websocket_service` to relay error information back to the
+  user,
+  ensuring transparency and responsiveness.
+
+
+- **Integration with Event Sourcing**  
+  Employing event sourcing, the `saga_orchestrator` updates and rebuilds the state of each transaction dynamically, based on the events processed. This approach enhances the resilience and scalability of the system by decoupling state management from the transactional operations, thereby allowing for more robust error handling and recovery mechanisms.
+
+
+- **Collaboration with read_service and websocket_service**  
+  Both `read_service` and `websocket_service` play crucial roles in handling the COMPLETED and ERROR events. While `read_service` updates views and read models ensuring data consistency, `websocket_service` facilitates real-time communication with users, enhancing the interactive experience by providing timely updates on the status of transactions.
+
+- **Customization for Specific Domains**  
+  Through the abstract implementation provided by `AbstractSagaStateManager`, each saga can be customized for specific domain needs, defining its unique command, dto, events, and completion logic. For example, the `RoomCreateSaga` requires approvals from `room_service` and `user_service` to conclude successfully.
+
+```kotlin
+class RoomCreateSaga(
+    val operationId: UUID,
+    private val responsibleUserId: UUID,
+) : AbstractSagaStateManager<RoomCreateCommand, RoomDTO>() {
+    override fun startEvent() = SagaEventType.ROOM_CREATE_START
+    override fun approveEvent() = SagaEventType.ROOM_CREATE_APPROVED
+    override fun rejectEvent() = SagaEventType.ROOM_CREATE_REJECTED
+
+    override fun isComplete() = approvedServices.containsAll(
+        listOf(
+            ServiceEnum.ROOM_SERVICE, ServiceEnum.USER_SERVICE
+        )
+    )
+
+    override fun mainDomainService() = ServiceEnum.ROOM_SERVICE
+
+    override fun createInitiatedResponseEvent() =
+        SagaEvent(SagaEventType.ROOM_CREATE_INITIATED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, command)
+
+    override fun createCompletedResponseEvent() =
+        SagaEvent(SagaEventType.ROOM_CREATE_COMPLETED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, dto)
+
+    override fun createErrorResponseEvent() =
+        SagaEvent(SagaEventType.ROOM_CREATE_ERROR, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, errorDto!!)
+
+    ...
+}
+```

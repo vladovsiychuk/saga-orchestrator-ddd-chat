@@ -28,7 +28,7 @@ open class SagaEventHandler(
 ) {
     @EventListener
     @Async
-    open fun messageActionListener(event: SagaEvent) {
+    open fun sagaActionListener(event: SagaEvent) {
         when (event.type) {
             SagaEventType.USER_CREATE_START,
             SagaEventType.USER_CREATE_APPROVED,
