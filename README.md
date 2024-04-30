@@ -122,7 +122,7 @@ illustrates the transitions and states:
 ![Saga State Machine](docs/images/saga-state-machine.png)
 
 - **The Saga State Machine**  
-  The state machine at the core of saga orchestration initiates in a READY state and transitions through various stages based on the flow of events. It progresses to INITIATED upon a START event, broadcasting INITIATED event to relevant domains. Each domain processes this initiation asynchronously and responds with either APPROVED or REJECTED events.
+  The state machine at the core of saga orchestration initiates in a READY state and transitions through various stages based on the flow of events. It progresses to INITIATED upon a START event, broadcasting INITIATED event to relevant domains. Each domain processes this initiation asynchronously and in parallel and responds with either APPROVED or REJECTED events.
 
 
 - **Handling Events and State Transitions**  
