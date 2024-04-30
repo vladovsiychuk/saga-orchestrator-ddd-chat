@@ -7,7 +7,7 @@
 
 2. [Architecture](#2-architecture)  
    2.1 [System Architecture](#21-system-architecture)  
-   2.2 Saga Orchestration  
+   2.2 [Saga Orchestration](#22-saga-orchestration)  
    2.3 Domain-Driven Design Overview  
    2.4 Event Sourcing Details  
    2.5 Reactive Programming Approach
@@ -125,7 +125,7 @@ illustrates the transitions and states:
   The state machine at the core of saga orchestration initiates in a READY state and transitions through various stages based on the flow of events. It progresses to INITIATED upon a START event, broadcasting INITIATED event to relevant domains. Each domain processes this initiation asynchronously and responds with either APPROVED or REJECTED events.
 
 
-- **Handling Events and State Transitions**
+- **Handling Events and State Transitions**  
   In the IN_APPROVING state, the saga orchestrator verifies transaction completion by checking for the necessary approvals from all involved services. If the conditions are met, it transitions to the COMPLETE state and issues a COMPLETED event. Conversely, upon receiving a REJECTED event, the saga orchestrator moves to an error state and emits an ERROR event, which is consumed only
   by `websocket_service`.
 
