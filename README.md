@@ -12,21 +12,21 @@
    2.4 [Event Sourcing Details](#24-event-sourcing-details)  
    2.5 [Reactive Programming Approach](#25-reactive-programming-approach)
 
-3. API Documentation  
+3. Testing  
+   3.1 Unit Tests  
+   3.2 Integration Tests
+
+4. API Documentation  
    3.1 Endpoints  
    3.2 Usage Examples
 
-4. WebSocket Communication  
+5. WebSocket Communication  
    4.1 Event Types  
    4.2 Usage and Examples
 
-5. Database Schema  
+6. Database Schema  
    5.1 Diagrams  
    5.2 Descriptions
-
-6. Testing  
-   6.1 Unit Tests  
-   6.2 Integration Tests
 
 7. Deployment  
    7.1 Recommended Deployment Practices  
