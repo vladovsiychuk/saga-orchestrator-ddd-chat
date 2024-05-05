@@ -445,7 +445,7 @@ fun rebuildRoom(roomId: UUID, operationId: UUID): Mono<Room> {
 ```
 
 - **Flow Explanation**:
-    - **Data Retrieval**: findDomainEvents fetches a stream of events associated with the specified room from the repository.
+    - **Data Retrieval**: findDomainEvents fetches a stream (Flux) of events associated with the specified room from the repository.
     - **Stream Filtering**: takeUntil is used to process events up until the event with the matching operationId is encountered, ensuring that only relevant events up to a specific point are considered.
     - **State Reduction**: reduce aggregates the events to reconstruct the room's state incrementally. Here, each event is applied to the room object, which mutates its state according to the event's nature.
 
