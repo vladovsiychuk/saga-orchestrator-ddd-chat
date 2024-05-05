@@ -156,35 +156,35 @@ illustrates the transitions and states:
 - **Customization for Specific Domains**  
   Through the abstract implementation provided by `AbstractSagaStateManager`, each saga can be customized for specific domain needs, defining its unique command, dto, events, and completion logic. For example, the `RoomCreateSaga` requires approvals from `room_service` and `user_service` to conclude successfully.
 
-```kotlin
-class RoomCreateSaga(
-    val operationId: UUID,
-    private val responsibleUserId: UUID,
-) : AbstractSagaStateManager<RoomCreateCommand, RoomDTO>() {
-    override fun startEvent() = SagaEventType.ROOM_CREATE_START
-    override fun approveEvent() = SagaEventType.ROOM_CREATE_APPROVED
-    override fun rejectEvent() = SagaEventType.ROOM_CREATE_REJECTED
-
-    override fun isComplete() = approvedServices.containsAll(
-        listOf(
-            ServiceEnum.ROOM_SERVICE, ServiceEnum.USER_SERVICE
+    ```kotlin
+    class RoomCreateSaga(
+        val operationId: UUID,
+        private val responsibleUserId: UUID,
+    ) : AbstractSagaStateManager<RoomCreateCommand, RoomDTO>() {
+        override fun startEvent() = SagaEventType.ROOM_CREATE_START
+        override fun approveEvent() = SagaEventType.ROOM_CREATE_APPROVED
+        override fun rejectEvent() = SagaEventType.ROOM_CREATE_REJECTED
+    
+        override fun isComplete() = approvedServices.containsAll(
+            listOf(
+                ServiceEnum.ROOM_SERVICE, ServiceEnum.USER_SERVICE
+            )
         )
-    )
-
-    override fun mainDomainService() = ServiceEnum.ROOM_SERVICE
-
-    override fun createInitiatedResponseEvent() =
-        SagaEvent(SagaEventType.ROOM_CREATE_INITIATED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, command)
-
-    override fun createCompletedResponseEvent() =
-        SagaEvent(SagaEventType.ROOM_CREATE_COMPLETED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, dto)
-
-    override fun createErrorResponseEvent() =
-        SagaEvent(SagaEventType.ROOM_CREATE_ERROR, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, errorDto!!)
-
-    ...
-}
-```
+    
+        override fun mainDomainService() = ServiceEnum.ROOM_SERVICE
+    
+        override fun createInitiatedResponseEvent() =
+            SagaEvent(SagaEventType.ROOM_CREATE_INITIATED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, command)
+    
+        override fun createCompletedResponseEvent() =
+            SagaEvent(SagaEventType.ROOM_CREATE_COMPLETED, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, dto)
+    
+        override fun createErrorResponseEvent() =
+            SagaEvent(SagaEventType.ROOM_CREATE_ERROR, operationId, ServiceEnum.SAGA_SERVICE, responsibleUserId, errorDto!!)
+    
+        ...
+    }
+    ```
 
 ### 2.3 Domain-Driven Design Overview
 
@@ -334,3 +334,79 @@ Each domain is structured into three layers:
     ```
 
   The Domain layer's models are designed to be rebuilt from a series of events, adhering to the event sourcing pattern, which will be detailed in the "2.4 Event Sourcing Details" section.
+
+### 2.4 Event Sourcing Details
+
+Event Sourcing is an architectural pattern where changes to application state are stored as a series of events. Instead of recording just the current state, the application records a full series of actions taken. This allows the system to reconstruct past states by replaying these events, offering a robust audit trail and fine-grained undo capabilities.
+
+**Key Features of Implementation**:
+
+1. **Event Persistence Before State Reconstruction**:  
+   The application ensures data consistency by persisting events before state reconstruction. This is achieved using the **AbstractEventHandler**:
+    ```kotlin
+    fun handleEvent() {
+        mapDomainEvent()
+            .flatMap { domainEvent -> saveEvent(domainEvent) }
+            .flatMap { savedEvent -> rebuildDomainFromEvent(savedEvent) }
+            ...
+    }
+    ```
+   This approach guarantees that the state reflects all changes up to the most recent event, safeguarding against concurrent modifications that could occur if the state were updated before event storage.
+
+
+2. **Selective Event Replay**:  
+   When reconstructing a domain's state, the system replays events only up to the specific operation ID associated with the latest change:
+    ```kotlin
+    fun rebuildRoom(roomId: UUID, operationId: UUID): Mono<Room> {
+        return repository.findDomainEvents(roomId)
+            .takeUntil { it.operationId == operationId }
+            .reduce(Room()) { domain, event ->
+                domain.apply(event)
+                domain
+            }
+    }
+    ```
+   This selective replay ensures that the domain state is reconstructed accurately up to the last known good state without being affected by potentially conflicting changes that might have occurred concurrently.
+
+**Error Handling Process**:
+
+1. **Rejection Event Creation**:  
+   Each domain is capable of detecting errors during the state reconstruction phase. Upon encountering an error, it throws a REJECTED event, which is crafted to include all pertinent information about the failure, including the operation ID of the faltering operation. This is illustrated in the error handling function:
+    ```kotlin
+    fun handleError(event: SagaEvent, error: Throwable): Mono<Void> {
+        return checkOperationFailed(event.operationId)
+            .flatMap {
+                val errorEvent = SagaEvent(
+                    event.type.rejectedEventType!!,
+                    event.operationId,
+                    ServiceEnum.ROOM_SERVICE,
+                    event.responsibleUserId,
+                    ErrorDTO(error.message),
+                )
+                applicationEventPublisher.publishEventAsync(errorEvent)
+                Mono.error(error)
+            }
+    }
+    ```
+
+
+2. **UNDO Event Creation**:  
+   Upon receiving a REJECTED event, each interested domain generates an UNDO event to signify the reversal of operations related to the failed transaction. This UNDO event is then saved in the database to mark the operation as reversed.
+
+
+3. **Event Filtering**:  
+   When retrieving events from the repository, the system filters out any operations associated with UNDO events to ensure that only valid operations are considered during state reconstruction:
+    ```kotlin
+    @Query("""
+        SELECT * FROM room_domain_event
+        WHERE room_id = :roomId
+        AND operation_id NOT IN (
+            SELECT operation_id FROM room_domain_event
+            WHERE type = 'UNDO'
+        )
+        ORDER BY date_created
+    """)
+    fun findDomainEvents(roomId: UUID): Flux<RoomDomainEvent>
+    ```
+4. **Saga Orchestrator Compensation**:  
+   The saga orchestrator also responds to REJECTED events by transitioning the state machine into a compensatory state, where it attempts to rectify or halt the ongoing transaction process. This includes emitting additional ERROR events to notify other services of the issue, which can then be used to inform users or trigger further compensatory actions.
