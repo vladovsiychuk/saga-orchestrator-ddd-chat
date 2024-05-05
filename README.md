@@ -12,7 +12,7 @@
    2.4 Event Sourcing Details  
    2.5 Reactive Programming Approach
 
-3. PI Documentation  
+3. API Documentation  
    3.1 Endpoints  
    3.2 Usage Examples
 
@@ -185,3 +185,152 @@ class RoomCreateSaga(
     ...
 }
 ```
+
+### 2.3 Domain-Driven Design Overview
+
+In the saga-orchestrator-ddd-chat application, each core domain—"user," "room," and "message"—adheres to a hexagonal architecture model, comprising three primary layers: the Infrastructure layer, Application layer, and Domain layer. This structure supports the principles of Domain-Driven Design by emphasizing clear boundaries and focused responsibilities within each domain.
+
+**Hexagonal Architecture**  
+Each domain is structured into three layers:
+
+- **Infrastructure Layer**: Primarily handles data persistence.
+
+
+- **Application Layer**: Serves as the bridge between the domain logic and external interfaces, managing the flow of data to and from the domain and external clients or services. In this layer, after handling a saga event and transforming it into a domain command, it rebuilds the domain model from events stored in the database (event sourcing) and then sends the saga response event. This
+  operational flow is encapsulated in the **AbstractEventHandler** class, which provides a structured process to manage domain events through a series of steps:
+
+    1. Mapping the incoming saga event to a domain-specific event.
+    2. Persisting the event.
+    3. Rebuilding the domain entity from persisted events.
+    4. Generating and sending response saga events.
+    5. Handling errors.
+
+    ``` kotlin
+    abstract class AbstractEventHandler(private val applicationEventPublisher: ApplicationEventPublisher<SagaEvent>) {
+        protected abstract fun rebuildDomainFromEvent(domainEvent: DomainEvent): Mono<Domain>
+        protected abstract fun mapDomainEvent(): Mono<DomainEvent>
+        protected abstract fun saveEvent(domainEvent: DomainEvent): Mono<DomainEvent>
+        protected abstract fun handleError(error: Throwable): Mono<Void>
+        protected abstract fun createResponseSagaEvent(domain: Domain): Mono<SagaEvent>
+    
+        fun handleEvent() {
+            mapDomainEvent()
+                .flatMap { domainEvent -> saveEvent(domainEvent) }
+                .flatMap { savedEvent -> rebuildDomainFromEvent(savedEvent) }
+                .flatMap { domain -> createResponseSagaEvent(domain) }
+                .doOnNext { responseEvent -> applicationEventPublisher.publishEventAsync(responseEvent) }
+                .then()
+                .onErrorResume { handleError(it) }
+                .subscribe()
+        }
+    }
+    ```
+
+  Each step ensures that the domain remains consistent and accurately represents the current state based on the sequence of events it has processed. This method facilitates a clear and maintainable way to handle changes within the domain driven by external commands.
+
+
+- **Domain Layer**: Contains the core business logic and domain models. It is responsible for applying business rules and ensuring data consistency and validity. Domain entities in this layer react to commands by changing state and raising events which are handled within the same domain or by other domains.An example implementation in the Domain layer would be:
+
+    ```kotlin
+    class User : Domain {
+        private var status = UserStatus.IN_CREATION
+        private lateinit var user: UserData
+    
+        private val mapper = jacksonObjectMapper()
+    
+        fun apply(event: UserDomainEvent): DomainEvent {
+            when (event.type) {
+                UserDomainEventType.USER_CREATED               -> handleUserCreated(event)
+                UserDomainEventType.MESSAGE_TRANSLATE_APPROVED -> approveMessageTranslate(event)
+    
+                UserDomainEventType.ROOM_CREATE_APPROVED,
+                UserDomainEventType.ROOM_ADD_MEMBER_APPROVED,
+                UserDomainEventType.MESSAGE_UPDATE_APPROVED,
+                UserDomainEventType.MESSAGE_READ_APPROVED      -> checkForUserCreatedStatus()
+    
+                else                                           -> {}
+            }
+    
+            return event
+        }
+    
+        private fun handleUserCreated(event: UserDomainEvent) {
+            checkForUserInCreationStatus()
+            val command = mapper.convertValue(event.payload, UserCreateCommand::class.java)
+    
+            if (UUID.nameUUIDFromBytes(command.email.toByteArray()) != event.responsibleUserId)
+                throw RuntimeException("Responsible user doesn't have permissions to create the user")
+    
+            user = UserData(
+                event.userId,
+                command.username,
+                command.email,
+                null,
+                command.primaryLanguage,
+                if (command.type == UserType.TRANSLATOR) TranslationLanguages.from(command) else null,
+                command.type,
+                event.dateCreated,
+                event.dateCreated,
+            )
+    
+            status = UserStatus.CREATED
+        }
+    
+        private fun approveMessageTranslate(event: UserDomainEvent) {
+            checkForUserCreatedStatus()
+    
+            val command = mapper.convertValue(event.payload, MessageTranslateCommand::class.java)
+    
+            when {
+                user.type != UserType.TRANSLATOR                        ->
+                    throw RuntimeException("User with id ${user.id} is not a translator.")
+    
+                !user.translationLanguages!!.contains(command.language) ->
+                    throw RuntimeException("User with id ${user.id} cannot translate ${command.language}")
+            }
+        }
+    
+        private fun checkForUserCreatedStatus() {
+            if (status != UserStatus.CREATED)
+                throw RuntimeException("User is not yet created.")
+        }
+    
+        private fun checkForUserInCreationStatus() {
+            if (status != UserStatus.IN_CREATION)
+                throw RuntimeException("User is already created.")
+        }
+    
+        override fun toDto(): UserDTO {
+            return UserDTO(
+                user.id,
+                user.username,
+                user.email,
+                user.avatar,
+                user.primaryLanguage,
+                user.translationLanguages?.languages,
+                user.type,
+                user.dateCreated,
+                user.dateUpdated,
+            )
+        }
+    
+        private data class UserData(
+            val id: UUID,
+            val username: String?,
+            val email: String,
+            val avatar: String?,
+            val primaryLanguage: LanguageEnum,
+            val translationLanguages: TranslationLanguages?,
+            val type: UserType,
+            val dateCreated: Long,
+            val dateUpdated: Long,
+        )
+    
+        private enum class UserStatus {
+            IN_CREATION,
+            CREATED
+        }
+    }
+    ```
+
+  The Domain layer's models are designed to be rebuilt from a series of events, adhering to the event sourcing pattern, which will be detailed in the "2.4 Event Sourcing Details" section.
