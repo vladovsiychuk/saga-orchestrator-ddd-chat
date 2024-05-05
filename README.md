@@ -12,9 +12,7 @@
    2.4 [Event Sourcing Details](#24-event-sourcing-details)  
    2.5 [Reactive Programming Approach](#25-reactive-programming-approach)
 
-3. Testing  
-   3.1 Unit Tests  
-   3.2 Integration Tests
+3. [Testing](#3-testing)
 
 4. API Documentation  
    3.1 Endpoints  
@@ -450,3 +448,122 @@ fun rebuildRoom(roomId: UUID, operationId: UUID): Mono<Room> {
     - **State Reduction**: reduce aggregates the events to reconstruct the room's state incrementally. Here, each event is applied to the room object, which mutates its state according to the event's nature.
 
 This method showcases how reactive streams are employed to efficiently manage state reconstruction in a non-blocking, event-driven manner, leveraging the strengths of the Reactor framework to handle asynchronous operations effectively.
+
+## 3. Testing
+
+Unit testing is meticulously crafted using Spock and Groovy, reflecting the Ubiquitous Language of Domain-Driven Design (DDD) within the tests themselves. This approach ensures that the tests are both an effective method of validating the system's logic and a valuable form of documentation.
+
+**Key Aspects of Unit Testing**:
+
+- **Domain-Specific Scenarios**: Each domain module, including "user", "room", and "message", has its own set of unit tests that simulate real-world scenarios specific to that domain. This ensures rigorous validation of business logic.
+- **Saga State Machine Validation**: Tests are designed to ensure that the saga state machines handle state transitions correctly in response to incoming events. This testing is crucial for maintaining the integrity of complex business transactions across different services.
+
+**Implementation of Unit Tests**:
+
+- **Saga Orchestration Tests**: Tests cover how the saga orchestrator handles different events and transitions between states correctly. These tests are crucial for verifying the saga orchestration logic.
+
+    ```groovy
+    def 'should change the status from INITIATED to COMPLETED on MESSAGE_TRANSLATE_APPROVE event from USER_SERVICE, ROOM_SERVICE and MESSAGE_SERVICE'() {
+        given: 'a user saga in INITIATED state'
+        def userSaga = aMessageTranslateSaga()
+        def translateEvent = anEvent() from SAGA_SERVICE withPayload anyValidMessageTranslateCommand() ofType MESSAGE_TRANSLATE_START
+        the userSaga reactsTo translateEvent.event
+    
+        and:
+        def approvedEventFromUserService = anEvent() from USER_SERVICE withPayload anyValidUserDTO() ofType MESSAGE_TRANSLATE_APPROVED
+        def approvedEventFromRoomService = anEvent() from ROOM_SERVICE withPayload anyValidRoomDTO() ofType MESSAGE_TRANSLATE_APPROVED
+        def approvedEventFromMessageService = anEvent() from MESSAGE_SERVICE withPayload anyValidMessageDTO() ofType MESSAGE_TRANSLATE_APPROVED
+    
+        when:
+        the userSaga reactsTo approvedEventFromUserService.event
+        the userSaga reactsTo approvedEventFromRoomService.event
+        the userSaga reactsTo approvedEventFromMessageService.event
+    
+        then:
+        (the userSaga responseEvent() type) == MESSAGE_TRANSLATE_COMPLETED
+    }
+    ```
+
+- **Domain Tests for User, Room, and Message**: Each domain has tests that cover typical operations and interactions within the system.
+    ```groovy
+    package com.rest_service.messaging.user.model
+    
+    class MessageTranslateTest extends Specification {
+    
+        def 'should approve message translation when the user is a translator and can translate the language'() {
+            given: 'an existing translator user for English'
+            def user = aUser()
+            def createTranslatorCommand = anyValidUserCreateCommand()
+            createTranslatorCommand['type'] = UserType.TRANSLATOR
+            createTranslatorCommand['translationLanguages'] = [LanguageEnum.UKRAINIAN]
+            def createdEvent = anEvent() ofType USER_CREATED withPayload createTranslatorCommand
+            the user reactsTo createdEvent
+    
+            and: 'a request to approve the translation'
+            def translationCommand = anyValidMessageTranslateCommand()
+            translationCommand['language'] = LanguageEnum.ENGLISH
+            def messageTranslateEvent = anEvent() ofType MESSAGE_TRANSLATE_APPROVED withPayload translationCommand
+    
+            when:
+            the user reactsTo messageTranslateEvent
+    
+            then:
+            (the user data()) != null
+        }
+    
+        ...
+    }
+    ```
+    ```groovy
+    package com.rest_service.messaging.room.model
+    
+    class MessageTranslateTest extends Specification {
+    
+        def 'should approve message translate when the responsible user is a room member'() {
+            given: 'a created room from a specific user'
+            def currentUserId = UUID.randomUUID()
+            def room = aRoom()
+            def roomCreatedEvent = anEvent() from currentUserId ofType ROOM_CREATED withPayload anyValidRoomCreateCommand()
+            the room reactsTo roomCreatedEvent
+    
+            and: 'a message translate command from the same user'
+            def messageTranslateApprovedEvent = anEvent() from currentUserId ofType MESSAGE_TRANSLATE_APPROVED withPayload anyValidMessageTranslateCommand()
+    
+            when:
+            the room reactsTo messageTranslateApprovedEvent
+    
+            then:
+            (the room data()) != null
+        }
+    
+        ...
+    }
+    ```
+    ```groovy
+    package com.rest_service.messaging.message.model
+    
+    class MessageTranslateTest extends Specification {
+    
+        def 'should approve message translate when the translation does not exists yet'() {
+            given: 'a created message'
+            def message = aMessage()
+            def messageCreatedEvent = anEvent() ofType MESSAGE_CREATED withPayload anyValidMessageCreateCommand()
+            the message reactsTo messageCreatedEvent
+    
+            and: 'a message translate event'
+            def translateCommand = anyValidMessageTranslateCommand()
+            translateCommand['language'] = 'ENGLISH'
+            translateCommand['translation'] = 'new translation text'
+            def messageTranslateEvent = anEvent() ofType MESSAGE_TRANSLATED withPayload translateCommand
+    
+            when:
+            the message reactsTo messageTranslateEvent
+    
+            then:
+            (the message data()).translations.find { it.language == LanguageEnum.ENGLISH }.translation == 'new translation text'
+        }
+    
+        ...
+    }
+    ```
+
