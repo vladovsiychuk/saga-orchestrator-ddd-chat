@@ -10,7 +10,7 @@
    2.2 [Saga Orchestration](#22-saga-orchestration)  
    2.3 [Domain-Driven Design Overview](#23-domain-driven-design-overview)  
    2.4 [Event Sourcing Details](#24-event-sourcing-details)  
-   2.5 Reactive Programming Approach
+   2.5 [Reactive Programming Approach](#25-reactive-programming-approach)
 
 3. API Documentation  
    3.1 Endpoints  
@@ -410,3 +410,43 @@ Event Sourcing is an architectural pattern where changes to application state ar
     ```
 4. **Saga Orchestrator Compensation**:  
    The saga orchestrator also responds to REJECTED events by transitioning the state machine into a compensatory state, where it attempts to rectify or halt the ongoing transaction process. This includes emitting additional ERROR events to notify other services of the issue, which can then be used to inform users or trigger further compensatory actions.
+
+### 2.5 Reactive Programming Approach
+
+Reactive programming is a paradigm focused on asynchronous data streams and change propagation, ideal for applications demanding high concurrency and responsiveness, such as real-time communication systems. In our project, this approach is implemented using Project Reactor, a reactive library that supports non-blocking, backpressure-ready streams on the JVM.
+
+**Key Concepts and Benefits**:
+
+- **Project Reactor**: Utilized within our application, Project Reactor enables efficient handling of event streams through its Mono and Flux API constructs. These APIs allow for asynchronous programming that is both powerful and easy to manage.
+- **Mono and Flux**:
+    - **Mono**: A Reactor type that represents a single or no value (zero or one element) and is used for asynchronous tasks that return a single result.
+    - **Flux**: Represents a sequence of 0 to N elements, suitable for handling streams of data asynchronously.
+- **Asynchronous and Non-blocking**: Leveraging reactive streams ensures that operations like event handling and state management are executed without blocking threads, crucial for maintaining high performance and system responsiveness.
+- **Functional Programming Style**: The use of functional programming with Reactor facilitates cleaner, more understandable code, aiding in error handling and stream manipulation without the pitfalls common in imperative programming.
+
+**Practical Implementation in System Architecture**:
+
+- **Stream Management**: Reactive streams in our system manage data flows seamlessly—from receiving user commands to updating views—ensuring efficient state transitions and interaction handling.
+- **Error Handling**: Reactive programming offers advanced error handling capabilities, allowing for controlled error management and preventing system-wide disruptions.
+- **Resource Efficiency**: The non-blocking nature of reactive programming means our application can handle more operations with fewer resources, significantly improving scalability and reducing operational costs.
+
+**Example: Room State Reconstruction**  
+To illustrate the practical application of reactive programming, consider the method used to reconstruct the state of a room:
+
+```kotlin
+fun rebuildRoom(roomId: UUID, operationId: UUID): Mono<Room> {
+    return repository.findDomainEvents(roomId)
+        .takeUntil { it.operationId == operationId }
+        .reduce(Room()) { domain, event ->
+            domain.apply(event)
+            domain
+        }
+}
+```
+
+- **Flow Explanation**:
+    - **Data Retrieval**: findDomainEvents fetches a stream of events associated with the specified room from the repository.
+    - **Stream Filtering**: takeUntil is used to process events up until the event with the matching operationId is encountered, ensuring that only relevant events up to a specific point are considered.
+    - **State Reduction**: reduce aggregates the events to reconstruct the room's state incrementally. Here, each event is applied to the room object, which mutates its state according to the event's nature.
+
+This method showcases how reactive streams are employed to efficiently manage state reconstruction in a non-blocking, event-driven manner, leveraging the strengths of the Reactor framework to handle asynchronous operations effectively.
