@@ -8,7 +8,7 @@
 2. [Architecture](#2-architecture)  
    2.1 [System Architecture](#21-system-architecture)  
    2.2 [Saga Orchestration](#22-saga-orchestration)  
-   2.3 Domain-Driven Design Overview  
+   2.3 [Domain-Driven Design Overview](#23-domain-driven-design-overview)  
    2.4 Event Sourcing Details  
    2.5 Reactive Programming Approach
 
@@ -188,7 +188,7 @@ class RoomCreateSaga(
 
 ### 2.3 Domain-Driven Design Overview
 
-In the saga-orchestrator-ddd-chat application, each core domain—"user," "room," and "message"—adheres to a hexagonal architecture model, comprising three primary layers: the Infrastructure layer, Application layer, and Domain layer. This structure supports the principles of Domain-Driven Design by emphasizing clear boundaries and focused responsibilities within each domain.
+Each core domain—"user," "room," and "message"—adheres to a hexagonal architecture model, comprising three primary layers: the Infrastructure layer, Application layer, and Domain layer. This structure supports the principles of Domain-Driven Design by emphasizing clear boundaries and focused responsibilities within each domain.
 
 **Hexagonal Architecture**  
 Each domain is structured into three layers:
