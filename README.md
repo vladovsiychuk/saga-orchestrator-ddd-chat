@@ -14,34 +14,18 @@
 
 3. [Testing](#3-testing)
 
-4. API Documentation  
-   3.1 Endpoints  
-   3.2 Usage Examples
+4. Incomplete Features  
+   4.1 Current Limitations  
+   4.1 Planned Features
 
-5. WebSocket Communication  
-   4.1 Event Types  
-   4.2 Usage and Examples
+5. Contributing  
+   5.1 How to Contribute  
+   5.2 Code of Conduct  
+   5.3 Contributors
 
-6. Database Schema  
-   5.1 Diagrams  
-   5.2 Descriptions
+6. License
 
-7. Deployment  
-   7.1 Recommended Deployment Practices  
-   7.2 Environment Setup
-
-8. Incomplete Features  
-   8.1 Current Limitations  
-   8.1 Planned Features
-
-9. Contributing  
-   9.1 How to Contribute  
-   9.2 Code of Conduct  
-   9.3 Contributors
-
-9. License
-
-10. Contact Information
+7. Contact Information
 
 ## 1. Introduction
 
