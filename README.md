@@ -655,7 +655,7 @@ This project is under [GNU General Public License version 3](https://opensource.
 For any inquiries, suggestions, or contributions, please feel free to reach out via email or connect on LinkedIn. Your feedback and contributions are highly appreciated to improve this project.
 
 - Email: vladyslav.ovsiychuk@gmail.com
-- LinkedIn: [Vladyslav Ovsiychuk](#https://www.linkedin.com/in/vladyslav-ovsiychuk-032868123/)
+- LinkedIn: [Vladyslav Ovsiychuk](https://www.linkedin.com/in/vladyslav-ovsiychuk-032868123/)
 - Telegram: @kepva1
 
 Feel free to send any questions about the project, bug reports, or requests for feature enhancements. Your input helps us make the project better for everyone.
