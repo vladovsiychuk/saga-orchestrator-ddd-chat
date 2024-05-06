@@ -588,3 +588,10 @@ The following features are planned to enhance the robustness, usability, and fun
 - **Purpose**: To provide synchronous feedback on operations, accommodating use cases where immediate response via HTTP is preferred over asynchronous updates through WebSocket events.
 - **Implementation**: Each domain will implement an internal endpoint that replicates the logic performed by saga event handlers but will return the operation result directly via an HTTP response instead of through an event. An openapi_service could then orchestrate these endpoints similarly to how saga_orchestrator orchestrates saga events, but using direct HTTP calls. This approach would support
   scenarios where clients require immediate confirmation of command execution results, integrating seamlessly with existing front-end frameworks and external systems that interact with our service.
+
+4. **Saga Snapshots**:
+
+- **Purpose**: To enhance performance and reduce the time required to rebuild state from a large number of events.
+- **Implementation**: Implement a snapshot mechanism that periodically captures the current state of a saga at a given point in time. This snapshot can then be used as a starting point for state reconstruction, significantly reducing the number of events that need to be replayed when rebuilding state. This is particularly beneficial for long-running sagas or those that generate a high volume of
+  events.
+- **Note**: Currently, implementing saga snapshots is not an urgent priority, as the likelihood of encountering large numbers of events is low due to the modest size of our domains. However, scenarios like frequent updates to message content or user avatars could potentially lead to a higher event volume, making snapshots a valuable optimization to consider in the future.
