@@ -14,9 +14,9 @@
 
 3. [Testing](#3-testing)
 
-4. Incomplete Features  
-   4.1 Current Limitations  
-   4.1 Planned Features
+4. [Incomplete Features](#4-incomplete-features)  
+   4.1 [Current Limitations](#41-current-limitation)  
+   4.1 [Planned Features](#42-planned-features)
 
 5. Contributing  
    5.1 How to Contribute  
@@ -551,3 +551,40 @@ Unit testing is meticulously crafted using Spock and Groovy, reflecting the Ubiq
     }
     ```
 
+## 4. Incomplete Features
+
+### 4.1. Current Limitation
+
+One of the inherent complexities of an event-driven, reactive system is managing the sequence and consistency of state changes, particularly in high-concurrency environments. A specific scenario that exemplifies this challenge occurs during the state reconstruction phase following the persistence of an event.
+
+**Consider the following situation**:  
+A `saga event A` with `operationId 1` is processed and persisted. Almost simultaneously, another process handles `saga event B` with `operationId 2` and saves it just before `saga event A` in the event log.
+Our system, designed to rebuild the state up to the latest saved event's operationId, now attempts to rebuild the state to reflect changes up to `operationId 1`. However, due to the timing, it first encounters and applies the changes from `event B` associated with `operationId 2`.
+If the application of `event B` results in an error (perhaps due to a condition or dependency specific to `operationId 2`), the domain will throw an error even if the processing of `event A` (`operationId 1`) would have otherwise succeeded.
+This sequence results in an error related to `operationId 2` impacting the processing of `operationId 1`, potentially misleading error handling and response mechanisms. Although this scenario is relatively rare, its possibility underscores a subtle concurrency issue within our event processing logic.
+
+**Possible Solution**:  
+To mitigate this issue, we can enhance the error handling mechanism to include the `operationId` of the failed operation within the REJECTED event. This addition would allow the `saga_orchestrator` to discern whether a rejection was due to an unrelated operation's failure and, if so, to automatically retry the operation. This automated retry mechanism could significantly reduce the need for
+client-side intervention and prevent the emission of an ERROR event in cases where the failure is recognized as being transient or unrelated to the primary operation being processed. This approach not only simplifies client interactions but also enhances the robustness of the saga orchestration by making it more resilient to the nuances of asynchronous event processing.
+
+## 4.2 Planned Features
+
+The following features are planned to enhance the robustness, usability, and functionality of our application:
+
+1. **Automated Check for Incomplete Operations in the Saga Orchestrator**:
+
+- **Purpose**: To ensure that all operations are either completed successfully or appropriately compensated when conditions are not met within a specific timeframe.
+- **Implementation**: A monitoring mechanism within the saga_orchestrator will periodically check for operations that have not reached a conclusive state (either completed or fully compensated) within a predefined timeout (e.g., 1 second). If an operation is found to be incomplete, the system will automatically issue a REJECT event to trigger compensation in all involved domains, thereby undoing
+  any partial changes and maintaining data integrity.
+
+2. **Error Response Mapping for User Comprehension**:
+
+- **Purpose**: To improve the user experience by providing clear and understandable error messages rather than system-generated errors which may be ambiguous or too technical.
+- **Implementation**: When the websocket_service receives an ERROR event, instead of directly forwarding the error message contained within the event to the user, it will map this message to a more user-friendly description. This mapping will involve translating technical error descriptions into messages that are easily comprehensible, ensuring that users are well-informed about what went wrong in
+  a manner that is relevant to their actions.
+
+3. **Open API Support**:
+
+- **Purpose**: To provide synchronous feedback on operations, accommodating use cases where immediate response via HTTP is preferred over asynchronous updates through WebSocket events.
+- **Implementation**: Each domain will implement an internal endpoint that replicates the logic performed by saga event handlers but will return the operation result directly via an HTTP response instead of through an event. An openapi_service could then orchestrate these endpoints similarly to how saga_orchestrator orchestrates saga events, but using direct HTTP calls. This approach would support
+  scenarios where clients require immediate confirmation of command execution results, integrating seamlessly with existing front-end frameworks and external systems that interact with our service.
