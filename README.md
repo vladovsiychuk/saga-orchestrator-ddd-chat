@@ -567,7 +567,7 @@ This sequence results in an error related to `operationId 2` impacting the proce
 To mitigate this issue, we can enhance the error handling mechanism to include the `operationId` of the failed operation within the REJECTED event. This addition would allow the `saga_orchestrator` to discern whether a rejection was due to an unrelated operation's failure and, if so, to automatically retry the operation. This automated retry mechanism could significantly reduce the need for
 client-side intervention and prevent the emission of an ERROR event in cases where the failure is recognized as being transient or unrelated to the primary operation being processed. This approach not only simplifies client interactions but also enhances the robustness of the saga orchestration by making it more resilient to the nuances of asynchronous event processing.
 
-## 4.2 Planned Features
+### 4.2 Planned Features
 
 The following features are planned to enhance the robustness, usability, and functionality of our application:
 
