@@ -18,10 +18,9 @@
    4.1 [Current Limitations](#41-current-limitation)  
    4.1 [Planned Features](#42-planned-features)
 
-5. Contributing  
-   5.1 How to Contribute  
-   5.2 Code of Conduct  
-   5.3 Contributors
+5. [Contributing](#5-contributing)  
+   5.1 [How to Contribute](#51-how-to-contribute)  
+   5.2 [Code of Conduct](#52-code-of-conduct)
 
 6. License
 
@@ -595,3 +594,54 @@ The following features are planned to enhance the robustness, usability, and fun
 - **Implementation**: Implement a snapshot mechanism that periodically captures the current state of a saga at a given point in time. This snapshot can then be used as a starting point for state reconstruction, significantly reducing the number of events that need to be replayed when rebuilding state. This is particularly beneficial for long-running sagas or those that generate a high volume of
   events.
 - **Note**: Currently, implementing saga snapshots is not an urgent priority, as the likelihood of encountering large numbers of events is low due to the modest size of our domains. However, scenarios like frequent updates to message content or user avatars could potentially lead to a higher event volume, making snapshots a valuable optimization to consider in the future.
+
+## 5. Contributing
+
+### 5.1 How to Contribute
+
+- **Fork the Repository**: Start by forking the project repository on GitHub. This creates your own copy of the project where you can make changes without affecting the original codebase.
+- **Clone Your Fork**: Clone your forked repository to your local machine. This allows you to work on the project in your own development environment.
+    ```shell
+    git clone https://github.com/your-username/saga-orchestrator-ddd-chat.git
+    ```
+- **Create a Branch**: Before making any changes, create a new branch in your local repository. It's best practice to name the branch something that reflects the nature of your changes.
+    ```shell
+    git checkout -b feature/your-feature-name
+    ```
+- **Make Your Changes**: Implement your feature, bug fix, or documentation updates. Be sure to follow the project's coding and documentation standards.
+- **Run Tests**: Before submitting your changes, make sure to run the existing tests to ensure that you haven't introduced any new issues. If you're not including integration tests, run:
+    ```shell
+    ./gradlew test -PexcludeIntegrationTests
+    ```
+  To include integration tests, ensure Docker is running on your machine and execute:
+    ```shell
+    ./gradlew test
+    ```
+  This will include all tests, ensuring that your changes integrate well with the existing code.
+- **Commit Your Changes**: Once you're happy with your changes, commit them to your branch. Use clear and descriptive commit messages, which help other contributors understand the history of changes.
+    ```shell
+    git commit -am "Add a concise and descriptive commit message"
+    ```
+- **Push to GitHub**: Push your changes to your fork on GitHub.
+    ```shell
+    git push origin feature/your-feature-name
+    ```
+- **Open a Pull Request**: Go to the original project on GitHub and open a pull request from your branch to the main branch of the original repository. Provide a clear description of the changes and any other relevant information.
+
+- **Review and Merge**: Wait for the project maintainers to review your pull request. Be open to feedback and make any additional updates based on their suggestions. Once approved, your changes will be merged into the main project.
+
+### 5.2 Code of Conduct
+
+The `saga-orchestrator-ddd-chat` project adheres to a Code of Conduct that applies to all contributors. The aim is to maintain a welcoming and inclusive environment where participants engage respectfully and constructively.
+
+**Key Points of the Code of Conduct include**:
+
+- **Be Respectful**: Treat everyone with respect, patience, and kindness.
+- **Be Considerate**: Your work will be used by other people, and you in turn will depend on the work of others. Any decision you take will affect users and colleagues, and you should take those consequences into account when making decisions.
+- **Be Collaborative**: Collaboration reduces redundancy and improves the quality of our work. Aim to collaborate with other community members, as well as with other communities.
+- **Stay Professional**: Avoid personal attacks, trolling, public or private harassment, insults, or other unprofessional conduct.
+
+**Reporting Issues**:
+If you experience or witness any behavior that violates the Code of Conduct, please report it to the project maintainers. All complaints will be reviewed and investigated promptly and fairly.
+
+Respect for these guidelines ensures a healthy and constructive community environment where individual skills and perspectives can shine, and we can all contribute to the project's success.
