@@ -645,3 +645,6 @@ The `saga-orchestrator-ddd-chat` project adheres to a Code of Conduct that appli
 If you experience or witness any behavior that violates the Code of Conduct, please report it to the project maintainers. All complaints will be reviewed and investigated promptly and fairly.
 
 Respect for these guidelines ensures a healthy and constructive community environment where individual skills and perspectives can shine, and we can all contribute to the project's success.
+
+## 6. License
+This project is under [GNU General Public License version 3](https://opensource.org/license/gpl-3-0)
