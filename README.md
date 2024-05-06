@@ -22,9 +22,9 @@
    5.1 [How to Contribute](#51-how-to-contribute)  
    5.2 [Code of Conduct](#52-code-of-conduct)
 
-6. License
+6. [License](#6-license)
 
-7. Contact Information
+7. [Contact Information](#7-contact-information)
 
 ## 1. Introduction
 
@@ -647,4 +647,15 @@ If you experience or witness any behavior that violates the Code of Conduct, ple
 Respect for these guidelines ensures a healthy and constructive community environment where individual skills and perspectives can shine, and we can all contribute to the project's success.
 
 ## 6. License
+
 This project is under [GNU General Public License version 3](https://opensource.org/license/gpl-3-0)
+
+## 7. Contact Information
+
+For any inquiries, suggestions, or contributions, please feel free to reach out via email or connect on LinkedIn. Your feedback and contributions are highly appreciated to improve this project.
+
+- Email: vladyslav.ovsiychuk@gmail.com
+- LinkedIn: [Vladyslav Ovsiychuk](#https://www.linkedin.com/in/vladyslav-ovsiychuk-032868123/)
+- Telegram: @kepva1
+
+Feel free to send any questions about the project, bug reports, or requests for feature enhancements. Your input helps us make the project better for everyone.
