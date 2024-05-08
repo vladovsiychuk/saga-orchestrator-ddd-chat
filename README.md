@@ -32,14 +32,13 @@
 
 ### 1.1 Project Overview
 
-Our application is an advanced chat platform designed to enable seamless communication among users who speak different languages. This platform supports real-time messaging and integrates human translators directly into the chat, allowing for accurate, context-aware translations that maintain the nuance of each conversation. It is ideal for environments requiring precise cross-language
-communication, such as multinational organizations, global customer service teams, and diverse project collaborations.
-
+Our app is an advanced chat platform designed to facilitate communication between users who speak different languages. This platform supports real-time messaging between multiple users in a room and integrates translators directly into the chat. This setting allows translators to translate messages on the fly, allowing all regular users to see the entire conversation in their native language. It
+is ideal for environments that require accurate cross-language communication with high-quality translations, such as multinational organizations or people who need to talk about some business but don't speak the same language.
 The system allows for two types of user registrations: Regular users can sign up and choose their preferred language, while Translator users select a list of languages they can translate. Users can create rooms, add other users, and designate translators who can translate messages within these rooms.
 
 ### 1.2 Key Features
 
-- **Real-time Messaging**: Users can send and receive messages instantly in designated chat rooms.
+- **Real-time Messaging**: Users can send and receive messages instantly.
 - **Human-Powered Translations**: Dedicated human translators provide accurate translations, ensuring clarity and context are preserved.
 - **Dynamic User Roles**: Two distinct user roles with specific capabilities:
 - **Regular Users**: Can participate in rooms and receive translations.
@@ -59,23 +58,17 @@ The system allows for two types of user registrations: Regular users can sign up
 - **Jackson**: For JSON serialization and deserialization.
 - **PostgreSQL/MySQL**: As the database system, depending on the deployment.
 
-The `saga-orchestrator-ddd-chat` is an advanced chat application that leverages Domain-Driven Design (DDD) principles and Saga orchestration to provide a robust solution for real-time messaging. This project is designed to showcase how complex business transactions (sagas) that span multiple microservices can be coordinated in a reactive and event-driven architecture. It's ideal for developers
-looking to understand the implementation of sagas in microservices architecture or those developing complex systems requiring reliable communication mechanisms.
-
 ## 2. Architecture
 
-The architecture of this project is designed to accommodate complex business processes within the domain of messaging and chat operations, using a flexible and scalable approach that leverages Domain-Driven Design (DDD), event sourcing, and reactive programming principles. While structured as a monolithic application for ease of development and deployment, it maintains a clear separation of
-concerns through its modular design, enabling potential evolution into a microservices architecture.
-Each core component of the system — including `saga_orchestrator`, `user`, `room`, and `message` — encapsulates its own business logic and state management, coordinated through a centralized saga orchestration mechanism that ensures transactional consistency across various operations. This design allows the system to handle complex workflows such as user registration, room management, and message
-handling
-in a cohesive and robust manner.
-The adoption of event sourcing as a fundamental architectural pattern not only enables the system to preserve a complete history of all changes but also provides the flexibility to respond to future requirements and scaling needs. Coupled with a reactive programming approach, the system is well-equipped to handle a high volume of messages with efficiency and resilience, providing real-time
-feedback and interactions to the users.
-In the following sections, we'll dive deeper into the individual architectural components and their roles within the larger system.
+This architecture demonstrates how the use of saga-orchestrator, event sourcing patterns, and domain-driven design (DDD) can be used together to implement a responsive system that handles complex business logic with clear, maintainable code. It highlights how processes are executed in parallel, enhancing system responsiveness. Additionally, by applying these patterns, we are also able to have
+human-readable tests that act as documentation of how business rules apply to the application's functionality.  
+Although structured as a monolithic application for ease of development and deployment, it is designed with a modular approach that allows for potential evolution into a microservices architecture.
 
 ### 2.1 System Architecture
 
-The system architecture is conceived as a unified platform that supports real-time messaging and chat functionalities. It is a confluence of distinct yet interrelated modules that operate both independently and collaboratively, forming a cohesive ecosystem for messaging services. The following diagram provides a visual overview of the system's architectural design:
+Each module within the system has its specific job. The core domains — `user`, `room`, and `message` — encapsulates the business logic. The `read_service` is specialized for handling read operations, and the `websocket_service` manages communication with client. The `saga_orchestrator` makes sure these parts work together smoothly during complex operations. While the core domains and
+`saga_orchestrator` use a hexagonal architecture, the `read_service` and `websocket_service` are implemented as straightforward CRUD services. For visual simplicity in the diagram, all components are depicted within a hexagon, though it should be noted that `read_service` and `websocket_service`
+primarily perform basic CRUD functions.:
 ![Architecture](docs/images/architecture.png)
 
 - **Core Domains**  
@@ -104,8 +97,6 @@ The system architecture is conceived as a unified platform that supports real-ti
 
 - **View Models**  
   The read side of the system is represented by view models (`user_view`, `room_view`, `message_view`, `room_members`) that are optimized for queries and provide the necessary data for the read service and other query operations.
-
-This architecture provides a robust foundation for scaling, maintenance, and future enhancements.
 
 ### 2.2 Saga Orchestration
 
@@ -204,7 +195,7 @@ Each domain processes the event concurrently and responds with either MESSAGE_TR
 
 ### 2.3 Domain-Driven Design Overview
 
-Each core domain—"user," "room," and "message"—adheres to a hexagonal architecture model, comprising three primary layers: the Infrastructure layer, Application layer, and Domain layer. This structure supports the principles of Domain-Driven Design by emphasizing clear boundaries and focused responsibilities within each domain.
+Each core domain — `user`, `room`, and `message` — adheres to a hexagonal architecture model, comprising three primary layers: the Infrastructure layer, Application layer, and Domain layer. This structure supports the principles of Domain-Driven Design by emphasizing clear boundaries and focused responsibilities within each domain.
 
 **Hexagonal Architecture**  
 Each domain is structured into three layers:
@@ -241,9 +232,6 @@ Each domain is structured into three layers:
         }
     }
     ```
-
-  Each step ensures that the domain remains consistent and accurately represents the current state based on the sequence of events it has processed. This method facilitates a clear and maintainable way to handle changes within the domain driven by external commands.
-
 
 - **Domain Layer**: Contains the core business logic and domain models. It is responsible for applying business rules and ensuring data consistency and validity. Domain entities in this layer react to commands by changing state and raising events which are handled within the same domain or by other domains.An example implementation in the Domain layer would be:
 
@@ -367,7 +355,7 @@ Event Sourcing is an architectural pattern where changes to application state ar
             ...
     }
     ```
-   This approach guarantees that the state reflects all changes up to the most recent event, safeguarding against concurrent modifications that could occur if the state were updated before event storage.
+   This approach makes sure that when we rebuild the state until the saved event, we don't miss any updates that might happen at the same time (concurrent updates). By saving the event before rebuilding the state, we avoid scenarios where the state could change in between restoring and applying the event.
 
 
 2. **Selective Event Replay**:  
@@ -382,7 +370,9 @@ Event Sourcing is an architectural pattern where changes to application state ar
             }
     }
     ```
-   This selective replay ensures that the domain state is reconstructed accurately up to the last known good state without being affected by potentially conflicting changes that might have occurred concurrently.
+   By replaying events up to the one we just saved, we ensure that the business rules apply correctly up to the latest `operationId` we care about. This method helps avoid issues where, if an event with a different `operationId` fails during a concurrent update, it could incorrectly cause our successful operation to be rejected. However, there is a rare issue where an event could be saved before
+   our
+   event with the matching `operationId`. This scenario is addressed with the solution outlined in section [4.1. Current Limitations](#41-current-limitation).
 
 **Error Handling Process**:
 
@@ -425,7 +415,7 @@ Event Sourcing is an architectural pattern where changes to application state ar
     fun findDomainEvents(roomId: UUID): Flux<RoomDomainEvent>
     ```
 4. **Saga Orchestrator Compensation**:  
-   The saga orchestrator also responds to REJECTED events by transitioning the state machine into a compensatory state, where it attempts to rectify or halt the ongoing transaction process. This includes emitting additional ERROR events to notify other services of the issue, which can then be used to inform users or trigger further compensatory actions.
+   The saga orchestrator also responds to REJECTED events by transitioning the state machine into a ERROR state. This includes emitting additional ERROR event to notify other services of the issue, which can then be used to inform users or trigger further compensatory actions.
 
 ### 2.5 Reactive Programming Approach
 
@@ -462,10 +452,8 @@ fun rebuildRoom(roomId: UUID, operationId: UUID): Mono<Room> {
 
 - **Flow Explanation**:
     - **Data Retrieval**: findDomainEvents fetches a stream (Flux) of events associated with the specified room from the repository.
-    - **Stream Filtering**: takeUntil is used to process events up until the event with the matching operationId is encountered, ensuring that only relevant events up to a specific point are considered.
-    - **State Reduction**: reduce aggregates the events to reconstruct the room's state incrementally. Here, each event is applied to the room object, which mutates its state according to the event's nature.
-
-This method showcases how reactive streams are employed to efficiently manage state reconstruction in a non-blocking, event-driven manner, leveraging the strengths of the Reactor framework to handle asynchronous operations effectively.
+    - **Stream Filtering**: takeUntil is used to process events up until the event with the matching operationId is encountered.
+    - **State Reduction**: reduce aggregates the events to reconstruct the room's state incrementally. Here, each event is applied to the room object. Returns a room object (Mono<Room>) with all events applied.
 
 ## 3. Testing
 
@@ -473,7 +461,7 @@ Unit testing is meticulously crafted using Spock and Groovy, reflecting the Ubiq
 
 **Key Aspects of Unit Testing**:
 
-- **Domain-Specific Scenarios**: Each domain module, including "user", "room", and "message", has its own set of unit tests that simulate real-world scenarios specific to that domain. This ensures rigorous validation of business logic.
+- **Domain-Specific Scenarios**: Each domain module, including `user`, `room`, and `message`, has its own set of unit tests that simulate real-world scenarios specific to that domain. This ensures rigorous validation of business logic.
 - **Saga State Machine Validation**: Tests are designed to ensure that the saga state machines handle state transitions correctly in response to incoming events. This testing is crucial for maintaining the integrity of complex business transactions across different services.
 
 **Implementation of Unit Tests**:
@@ -599,7 +587,7 @@ This sequence results in an error related to `operationId 2` impacting the proce
 
 **Possible Solution**:  
 To mitigate this issue, we can enhance the error handling mechanism to include the `operationId` of the failed operation within the REJECTED event. This addition would allow the `saga_orchestrator` to discern whether a rejection was due to an unrelated operation's failure and, if so, to automatically retry the operation. This automated retry mechanism could significantly reduce the need for
-client-side intervention and prevent the emission of an ERROR event in cases where the failure is recognized as being transient or unrelated to the primary operation being processed. This approach not only simplifies client interactions but also enhances the robustness of the saga orchestration by making it more resilient to the nuances of asynchronous event processing.
+client-side intervention and prevent the emission of an ERROR event in cases where the failure is recognized as being transient or unrelated to the primary operation being processed.
 
 ### 4.2 Planned Features
 
@@ -621,7 +609,7 @@ The following features are planned to enhance the robustness, usability, and fun
 
 - **Purpose**: To provide synchronous feedback on operations, accommodating use cases where immediate response via HTTP is preferred over asynchronous updates through WebSocket events.
 - **Implementation**: Each domain will implement an internal endpoint that replicates the logic performed by saga event handlers but will return the operation result directly via an HTTP response instead of through an event. An openapi_service could then orchestrate these endpoints similarly to how saga_orchestrator orchestrates saga events, but using direct HTTP calls. This approach would support
-  scenarios where clients require immediate confirmation of command execution results, integrating seamlessly with existing front-end frameworks and external systems that interact with our service.
+  scenarios where clients require immediate confirmation of command execution results.
 
 4. **Saga Snapshots**:
 
