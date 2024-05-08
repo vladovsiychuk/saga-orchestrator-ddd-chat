@@ -9,7 +9,7 @@
    2.1 [System Architecture](#21-system-architecture)  
    2.2 [Saga Orchestration](#22-saga-orchestration)  
    2.2.1 [State Machine](#221-state-machine)  
-   2.2.2 [Asynchronous and Parallel Processing](#222-asynchronous-and-parallel-processing-)  
+   2.2.2 [Asynchronous and Parallel Processing](#222-asynchronous-and-parallel-processing)  
    2.3 [Domain-Driven Design Overview](#23-domain-driven-design-overview)  
    2.4 [Event Sourcing Details](#24-event-sourcing-details)  
    2.5 [Reactive Programming Approach](#25-reactive-programming-approach)
