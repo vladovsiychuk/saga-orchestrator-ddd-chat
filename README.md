@@ -166,7 +166,34 @@ illustrates the transitions and states:
         ...
     }
     ```
+  
+**Asynchronous and Parallel Processing**  
+The saga orchestrator significantly enhances the system's performance and reliability by handling commands asynchronously and in parallel. This approach ensures that multiple components can operate concurrently, reducing latency and improving user experience.
 
+Below is a diagram illustrating the parallel processing flow within the saga orchestrator for a translation operation:
+![Parallel Processing](docs/images/parallel-processing.png)
+
+The process begins when the saga_orchestrator service receives a REST request at a specific endpoint. In response, it issues a MESSAGE_TRANSLATE_START command, transitioning the saga state machine to the INITIATED state. This triggers the emission of a MESSAGE_TRANSLATE_INITIATED event with the following content:
+```json
+{
+    "type": "MESSAGE_TRANSLATE_INITIATED",
+    "operationId": "<operation-uuid>",
+    "responsibleService": "SAGA_SERVICE",
+    "responsibleUserId": "<user-uuid>",
+    "payload": {
+        "messageId": "<message-uuid>",
+        "translation": "some test content",
+        "language": "ENGLISH"
+    }
+}
+```
+
+Each domain processes this event in parallel, handling specific tasks:
+1. **User Domain**: Retrieves `responsibleUserId` from the event, rebuilds the user's state, and verifies that the user exists, is a translator, and is capable of translating the specified language.
+2. **Room Domain**: Extracts `messageId` to obtain the corresponding message DTO from `read_service`, uses this data to reconstruct the room, and checks both room existence and membership of the `responsibleUserId`.
+3. **Message Domain**: Reconstructs message state using `messageId`, ensures the message has not already been translated to the specified language, and then adds the new translation.
+
+Each domain processes the event concurrently and responds with either MESSAGE_TRANSLATE_APPROVED or MESSAGE_TRANSLATE_REJECTED. The orchestrator collects these responses, and if all are approvals, it emits a COMPLETED or ERROR event.
 ### 2.3 Domain-Driven Design Overview
 
 Each core domain—"user," "room," and "message"—adheres to a hexagonal architecture model, comprising three primary layers: the Infrastructure layer, Application layer, and Domain layer. This structure supports the principles of Domain-Driven Design by emphasizing clear boundaries and focused responsibilities within each domain.
