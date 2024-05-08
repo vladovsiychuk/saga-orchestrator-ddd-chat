@@ -8,6 +8,8 @@
 2. [Architecture](#2-architecture)  
    2.1 [System Architecture](#21-system-architecture)  
    2.2 [Saga Orchestration](#22-saga-orchestration)  
+   2.2.1 [State Machine](#221-state-machine)  
+   2.2.2 [Asynchronous and Parallel Processing](#222-asynchronous-and-parallel-processing-)  
    2.3 [Domain-Driven Design Overview](#23-domain-driven-design-overview)  
    2.4 [Event Sourcing Details](#24-event-sourcing-details)  
    2.5 [Reactive Programming Approach](#25-reactive-programming-approach)
@@ -107,6 +109,8 @@ This architecture provides a robust foundation for scaling, maintenance, and fut
 
 ### 2.2 Saga Orchestration
 
+#### 2.2.1 State Machine
+
 The saga orchestration mechanism is a critical aspect of the system architecture, designed to manage distributed transactions across various bounded contexts through a state machine implemented in the `AbstractSagaStateManager` class. This orchestration ensures that all transactions are consistently and reliably handled, leveraging event sourcing to maintain and rebuild the state of each saga.
 The diagram below
 illustrates the transitions and states:
@@ -166,34 +170,38 @@ illustrates the transitions and states:
         ...
     }
     ```
-  
-**Asynchronous and Parallel Processing**  
+
+#### 2.2.2 Asynchronous and Parallel Processing
+
 The saga orchestrator significantly enhances the system's performance and reliability by handling commands asynchronously and in parallel. This approach ensures that multiple components can operate concurrently, reducing latency and improving user experience.
 
 Below is a diagram illustrating the parallel processing flow within the saga orchestrator for a translation operation:
 ![Parallel Processing](docs/images/parallel-processing.png)
 
 The process begins when the saga_orchestrator service receives a REST request at a specific endpoint. In response, it issues a MESSAGE_TRANSLATE_START command, transitioning the saga state machine to the INITIATED state. This triggers the emission of a MESSAGE_TRANSLATE_INITIATED event with the following content:
+
 ```json
 {
-    "type": "MESSAGE_TRANSLATE_INITIATED",
-    "operationId": "<operation-uuid>",
-    "responsibleService": "SAGA_SERVICE",
-    "responsibleUserId": "<user-uuid>",
-    "payload": {
-        "messageId": "<message-uuid>",
-        "translation": "some test content",
-        "language": "ENGLISH"
-    }
+  "type": "MESSAGE_TRANSLATE_INITIATED",
+  "operationId": "<operation-uuid>",
+  "responsibleService": "SAGA_SERVICE",
+  "responsibleUserId": "<user-uuid>",
+  "payload": {
+    "messageId": "<message-uuid>",
+    "translation": "some test content",
+    "language": "ENGLISH"
+  }
 }
 ```
 
 Each domain processes this event in parallel, handling specific tasks:
+
 1. **User Domain**: Retrieves `responsibleUserId` from the event, rebuilds the user's state, and verifies that the user exists, is a translator, and is capable of translating the specified language.
 2. **Room Domain**: Extracts `messageId` to obtain the corresponding message DTO from `read_service`, uses this data to reconstruct the room, and checks both room existence and membership of the `responsibleUserId`.
 3. **Message Domain**: Reconstructs message state using `messageId`, ensures the message has not already been translated to the specified language, and then adds the new translation.
 
 Each domain processes the event concurrently and responds with either MESSAGE_TRANSLATE_APPROVED or MESSAGE_TRANSLATE_REJECTED. The orchestrator collects these responses, and if all are approvals, it emits a COMPLETED or ERROR event.
+
 ### 2.3 Domain-Driven Design Overview
 
 Each core domain—"user," "room," and "message"—adheres to a hexagonal architecture model, comprising three primary layers: the Infrastructure layer, Application layer, and Domain layer. This structure supports the principles of Domain-Driven Design by emphasizing clear boundaries and focused responsibilities within each domain.
