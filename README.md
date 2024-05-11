@@ -492,7 +492,7 @@ Unit testing is meticulously crafted using Spock and Groovy, reflecting the Ubiq
 
 - **Domain Tests for User, Room, and Message**: Each domain has tests that cover typical operations and interactions within the system.
     ```groovy
-    package com.rest_service.messaging.user.model
+    package com.saga_orchestrator_ddd_chat.messaging.user.model
     
     class MessageTranslateTest extends Specification {
     
@@ -521,7 +521,7 @@ Unit testing is meticulously crafted using Spock and Groovy, reflecting the Ubiq
     }
     ```
     ```groovy
-    package com.rest_service.messaging.room.model
+    package com.saga_orchestrator_ddd_chat.messaging.room.model
     
     class MessageTranslateTest extends Specification {
     
@@ -546,7 +546,7 @@ Unit testing is meticulously crafted using Spock and Groovy, reflecting the Ubiq
     }
     ```
     ```groovy
-    package com.rest_service.messaging.message.model
+    package com.saga_orchestrator_ddd_chat.messaging.message.model
     
     class MessageTranslateTest extends Specification {
     

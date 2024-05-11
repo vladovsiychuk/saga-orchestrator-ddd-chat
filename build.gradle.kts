@@ -49,7 +49,7 @@ dependencies {
 
 
 application {
-    mainClass.set("com.rest_service.ApplicationKt")
+    mainClass.set("com.saga_orchestrator_ddd_chat.ApplicationKt")
 }
 java {
     sourceCompatibility = JavaVersion.toVersion("11")
