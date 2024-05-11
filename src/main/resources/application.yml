@@ -10,20 +10,43 @@ micronaut:
           allowedOrigins:
             - "${FRONTEND_URL:}"
   security:
-    enabled: true
-    authentication: bearer
+    authentication: idtoken
+    oauth2:
+      clients:
+        google:
+          client-id: '${OAUTH_CLIENT_ID:xxx}'
+          client-secret: '${OAUTH_CLIENT_SECRET:yyy}'
+          openid:
+            issuer: 'https://accounts.google.com'
+    endpoints:
+      logout:
+        get-allowed: true
+    redirect:
+      login-success: 'http://localhost:3000'
     token:
       jwt:
-        signatures:
-          secret:
-            generator:
-              secret: pleaseChangeThisSecretForANewOne
+        cookie:
+          cookie-http-only: false
       writer:
         header:
           enabled: true
       propagation:
         enabled: true
         service-id-regex: "view-service"
+  #    enabled: true
+  #    authentication: bearer
+  #    token:
+  #      jwt:
+  #        signatures:
+  #          secret:
+  #            generator:
+  #              secret: pleaseChangeThisSecretForANewOne
+  #      writer:
+  #        header:
+  #          enabled: true
+  #      propagation:
+  #        enabled: true
+  #        service-id-regex: "view-service"
   http:
     services:
       view-service:
