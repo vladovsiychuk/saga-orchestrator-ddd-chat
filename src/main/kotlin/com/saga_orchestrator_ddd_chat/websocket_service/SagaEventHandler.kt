@@ -3,6 +3,7 @@ package com.saga_orchestrator_ddd_chat.websocket_service
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.saga_orchestrator_ddd_chat.commons.SagaEvent
 import com.saga_orchestrator_ddd_chat.commons.client.ViewServiceFetcher
+import com.saga_orchestrator_ddd_chat.commons.dto.DTO
 import com.saga_orchestrator_ddd_chat.commons.dto.MessageDTO
 import com.saga_orchestrator_ddd_chat.commons.dto.RoomDTO
 import com.saga_orchestrator_ddd_chat.commons.dto.UserDTO
@@ -11,8 +12,12 @@ import com.saga_orchestrator_ddd_chat.websocket_service.configuration.WebSocketS
 import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.scheduling.annotation.Async
 import jakarta.inject.Singleton
+import java.util.UUID
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
+import reactor.kotlin.core.util.function.component1
+import reactor.kotlin.core.util.function.component2
 
 @Singleton
 open class SagaEventHandler(
@@ -50,20 +55,21 @@ open class SagaEventHandler(
     }
 
     private fun handleMessageUpdate(event: SagaEvent) {
-        mapper.convertValue(event.payload, MessageDTO::class.java)
-            .let { message ->
-                Mono.zip(
-                    viewServiceFetcher.getRoom(message.roomId),
-                    WebSocketEvent(message, WebSocketType.MESSAGE_UPDATED).toMono()
-                ) { room, event ->
-                    mapper.writeValueAsString(event)
-                        .let { eventJsonString ->
-                            room.members.forEach { roomMemberId ->
-                                webSocketService.sendMessageToUser(eventJsonString, roomMemberId)
-                            }
-                        }
-                }.subscribe()
-            }
+        val message = mapper.convertValue(event.payload, MessageDTO::class.java)
+
+        Mono.zip(
+            viewServiceFetcher.getRoom(message.roomId),
+            viewServiceFetcher.getUser(message.senderId),
+        ).flatMapMany { (room, sender) ->
+            room.members.toFlux()
+                .flatMap { roomMemberId ->
+                    Mono.zip(
+                        if (roomMemberId != message.senderId) sendDtoToUser(sender, roomMemberId) else true.toMono(),
+                        if (roomMemberId != message.senderId) sendDtoToUser(room, roomMemberId) else true.toMono(),
+                        sendDtoToUser(message, roomMemberId)
+                    ).flatMapMany { true.toMono() }
+                }
+        }.subscribe()
     }
 
     private fun handleRoomUpdate(event: SagaEvent) {
@@ -84,5 +90,18 @@ open class SagaEventHandler(
                     }
             }
             .subscribe()
+    }
+
+    private fun sendDtoToUser(dto: DTO, userId: UUID): Mono<Boolean> {
+        return when (dto) {
+            is UserDTO    -> WebSocketEvent(dto, WebSocketType.USER_UPDATED)
+            is RoomDTO    -> WebSocketEvent(dto, WebSocketType.ROOM_UPDATED)
+            is MessageDTO -> WebSocketEvent(dto, WebSocketType.MESSAGE_UPDATED)
+            else          -> throw UnsupportedOperationException()
+        }.let { webSocketEvent ->
+            mapper.writeValueAsString(webSocketEvent).toMono()
+                .map { webSocketService.sendMessageToUser(it, userId) }
+                .thenReturn(true)
+        }
     }
 }
