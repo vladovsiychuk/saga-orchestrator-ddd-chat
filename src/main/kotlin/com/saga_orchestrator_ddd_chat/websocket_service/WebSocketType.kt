@@ -4,5 +4,5 @@ enum class WebSocketType {
     MESSAGE_UPDATED,
     ROOM_UPDATED,
     USER_UPDATED,
-    USER_CREATED,
+    CURRENT_USER_UPDATED,
 }

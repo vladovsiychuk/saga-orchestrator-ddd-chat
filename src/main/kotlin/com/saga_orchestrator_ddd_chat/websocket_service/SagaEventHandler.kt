@@ -125,7 +125,11 @@ open class SagaEventHandler(
 
     private fun sendDtoToUser(dto: DTO, userId: UUID): Mono<Boolean> {
         return when (dto) {
-            is UserDTO    -> WebSocketEvent(dto, WebSocketType.USER_UPDATED)
+            is UserDTO    -> WebSocketEvent(
+                dto,
+                if (dto.id == userId) WebSocketType.CURRENT_USER_UPDATED else WebSocketType.USER_UPDATED
+            )
+
             is RoomDTO    -> WebSocketEvent(dto, WebSocketType.ROOM_UPDATED)
             is MessageDTO -> WebSocketEvent(dto, WebSocketType.MESSAGE_UPDATED)
             else          -> throw UnsupportedOperationException()
