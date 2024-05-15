@@ -13,6 +13,7 @@ import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.scheduling.annotation.Async
 import jakarta.inject.Singleton
 import java.util.UUID
+import org.slf4j.LoggerFactory
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
@@ -26,35 +27,34 @@ open class SagaEventHandler(
 ) {
 
     val mapper = jacksonObjectMapper()
+    private val logger = LoggerFactory.getLogger(SagaEventHandler::class.java)
 
     @EventListener
     @Async
     open fun messageActionListener(event: SagaEvent) {
         when (event.type) {
-            SagaEventType.USER_CREATE_COMPLETED    -> handleUserCreate(event)
+            SagaEventType.USER_CREATE_COMPLETED     -> handleUserCreate(event)
 
-            SagaEventType.ROOM_ADD_MEMBER_COMPLETED,
-            SagaEventType.ROOM_CREATE_COMPLETED    -> handleRoomUpdate(event)
+            SagaEventType.ROOM_ADD_MEMBER_COMPLETED -> handleRoomMemberAdded(event)
+            SagaEventType.ROOM_CREATE_COMPLETED     -> handleRoomCreated(event)
 
-            SagaEventType.MESSAGE_CREATE_COMPLETED,
+            SagaEventType.MESSAGE_CREATE_COMPLETED  -> handleMessageCreated(event)
             SagaEventType.MESSAGE_READ_COMPLETED,
             SagaEventType.MESSAGE_TRANSLATE_COMPLETED,
-            SagaEventType.MESSAGE_UPDATE_COMPLETED -> handleMessageUpdate(event)
+            SagaEventType.MESSAGE_UPDATE_COMPLETED  -> handleMessageUpdated(event)
 
-            else                                   -> {}
+            else                                    -> {}
         }
     }
 
     private fun handleUserCreate(event: SagaEvent) {
-        mapper.convertValue(event.payload, UserDTO::class.java)
-            .let { user ->
-                WebSocketEvent(user, WebSocketType.USER_CREATED)
-                    .let { event -> mapper.writeValueAsString(event) }
-                    .let { eventString -> webSocketService.sendMessageToUser(eventString, user.id) }
-            }
+        val user = mapper.convertValue(event.payload, UserDTO::class.java)
+
+        sendDtoToUser(user, user.id)
+            .subscribe()
     }
 
-    private fun handleMessageUpdate(event: SagaEvent) {
+    private fun handleMessageCreated(event: SagaEvent) {
         val message = mapper.convertValue(event.payload, MessageDTO::class.java)
 
         Mono.zip(
@@ -72,23 +72,54 @@ open class SagaEventHandler(
         }.subscribe()
     }
 
-    private fun handleRoomUpdate(event: SagaEvent) {
+    private fun handleMessageUpdated(event: SagaEvent) {
+        val message = mapper.convertValue(event.payload, MessageDTO::class.java)
+
+        viewServiceFetcher.getRoom(message.roomId)
+            .flatMapMany { room ->
+                room.members.toFlux()
+                    .flatMap { roomMemberId -> sendDtoToUser(message, roomMemberId) }
+            }.subscribe()
+    }
+
+    private fun handleRoomCreated(event: SagaEvent) {
         val room = mapper.convertValue(event.payload, RoomDTO::class.java)
 
-        viewServiceFetcher.getMessagesByRoomId(room.id).collectList()
-            .map { roomMessages ->
-                WebSocketEvent(room, WebSocketType.ROOM_UPDATED)
-                    .let { mapper.writeValueAsString(it) }
-                    .let { eventJsonString ->
-                        if (roomMessages.isEmpty())
-                            webSocketService.sendMessageToUser(eventJsonString, room.createdBy)
-                        else {
-                            room.members.forEach { roomMemberId ->
-                                webSocketService.sendMessageToUser(eventJsonString, roomMemberId)
-                            }
-                        }
+        sendDtoToUser(room, room.createdBy)
+            .zipWith(
+                room.members.toFlux()
+                    .filter { it != room.createdBy }
+                    .single()
+                    .flatMap { viewServiceFetcher.getUser(it) }
+                    .flatMap { sendDtoToUser(it, room.createdBy) }
+            )
+            .map { true }
+            .subscribe()
+    }
+
+    private fun handleRoomMemberAdded(event: SagaEvent) {
+        val room = mapper.convertValue(event.payload, RoomDTO::class.java)
+
+        room.members.toFlux()
+            .flatMap { viewServiceFetcher.getUser(it) }
+            .flatMap { roomMember ->
+                room.members.toFlux()
+                    .flatMap { roomMemberId ->
+                        if (roomMemberId != roomMember.id) sendDtoToUser(roomMember, roomMemberId)
+                        else true.toMono()
                     }
             }
+            .thenMany(
+                viewServiceFetcher.getMessagesByRoomId(room.id)
+                    .flatMap { message ->
+                        room.members.toFlux()
+                            .flatMap { sendDtoToUser(message, it) }
+                    }
+            )
+            .thenMany(
+                room.members.toFlux()
+                    .flatMap { sendDtoToUser(room, it) }
+            )
             .subscribe()
     }
 
@@ -100,7 +131,10 @@ open class SagaEventHandler(
             else          -> throw UnsupportedOperationException()
         }.let { webSocketEvent ->
             mapper.writeValueAsString(webSocketEvent).toMono()
-                .map { webSocketService.sendMessageToUser(it, userId) }
+                .map {
+                    logger.info("Message: $it. Sent to: $userId")
+                    webSocketService.sendMessageToUser(it, userId)
+                }
                 .thenReturn(true)
         }
     }
