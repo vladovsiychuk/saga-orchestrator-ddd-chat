@@ -2,7 +2,7 @@ package com.saga_orchestrator_ddd_chat.saga_orchestrator.infrastructure
 
 import com.saga_orchestrator_ddd_chat.commons.client.ViewServiceFetcher
 import com.saga_orchestrator_ddd_chat.commons.dto.UserDTO
-import com.saga_orchestrator_ddd_chat.read_service.exception.UnauthorizedException
+import com.saga_orchestrator_ddd_chat.commons.exception.UnauthorizedException
 import io.micronaut.security.utils.SecurityService
 import jakarta.inject.Singleton
 import reactor.core.publisher.Mono

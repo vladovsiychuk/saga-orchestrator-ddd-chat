@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono
 @Secured(SecurityRule.IS_AUTHENTICATED)
 class RoomController(private val roomService: RoomService) {
     @Post("/")
-    fun create(request: RoomCreateRequest): Mono<ResponseDTO> {
+    fun create(@Body request: RoomCreateRequest): Mono<ResponseDTO> {
         return roomService.startCreateRoom(request)
     }
 

@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono
 @Secured(SecurityRule.IS_AUTHENTICATED)
 class MessageController(private val messageService: MessageService) {
     @Post("/")
-    fun create(request: MessageCreateRequest): Mono<ResponseDTO> {
+    fun create(@Body request: MessageCreateRequest): Mono<ResponseDTO> {
         return messageService.startCreateMessage(request)
     }
 

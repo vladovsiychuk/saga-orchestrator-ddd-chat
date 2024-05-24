@@ -3,10 +3,10 @@ package com.saga_orchestrator_ddd_chat.read_service.service
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.saga_orchestrator_ddd_chat.commons.dto.UserDTO
+import com.saga_orchestrator_ddd_chat.commons.exception.NotFoundException
 import com.saga_orchestrator_ddd_chat.read_service.ListCommand
 import com.saga_orchestrator_ddd_chat.read_service.SecurityManager
 import com.saga_orchestrator_ddd_chat.read_service.entity.UserView
-import com.saga_orchestrator_ddd_chat.read_service.exception.NotFoundException
 import com.saga_orchestrator_ddd_chat.read_service.repository.RoomMemberRepository
 import com.saga_orchestrator_ddd_chat.read_service.repository.RoomViewRepository
 import com.saga_orchestrator_ddd_chat.read_service.repository.UserViewRepository

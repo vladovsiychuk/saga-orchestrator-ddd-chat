@@ -4,21 +4,6 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
-    <!--
-    java.sql.Types should be use to guarantee DB agnostic
-
-    datetime -> java.sql.Types.DATETIME
-    date -> java.sql.Types.DATE
-    bit -> java.sql.Types.BOOLEAN
-    int -> java.sql.Types.INTEGER
-    bigint -> java.sql.Types.BIGINT
-    double -> java.sql.Types.DOUBLE
-    varchar -> java.sql.Types.VARCHAR(255)
-    tinyBlob -> java.sql.Types.VARBINARY
-    blob -> java.sql.Types.LONGVARBINARY
-    longtext -> java.sql.Types.CLOB
-    decimal(x,x) -> java.sql.Types.DECIMAL(x,x)
--->
 
     <include file="init.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

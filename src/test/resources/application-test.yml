@@ -1,6 +1,6 @@
 micronaut:
   application:
-    name: rest-service
+    name: saga-orchestrator-ddd-chat
   server:
     port: -1
     cors:
@@ -24,8 +24,10 @@ liquibase:
     default:
       change-log: 'classpath:db/changelog-test.xml'
 
-r2dbc:
-  datasources:
-    default:
-      options:
-        driver: mysql
+#r2dbc:
+#  datasources:
+#    default:
+#      options:
+#        driver: mysql
+
+

@@ -135,7 +135,7 @@ open class SagaEventHandler(
             else          -> throw UnsupportedOperationException()
         }.let { webSocketEvent ->
             mapper.writeValueAsString(webSocketEvent).toMono()
-                .map {
+                .flatMap {
                     logger.info("Message: $it. Sent to: $userId")
                     webSocketService.sendMessageToUser(it, userId)
                 }

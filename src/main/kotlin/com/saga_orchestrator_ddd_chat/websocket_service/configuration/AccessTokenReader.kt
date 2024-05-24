@@ -6,7 +6,7 @@ import jakarta.inject.Singleton
 import java.util.Optional
 
 @Singleton
-class AccessTokenReader : TokenReader {
+class AccessTokenReader : TokenReader<HttpRequest<*>> {
     override fun findToken(request: HttpRequest<*>?): Optional<String> {
         return request!!.parameters.get("access_token", String::class.java)
     }

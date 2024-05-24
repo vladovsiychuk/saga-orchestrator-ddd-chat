@@ -2,7 +2,7 @@ package com.saga_orchestrator_ddd_chat.read_service.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.saga_orchestrator_ddd_chat.commons.dto.RoomDTO
-import com.saga_orchestrator_ddd_chat.read_service.exception.NotFoundException
+import com.saga_orchestrator_ddd_chat.commons.exception.NotFoundException
 import com.saga_orchestrator_ddd_chat.read_service.repository.RoomViewRepository
 import jakarta.inject.Singleton
 import java.util.UUID

@@ -4,8 +4,8 @@ import com.saga_orchestrator_ddd_chat.commons.dto.MessageDTO
 import com.saga_orchestrator_ddd_chat.read_service.service.MessageService
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import jakarta.annotation.security.PermitAll
 import java.util.UUID
-import javax.annotation.security.PermitAll
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 

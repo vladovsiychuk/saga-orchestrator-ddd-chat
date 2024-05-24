@@ -7,24 +7,26 @@ import io.micronaut.websocket.annotation.OnMessage
 import io.micronaut.websocket.annotation.OnOpen
 import io.micronaut.websocket.annotation.ServerWebSocket
 import java.util.UUID
+import reactor.core.publisher.Mono
 
 @Secured("isAuthenticated()")
 @ServerWebSocket("/ws/chat/{userId}")
 class ChatServerWebSocket(private val service: WebSocketService) {
 
     @OnOpen
-    fun onOpen(userId: UUID) {
+    fun onOpen(userId: UUID, session: WebSocketSession) {
     }
 
     @OnMessage
-    fun onMessage(userId: UUID, message: String, session: WebSocketSession) {
+    fun onMessage(userId: UUID, message: String, session: WebSocketSession): Mono<String> {
         val msg = "[$userId] $message"
-        service.sendMessageToUser(msg, userId)
+
+        return service.sendMessageToUser(msg, userId)
     }
 
     @OnClose
-    fun onClose(userId: UUID) {
+    fun onClose(userId: UUID): Mono<String> {
         val msg = "[$userId] Disconnected!"
-        service.sendMessageToUser(msg, userId)
+        return service.sendMessageToUser(msg, userId)
     }
 }

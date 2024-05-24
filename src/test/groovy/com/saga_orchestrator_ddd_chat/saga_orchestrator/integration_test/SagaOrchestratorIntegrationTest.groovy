@@ -34,7 +34,6 @@ class SagaOrchestratorIntegrationTest extends Specification {
         def command = [
             type           : UserType.REGULAR_USER.toString(),
             primaryLanguage: LanguageEnum.ENGLISH.toString(),
-            temporaryId    : UUID.randomUUID().toString()
         ]
 
         when: 'calling the endpoint'

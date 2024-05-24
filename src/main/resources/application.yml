@@ -1,6 +1,6 @@
 micronaut:
   application:
-    name: rest-service
+    name: saga-orchestrator-ddd-chat
   server:
     port: "${SERVICE_PORT:8082}"
     cors:
@@ -9,49 +9,50 @@ micronaut:
         all:
           allowedOrigins:
             - "${FRONTEND_URL:}"
+    idle-timeout: 30m
+  http:
+    services:
+      view-service:
+        urls:
+          - "http://localhost:8082"
   security:
-    authentication: idtoken
-    oauth2:
-      clients:
-        google:
-          client-id: '${OAUTH_CLIENT_ID:xxx}'
-          client-secret: '${OAUTH_CLIENT_SECRET:yyy}'
-          openid:
-            issuer: 'https://accounts.google.com'
-    endpoints:
-      logout:
-        get-allowed: true
-    redirect:
-      login-success: 'http://localhost:3000'
+#    authentication: idtoken
+#    oauth2:
+#      clients:
+#        google:
+#          client-id: '${OAUTH_CLIENT_ID:xxx}'
+#          client-secret: '${OAUTH_CLIENT_SECRET:yyy}'
+#          openid:
+#            issuer: 'https://accounts.google.com'
+#    endpoints:
+#      logout:
+#        get-allowed: true
+#    redirect:
+#      login-success: 'http://localhost:3000'
+#    token:
+#      jwt:
+#        cookie:
+#          cookie-http-only: false
+#      writer:
+#        header:
+#          enabled: true
+#      propagation:
+#        enabled: true
+#        service-id-regex: "view-service"
+    enabled: true
+    authentication: bearer
     token:
       jwt:
-        cookie:
-          cookie-http-only: false
+        signatures:
+          secret:
+            generator:
+              secret: pleaseChangeThisSecretForANewOne
       writer:
         header:
           enabled: true
       propagation:
         enabled: true
         service-id-regex: "view-service"
-  #    enabled: true
-  #    authentication: bearer
-  #    token:
-  #      jwt:
-  #        signatures:
-  #          secret:
-  #            generator:
-  #              secret: pleaseChangeThisSecretForANewOne
-  #      writer:
-  #        header:
-  #          enabled: true
-  #      propagation:
-  #        enabled: true
-  #        service-id-regex: "view-service"
-  http:
-    services:
-      view-service:
-        urls:
-          - "http://localhost:8082"
 
 datasources:
   default:
@@ -64,23 +65,15 @@ r2dbc:
       dialect: MYSQL
       db-type: mysql
 
-endpoints:
-  health:
-    enabled: true
-    details-visible: ANONYMOUS
-
 liquibase:
+  enabled: true
   datasources:
     default:
       change-log: 'classpath:db/changelog.xml'
 
 jackson:
-  serialization-inclusion: NON_NULL
+  serialization-inclusion: non_null
 
-netty:
-  default:
-    allocator:
-      max-order: 3
 
 #logger.levels:
 #  io.micronaut.context: TRACE

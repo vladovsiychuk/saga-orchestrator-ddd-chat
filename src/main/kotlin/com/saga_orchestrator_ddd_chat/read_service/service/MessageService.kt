@@ -2,9 +2,9 @@ package com.saga_orchestrator_ddd_chat.read_service.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.saga_orchestrator_ddd_chat.commons.dto.MessageDTO
+import com.saga_orchestrator_ddd_chat.commons.exception.NotFoundException
 import com.saga_orchestrator_ddd_chat.read_service.SecurityManager
 import com.saga_orchestrator_ddd_chat.read_service.entity.MessageView
-import com.saga_orchestrator_ddd_chat.read_service.exception.NotFoundException
 import com.saga_orchestrator_ddd_chat.read_service.repository.MessageViewRepository
 import com.saga_orchestrator_ddd_chat.read_service.repository.RoomMemberRepository
 import com.saga_orchestrator_ddd_chat.read_service.repository.UserViewRepository
